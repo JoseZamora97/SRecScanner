@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:padding="12dp"
+    android:paddingStart="24dp"
+    android:paddingEnd="24dp"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center">
+
+    <TextView
+        android:id="@+id/textSelection"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/nunito"
+        android:text="Selecciona la fuente de la imagen"
+        android:textColor="@color/colorBodies"
+        android:textSize="14sp" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textSelection">
+
+        <LinearLayout
+            android:layout_marginStart="25dp"
+            android:id="@+id/ll_gallery"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/addFromGallery"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:src="@drawable/ic_library_24dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Galería"
+                android:textAlignment="center"
+                android:fontFamily="@font/nunito"
+                android:textSize="13sp"
+                android:textColor="@color/colorBodies"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_marginEnd="25dp"
+            android:id="@+id/ll_camera"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_alignParentEnd="true">
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/addFromCamera"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:src="@drawable/ic_camera_24dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Cámara"
+                android:textSize="13sp"
+                android:textAlignment="center"
+                android:fontFamily="@font/nunito"
+                android:textColor="@color/colorBodies"/>
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</RelativeLayout>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="colorPrimary">#ffffff</color>
+    <color name="colorPrimaryDark">#c7c7c7</color>
+    <color name="colorAccent">#CB0017</color>
+
+    <!-- Colores Personalizados -->
+    <color name="colorTitles">#282930</color>
+    <color name="colorBodies">#424242</color>
+    <color name="rippleColor">#D6D3D3</color>
+
+</resources>
