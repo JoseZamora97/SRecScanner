@@ -1,19 +1,17 @@
 package com.josezamora.tcscanner.Classes;
 
-import android.net.Uri;
-
 import java.io.Serializable;
 
 
 public class PhotoComposition implements Serializable {
 
-    private Uri photoUri;
+    private String photoUri;
 
-    public PhotoComposition(Uri photoUri){
+    public PhotoComposition(String photoUri){
         this.photoUri = photoUri;
     }
 
-    public Uri getPhotoUri() {
+    public String getPhotoUri() {
         return photoUri;
     }
 

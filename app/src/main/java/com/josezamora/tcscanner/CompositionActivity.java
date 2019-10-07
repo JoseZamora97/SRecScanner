@@ -16,13 +16,12 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.josezamora.tcscanner.Adapters.PhotoCompositionRecyclerAdapter;
 import com.josezamora.tcscanner.Classes.Composition;
-import com.josezamora.tcscanner.Classes.IOCompositions;
+import com.josezamora.tcscanner.Classes.IOCompositionsController;
 import com.josezamora.tcscanner.Classes.PhotoComposition;
 import com.josezamora.tcscanner.Interfaces.AppGlobals;
 import com.josezamora.tcscanner.Interfaces.RecyclerViewOnClickInterface;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.Objects;
 
@@ -46,6 +45,7 @@ public class CompositionActivity extends AppCompatActivity
     PhotoCompositionRecyclerAdapter recyclerAdapter;
     ItemTouchHelper itemTouchHelper;
     PhotoComposition photoDeleted;
+    IOCompositionsController compositionsController;
 
     FloatingActionButton btnAdd, btnCamera, btnGallery;
     Animation fabOpen, fabClose, rotateForward, rotateBackward;
@@ -68,12 +68,18 @@ public class CompositionActivity extends AppCompatActivity
         rotateForward =  AnimationUtils.loadAnimation(this, R.anim.rotation_forward);
         rotateBackward =  AnimationUtils.loadAnimation(this, R.anim.rotation_backward);
 
-        composition = (Composition) getIntent().getSerializableExtra(AppGlobals.TO_COMPOSITION_KEY);
         toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle("Editor de composición");
         setSupportActionBar(toolbar);
 
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+
+        compositionsController = new IOCompositionsController(this);
+        compositionsController.loadCompositions();
+
+        int position = getIntent().getIntExtra(AppGlobals.COMPOSITION_KEY, 0);
+        composition = compositionsController.getCompositions().get(position);
+
         ((TextView) findViewById(R.id.composition)).setText(composition.getName());
 
         recyclerView = findViewById(R.id.rv_photos);
@@ -84,7 +90,12 @@ public class CompositionActivity extends AppCompatActivity
 
         itemTouchHelper = new ItemTouchHelper(simpleCallback);
         itemTouchHelper.attachToRecyclerView(recyclerView);
+    }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        compositionsController.saveCompositions();
     }
 
     public void animateFabs(View v) {
@@ -161,20 +172,11 @@ public class CompositionActivity extends AppCompatActivity
     }
 
     private void addPhoto(Uri uriSrc) {
-//        File fileSrc = new File(uriSrc.getPath());
-//        File fileDst = new File(composition.getAbsolutePath(), String.valueOf(System.currentTimeMillis()));
-//
-//        try {
-//            if(fileDst.createNewFile())
-//                IOCompositions.copyPhoto(fileSrc, fileDst);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
 
         System.out.println(uriSrc);
         System.out.println(uriSrc.getPath());
 
-        composition.addPhoto(new PhotoComposition(uriSrc));
+        composition.addPhoto(new PhotoComposition(uriSrc.toString()));
         recyclerAdapter.notifyDataSetChanged();
     }
 
@@ -204,7 +206,7 @@ public class CompositionActivity extends AppCompatActivity
             int srcPosition = viewHolder.getAdapterPosition();
             int dstPosition = target.getAdapterPosition();
 
-            Collections.swap(composition.getListUris(), srcPosition, dstPosition);
+            Collections.swap(composition.getListPhotos(), srcPosition, dstPosition);
             Objects.requireNonNull(recyclerView.getAdapter()).notifyItemMoved(srcPosition, dstPosition);
 
             return false;

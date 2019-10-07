@@ -9,10 +9,10 @@ import android.view.View;
 import android.widget.EditText;
 
 import com.josezamora.tcscanner.Classes.Composition;
+import com.josezamora.tcscanner.Classes.IOCompositionsController;
 import com.josezamora.tcscanner.R;
 
 import java.io.File;
-import java.util.List;
 import java.util.Objects;
 
 import androidx.annotation.NonNull;
@@ -22,12 +22,10 @@ import androidx.appcompat.app.AppCompatDialogFragment;
 public class NewCompositionDialog extends AppCompatDialogFragment {
 
     private EditText editTextName;
-    private List<Composition> compositionList;
-    private File pathToNew;
+    private IOCompositionsController compositionsController;
 
-    public NewCompositionDialog (List<Composition> compositionList, File path ) {
-        this.compositionList = compositionList;
-        this.pathToNew = path;
+    public NewCompositionDialog (IOCompositionsController compositionsController) {
+        this.compositionsController = compositionsController;
     }
 
     @SuppressLint("InflateParams")
@@ -62,8 +60,8 @@ public class NewCompositionDialog extends AppCompatDialogFragment {
 
     private void addNewComposition() {
         Composition composition = new Composition(editTextName.getText().toString());
-        File path = new File(pathToNew, String.valueOf(composition.getId()));
+        File path = new File(compositionsController.getPathRoot(), String.valueOf(composition.getId()));
         composition.setAbsolutePath(path.getAbsolutePath());
-        compositionList.add(composition);
+        compositionsController.getCompositions().add(composition);
     }
 }

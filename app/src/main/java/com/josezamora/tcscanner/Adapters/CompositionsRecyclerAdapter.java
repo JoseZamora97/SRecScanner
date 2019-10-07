@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.josezamora.tcscanner.Classes.Composition;
+import com.josezamora.tcscanner.Classes.IOCompositionsController;
 import com.josezamora.tcscanner.R;
 import com.josezamora.tcscanner.Interfaces.RecyclerViewOnClickInterface;
 
@@ -24,21 +25,21 @@ public class CompositionsRecyclerAdapter extends
         RecyclerView.Adapter<CompositionsRecyclerAdapter.CompositionsViewHolder>
         implements Filterable {
 
-    private List<Composition> compositionList;
     private RecyclerViewOnClickInterface recyclerViewOnClick;
     private List<Composition> allCompositionsList;
+    private IOCompositionsController compositionsController;
 
     public static final int LIST_ITEM = R.layout.list_composition_item;
     public static final int GRID_ITEM = R.layout.grid_composition_item;
 
     private int viewMode;
 
-    public CompositionsRecyclerAdapter(List<Composition> compositionList,
+    public CompositionsRecyclerAdapter(IOCompositionsController compositionsController,
                                        RecyclerViewOnClickInterface recyclerViewOnClick) {
 
-        this.compositionList = compositionList;
+        this.compositionsController = compositionsController;
         this.recyclerViewOnClick = recyclerViewOnClick;
-        this.allCompositionsList = new ArrayList<>(compositionList);
+        this.allCompositionsList = new ArrayList<>(compositionsController.getCompositions());
 
         viewMode = LIST_ITEM;
 
@@ -61,7 +62,7 @@ public class CompositionsRecyclerAdapter extends
     @Override
     public void onBindViewHolder(@NonNull CompositionsViewHolder holder, int position) {
 
-        String name = compositionList.get(position).getName();
+        String name = compositionsController.getCompositions().get(position).getName();
         if (viewMode != LIST_ITEM) {
             if (name.length() >= 10) {
                 name = new StringBuffer(name).substring(0, 9);
@@ -70,12 +71,15 @@ public class CompositionsRecyclerAdapter extends
         }
 
         holder.txtName.setText(name);
-        holder.txtImages.setText(compositionList.get(position).getNumImages() + "/10 Imágenes");
+
+        String numImages = String.valueOf(compositionsController.getCompositions().get(position).getNumImages());
+        holder.txtImages.setText(numImages + "/10 Imágenes");
+
     }
 
     @Override
     public int getItemCount() {
-        return compositionList.size();
+        return compositionsController.getCompositions().size();
     }
 
     @Override
@@ -104,8 +108,9 @@ public class CompositionsRecyclerAdapter extends
 
         @Override
         protected void publishResults(CharSequence constraint, FilterResults results) {
-            compositionList.clear();
-            compositionList.addAll((Collection<? extends Composition>) results.values);
+            compositionsController.getCompositions().clear();
+            compositionsController.getCompositions().addAll((List<Composition>) results.values);
+
             notifyDataSetChanged();
         }
     };

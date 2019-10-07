@@ -7,12 +7,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.josezamora.tcscanner.Adapters.CompositionsRecyclerAdapter;
 import com.josezamora.tcscanner.Classes.Composition;
-import com.josezamora.tcscanner.Classes.IOCompositions;
+import com.josezamora.tcscanner.Classes.IOCompositionsController;
 import com.josezamora.tcscanner.Dialogs.NewCompositionDialog;
 import com.josezamora.tcscanner.Interfaces.AppGlobals;
 import com.josezamora.tcscanner.Interfaces.RecyclerViewOnClickInterface;
@@ -42,10 +41,9 @@ public class MainActivity extends AppCompatActivity
     SwipeRefreshLayout swipeRefreshLayout;
     ImageView btnSwitchViewMode;
     ItemTouchHelper itemTouchHelper;
+    IOCompositionsController compositionsController;
 
-    private List<Composition> compositions;
     private Stack<Composition> compositionsRemoved;
-    private File fileCompositions;
 
     private int viewMode = 0;
 
@@ -63,15 +61,15 @@ public class MainActivity extends AppCompatActivity
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        initCompositions();
-
         btnSwitchViewMode = findViewById(R.id.imageViewMode);
         recyclerView = findViewById(R.id.rv_compositions);
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
-
         swipeRefreshLayout.setOnRefreshListener(this);
 
-        recyclerAdapter = new CompositionsRecyclerAdapter(compositions, this);
+        compositionsController = new IOCompositionsController(this);
+        compositionsController.loadCompositions();
+
+        recyclerAdapter = new CompositionsRecyclerAdapter(compositionsController, this);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(recyclerAdapter);
@@ -81,32 +79,33 @@ public class MainActivity extends AppCompatActivity
 
         updateViewMode();
 
+        compositionsRemoved = new Stack<>();
+
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        IOCompositions.saveCompositions(fileCompositions.getAbsolutePath() + "/",
-                compositions);
-    }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        IOCompositions.saveCompositions(fileCompositions.getAbsolutePath() + "/",
-                compositions);
+    protected void onPause() {
+        super.onPause();
+        compositionsController.saveCompositions();
     }
 
     @Override
     public void onItemClick(int position) {
 
-        Composition composition = compositions.get(position);
         Intent toCompositionActivityIntent = new Intent(this,
                 CompositionActivity.class);
 
-        toCompositionActivityIntent.putExtra(AppGlobals.TO_COMPOSITION_KEY, composition);
+        toCompositionActivityIntent.putExtra(AppGlobals.COMPOSITION_KEY, position);
 
         startActivity(toCompositionActivityIntent);
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        compositionsController.loadCompositions();
     }
 
     @Override
@@ -158,14 +157,6 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    private void initCompositions() {
-
-        compositionsRemoved = new Stack<>();
-        fileCompositions = new File(getFilesDir(), AppGlobals.COMPOSITIONS_FILENAME);
-        compositions = IOCompositions.recoverCompositions(fileCompositions.getAbsolutePath());
-
-    }
-
     public void swapViewMode(View v) {
         if (viewMode == VIEW_MODEL_LIST)
             viewMode = VIEW_MODEL_GRID;
@@ -178,7 +169,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void addNewComposition(View view) {
-        new NewCompositionDialog(compositions, fileCompositions)
+        new NewCompositionDialog(compositionsController)
                 .show(getSupportFragmentManager(), "NEW");
     }
 
@@ -201,7 +192,7 @@ public class MainActivity extends AppCompatActivity
 
                 final int position  = viewHolder.getAdapterPosition();
 
-                compositionsRemoved.push(compositions.remove(position));
+                compositionsRemoved.push(compositionsController.getCompositions().remove(position));
                 recyclerAdapter.notifyItemRemoved(position);
 
                 undo = false;
@@ -214,7 +205,7 @@ public class MainActivity extends AppCompatActivity
                             @Override
                             public void onClick(View v) {
                                 undo = true;
-                                compositions.add(position, compositionsRemoved.pop());
+                                compositionsController.getCompositions().add(position, compositionsRemoved.pop());
                                 recyclerAdapter.notifyItemInserted(position);
                             }
                         })

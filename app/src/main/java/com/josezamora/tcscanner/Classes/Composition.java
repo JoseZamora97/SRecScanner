@@ -9,12 +9,12 @@ public class Composition implements Serializable {
     private long id;
     private String name;
 
-    private List<PhotoComposition> listUris;
+    private List<PhotoComposition> listPhotos;
     private String absolutePath;
 
     public Composition(String name) {
         this.name = name;
-        this.listUris = new ArrayList<>();
+        this.listPhotos = new ArrayList<>();
         this.id = System.currentTimeMillis();
     }
 
@@ -27,23 +27,23 @@ public class Composition implements Serializable {
     }
 
     public int getNumImages () {
-        return this.listUris.size();
+        return this.listPhotos.size();
     }
 
-    public List<PhotoComposition> getListUris() {
-        return listUris;
+    public List<PhotoComposition> getListPhotos() {
+        return listPhotos;
     }
 
     public void addPhoto(PhotoComposition newPhoto) {
-        this.listUris.add(newPhoto);
+        this.listPhotos.add(newPhoto);
     }
 
     public PhotoComposition removePhoto(int position) {
-        return listUris.remove(position);
+        return listPhotos.remove(position);
     }
 
     public void addPhotoAt(int position, PhotoComposition uriDeleted) {
-        listUris.add(position, uriDeleted);
+        listPhotos.add(position, uriDeleted);
     }
 
     public void setAbsolutePath(String absolutePath) {

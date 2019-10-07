@@ -1,5 +1,6 @@
 package com.josezamora.tcscanner.Adapters;
 
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,7 +46,7 @@ public class PhotoCompositionRecyclerAdapter extends
 
     @Override
     public void onBindViewHolder(@NonNull PhotoCompositionViewHolder holder, int position) {
-        holder.imageView.setImageURI(composition.getListUris().get(position).getPhotoUri());
+        holder.imageView.setImageURI(Uri.parse(composition.getListPhotos().get(position).getPhotoUri()));
     }
 
     @Override

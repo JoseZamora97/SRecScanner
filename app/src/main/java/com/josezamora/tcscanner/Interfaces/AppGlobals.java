@@ -35,9 +35,9 @@ public interface AppGlobals {
     int REQUEST_CODE_QR = 2;
 
     /**
-     * The constant TO_COMPOSITION_KEY
+     * The constant COMPOSITION_KEY
      */
-    String TO_COMPOSITION_KEY = "KEY_COMPOSITION";
+    String COMPOSITION_KEY = "KEY_COMPOSITION";
 
     /**
      * The constant COMPOSITIONS_FILENAME
