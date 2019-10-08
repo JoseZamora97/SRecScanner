@@ -181,13 +181,12 @@ public class CompositionActivity extends AppCompatActivity
     }
 
     @Override
-    public void onItemClick(int position) {
-        Toast.makeText(this, "" + position, Toast.LENGTH_SHORT).show();
-    }
+    public void onItemClick(int position) {}
 
     @Override
     public void onLongItemClick(int position) {
-        Toast.makeText(this, "Long" + position, Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Arrastra y suelta la foto en la posición que desees",
+                Toast.LENGTH_SHORT).show();
     }
 
     @Override

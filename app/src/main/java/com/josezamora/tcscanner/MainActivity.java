@@ -69,7 +69,8 @@ public class MainActivity extends AppCompatActivity
         compositionsController = new IOCompositionsController(this);
         compositionsController.loadCompositions();
 
-        recyclerAdapter = new CompositionsRecyclerAdapter(compositionsController, this);
+        recyclerAdapter = new CompositionsRecyclerAdapter(compositionsController,
+                this);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(recyclerAdapter);
@@ -106,6 +107,7 @@ public class MainActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         compositionsController.loadCompositions();
+        recyclerAdapter.notifyDataSetChanged();
     }
 
     @Override
