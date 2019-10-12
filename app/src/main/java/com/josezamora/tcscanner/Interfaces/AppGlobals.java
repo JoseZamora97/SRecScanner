@@ -40,12 +40,7 @@ public interface AppGlobals {
     String COMPOSITION_KEY = "KEY_COMPOSITION";
 
     /**
-     * The constant COMPOSITIONS_FILENAME
+     * The constant COMPOSITIONS_CONTROLLER_KEY
      */
-    String COMPOSITIONS_FILENAME = "Compositions";
-
-    /**
-     * The constant IMAGE_FORMAT
-     */
-    String IMAGE_FORMAT = ".png";
+    String COMPOSITION_CONTROLLER_KEY = "KEY_COMPOSITIONS";
 }

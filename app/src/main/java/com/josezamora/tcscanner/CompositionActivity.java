@@ -22,6 +22,12 @@ import com.josezamora.tcscanner.Interfaces.AppGlobals;
 import com.josezamora.tcscanner.Interfaces.RecyclerViewOnClickInterface;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.channels.FileChannel;
 import java.util.Collections;
 import java.util.Objects;
 
@@ -93,6 +99,12 @@ public class CompositionActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        compositionsController.saveCompositions();
+    }
+
+    @Override
     protected void onPause() {
         super.onPause();
         compositionsController.saveCompositions();
@@ -126,7 +138,8 @@ public class CompositionActivity extends AppCompatActivity
 
         Intent cameraOpenIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
-        File file = new File(getExternalCacheDir(), String.valueOf(System.currentTimeMillis()));
+        File file = new File(composition.getAbsolutePath(),
+                String.valueOf(System.currentTimeMillis()));
 
         photoUri = FileProvider.getUriForFile(this,
                 AppGlobals.APP_SIGNATURE + ".provider", file);
@@ -157,12 +170,16 @@ public class CompositionActivity extends AppCompatActivity
             switch (requestCode) {
 
                 case AppGlobals.REQUEST_CODE_CAMERA:
-                    addPhoto(photoUri);
+                    addPhotoFromCamera(photoUri);
                     break;
 
                 case AppGlobals.REQUEST_CODE_STORAGE:
                     assert data != null;
-                    addPhoto(Objects.requireNonNull(data.getData()));
+                    try {
+                        addPhotoFromGallery(Objects.requireNonNull(data.getData()));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     break;
 
                 default:
@@ -171,17 +188,31 @@ public class CompositionActivity extends AppCompatActivity
         }
     }
 
-    private void addPhoto(Uri uriSrc) {
+    private void addPhotoFromGallery(Uri uriSrc) throws IOException {
+        InputStream is = getContentResolver().openInputStream(uriSrc);
+        File destination = new File(composition.getAbsolutePath(),
+                String.valueOf(System.currentTimeMillis()));
 
-        System.out.println(uriSrc);
-        System.out.println(uriSrc.getPath());
+        assert is != null;
+        byte[] buffer = new byte[is.available()];
+        is.read(buffer);
 
+        OutputStream os = new FileOutputStream(destination);
+        os.write(buffer);
+
+        composition.addPhoto(new PhotoComposition(Uri.fromFile(destination).toString()));
+        recyclerAdapter.notifyDataSetChanged();
+    }
+
+    private void addPhotoFromCamera(Uri uriSrc) {
         composition.addPhoto(new PhotoComposition(uriSrc.toString()));
         recyclerAdapter.notifyDataSetChanged();
     }
 
     @Override
-    public void onItemClick(int position) {}
+    public void onItemClick(int position) {
+        // Nothing
+    }
 
     @Override
     public void onLongItemClick(int position) {
@@ -198,22 +229,29 @@ public class CompositionActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.START | ItemTouchHelper.END, 0) {
+    ItemTouchHelper.SimpleCallback simpleCallback =
+            new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP
+            | ItemTouchHelper.DOWN
+            | ItemTouchHelper.START
+            | ItemTouchHelper.END, 0) {
         @Override
-        public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+        public boolean onMove(@NonNull RecyclerView recyclerView,
+                              @NonNull RecyclerView.ViewHolder viewHolder,
+                              @NonNull RecyclerView.ViewHolder target) {
 
             int srcPosition = viewHolder.getAdapterPosition();
             int dstPosition = target.getAdapterPosition();
 
             Collections.swap(composition.getListPhotos(), srcPosition, dstPosition);
-            Objects.requireNonNull(recyclerView.getAdapter()).notifyItemMoved(srcPosition, dstPosition);
+            Objects.requireNonNull(recyclerView.getAdapter()).notifyItemMoved(srcPosition,
+                    dstPosition);
 
             return false;
         }
 
         @Override
         public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-            // Swipe Right to Left to delete.
+
             if(direction == ItemTouchHelper.LEFT) {
 
                 final int position  = viewHolder.getAdapterPosition();

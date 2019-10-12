@@ -2,16 +2,18 @@ package com.josezamora.tcscanner.Classes;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Environment;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.File;
+import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-public class IOCompositionsController {
+public class IOCompositionsController implements Serializable {
 
     private Context context;
     private List<Composition> compositions;
@@ -21,10 +23,15 @@ public class IOCompositionsController {
     private final String SHARED_COMPOSITIONS = "compositions";
     private final String PATH_TO_COMPOSITIONS = "Compositions";
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public IOCompositionsController(Context context) {
         this.context = context;
         this.compositions = new ArrayList<>();
-        this.root = new File(context.getFilesDir(), PATH_TO_COMPOSITIONS);
+        this.root = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES),
+                PATH_TO_COMPOSITIONS);
+
+        if(this.root.exists())
+            this.root.mkdirs();
     }
 
     public void saveCompositions() {

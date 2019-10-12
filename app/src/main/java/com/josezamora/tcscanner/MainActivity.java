@@ -17,7 +17,6 @@ import com.josezamora.tcscanner.Interfaces.AppGlobals;
 import com.josezamora.tcscanner.Interfaces.RecyclerViewOnClickInterface;
 
 import java.io.File;
-import java.util.List;
 import java.util.Stack;
 
 import androidx.annotation.NonNull;
@@ -84,6 +83,12 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        compositionsController.saveCompositions();
+    }
 
     @Override
     protected void onPause() {

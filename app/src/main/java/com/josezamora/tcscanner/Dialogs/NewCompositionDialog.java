@@ -61,7 +61,11 @@ public class NewCompositionDialog extends AppCompatDialogFragment {
     private void addNewComposition() {
         Composition composition = new Composition(editTextName.getText().toString());
         File path = new File(compositionsController.getPathRoot(), String.valueOf(composition.getId()));
-        composition.setAbsolutePath(path.getAbsolutePath());
-        compositionsController.getCompositions().add(composition);
+        
+        if(path.mkdirs()) {
+            composition.setAbsolutePath(path.getAbsolutePath());
+            compositionsController.getCompositions().add(composition);
+        }
+
     }
 }

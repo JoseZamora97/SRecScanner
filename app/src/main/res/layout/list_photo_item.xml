@@ -7,7 +7,6 @@
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardCornerRadius="8dp"
         android:background="@color/colorPrimary"
         android:elevation="3dp">
 
@@ -31,6 +30,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:src="@drawable/captura"
+                    android:scaleType="centerCrop"
                     />
 
             </androidx.cardview.widget.CardView>

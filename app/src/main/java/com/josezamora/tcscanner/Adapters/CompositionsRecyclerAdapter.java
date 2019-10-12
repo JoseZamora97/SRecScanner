@@ -110,7 +110,6 @@ public class CompositionsRecyclerAdapter extends
         protected void publishResults(CharSequence constraint, FilterResults results) {
             compositionsController.getCompositions().clear();
             compositionsController.getCompositions().addAll((List<Composition>) results.values);
-
             notifyDataSetChanged();
         }
     };

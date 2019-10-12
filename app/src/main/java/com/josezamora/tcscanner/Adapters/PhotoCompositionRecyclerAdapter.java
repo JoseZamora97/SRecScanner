@@ -20,18 +20,11 @@ public class PhotoCompositionRecyclerAdapter extends
     private Composition composition;
     private RecyclerViewOnClickInterface recyclerViewOnClick;
 
-    public static final int LIST_ITEM = R.layout.list_photo_item;
-    public static final int GRID_ITEM = 1;
-
-    private int viewMode;
-
-
     public PhotoCompositionRecyclerAdapter(Composition composition,
                                            RecyclerViewOnClickInterface recyclerViewOnClick) {
         this.composition = composition;
         this.recyclerViewOnClick = recyclerViewOnClick;
 
-        viewMode = LIST_ITEM;
     }
 
     @NonNull
@@ -39,14 +32,15 @@ public class PhotoCompositionRecyclerAdapter extends
     public PhotoCompositionViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
         LayoutInflater li = LayoutInflater.from(parent.getContext());
-        View view = li.inflate(viewMode, parent, false);
+        View view = li.inflate(R.layout.list_photo_item, parent, false);
 
         return new PhotoCompositionViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull PhotoCompositionViewHolder holder, int position) {
-        holder.imageView.setImageURI(Uri.parse(composition.getListPhotos().get(position).getPhotoUri()));
+        holder.imageView.setImageURI(Uri.parse(composition.getListPhotos()
+                .get(position).getPhotoUri()));
     }
 
     @Override
