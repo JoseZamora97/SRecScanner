@@ -1,7 +1,10 @@
 package com.josezamora.tcscanner;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -22,12 +25,11 @@ import com.josezamora.tcscanner.Interfaces.AppGlobals;
 import com.josezamora.tcscanner.Interfaces.RecyclerViewOnClickInterface;
 
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.channels.FileChannel;
 import java.util.Collections;
 import java.util.Objects;
 
@@ -170,7 +172,11 @@ public class CompositionActivity extends AppCompatActivity
             switch (requestCode) {
 
                 case AppGlobals.REQUEST_CODE_CAMERA:
-                    addPhotoFromCamera(photoUri);
+                    try {
+                        addPhotoUtil(photoUri);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     break;
 
                 case AppGlobals.REQUEST_CODE_STORAGE:
@@ -200,13 +206,30 @@ public class CompositionActivity extends AppCompatActivity
         OutputStream os = new FileOutputStream(destination);
         os.write(buffer);
 
-        composition.addPhoto(new PhotoComposition(Uri.fromFile(destination).toString()));
-        recyclerAdapter.notifyDataSetChanged();
+        addPhotoUtil(Uri.fromFile(destination));
+
     }
 
-    private void addPhotoFromCamera(Uri uriSrc) {
-        composition.addPhoto(new PhotoComposition(uriSrc.toString()));
+    private void addPhotoUtil(Uri uriSrc) throws IOException {
+
+        File fileSrc = new File(uriSrc.toString());
+        File thumbnailsFolder = new File(composition.getAbsolutePath(), "thumbnails");
+        File destinationThumb = new File(thumbnailsFolder, fileSrc.getName());
+
+        if(thumbnailsFolder.mkdirs() || thumbnailsFolder.exists()) {
+            Bitmap src = BitmapFactory.decodeFile(fileSrc.getPath());
+            Bitmap dst = ThumbnailUtils.extractThumbnail(src, 64, 64);
+
+            OutputStream os = new FileOutputStream(destinationThumb);
+
+            dst.compress(Bitmap.CompressFormat.PNG, 100, os);
+
+            os.close();
+        }
+
+        composition.addPhoto(new PhotoComposition(uriSrc.toString() , Uri.fromFile(destinationThumb).toString()));
         recyclerAdapter.notifyDataSetChanged();
+
     }
 
     @Override

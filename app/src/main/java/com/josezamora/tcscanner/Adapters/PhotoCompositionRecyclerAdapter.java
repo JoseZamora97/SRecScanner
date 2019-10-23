@@ -40,7 +40,7 @@ public class PhotoCompositionRecyclerAdapter extends
     @Override
     public void onBindViewHolder(@NonNull PhotoCompositionViewHolder holder, int position) {
         holder.imageView.setImageURI(Uri.parse(composition.getListPhotos()
-                .get(position).getPhotoUri()));
+                .get(position).getThumbnailUri()));
     }
 
     @Override
