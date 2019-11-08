@@ -1,9 +1,12 @@
 package com.josezamora.tcscanner;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
@@ -25,6 +28,7 @@ import com.josezamora.tcscanner.Interfaces.AppGlobals;
 import com.josezamora.tcscanner.Interfaces.RecyclerViewOnClickInterface;
 
 import java.io.File;
+import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -141,7 +145,7 @@ public class CompositionActivity extends AppCompatActivity
         Intent cameraOpenIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
         File file = new File(composition.getAbsolutePath(),
-                String.valueOf(System.currentTimeMillis()));
+                System.currentTimeMillis() + ".png");
 
         photoUri = FileProvider.getUriForFile(this,
                 AppGlobals.APP_SIGNATURE + ".provider", file);
@@ -207,29 +211,37 @@ public class CompositionActivity extends AppCompatActivity
         os.write(buffer);
 
         addPhotoUtil(Uri.fromFile(destination));
-
     }
 
     private void addPhotoUtil(Uri uriSrc) throws IOException {
 
-        File fileSrc = new File(uriSrc.toString());
         File thumbnailsFolder = new File(composition.getAbsolutePath(), "thumbnails");
-        File destinationThumb = new File(thumbnailsFolder, fileSrc.getName());
+        File destinationThumb = new File(thumbnailsFolder, new File(uriSrc.getPath()).getName());
 
         if(thumbnailsFolder.mkdirs() || thumbnailsFolder.exists()) {
-            Bitmap src = BitmapFactory.decodeFile(fileSrc.getPath());
-            Bitmap dst = ThumbnailUtils.extractThumbnail(src, 64, 64);
-
+            InputStream is = this.getContentResolver().openInputStream(uriSrc);
             OutputStream os = new FileOutputStream(destinationThumb);
 
-            dst.compress(Bitmap.CompressFormat.PNG, 100, os);
+            Bitmap src = BitmapFactory.decodeStream(is);
 
+            // Todo: comprobar que siempre pasa.
+            Bitmap dst = ThumbnailUtils.extractThumbnail(rotateImage(src, 90),
+                    AppGlobals.THUMBNAILS_SIZE,
+                    AppGlobals.THUMBNAILS_SIZE);
+
+            dst.compress(Bitmap.CompressFormat.PNG, 100, os);
             os.close();
         }
-
-        composition.addPhoto(new PhotoComposition(uriSrc.toString() , Uri.fromFile(destinationThumb).toString()));
+        composition.addPhoto(new PhotoComposition(uriSrc.getPath() ,
+                Uri.fromFile(destinationThumb).getPath()))  ;
         recyclerAdapter.notifyDataSetChanged();
+    }
 
+    public static Bitmap rotateImage(Bitmap source, float angle) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(angle);
+        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),
+                matrix, true);
     }
 
     @Override

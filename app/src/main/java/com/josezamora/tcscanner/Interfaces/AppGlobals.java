@@ -43,4 +43,7 @@ public interface AppGlobals {
      * The constant COMPOSITIONS_CONTROLLER_KEY
      */
     String COMPOSITION_CONTROLLER_KEY = "KEY_COMPOSITIONS";
+
+
+    int THUMBNAILS_SIZE = 128;
 }
