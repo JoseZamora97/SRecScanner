@@ -2,6 +2,11 @@ package com.josezamora.tcscanner.Interfaces;
 
 import android.Manifest;
 
+import com.firebase.ui.auth.AuthUI;
+
+import java.util.Arrays;
+import java.util.List;
+
 public interface AppGlobals {
 
     String APP_SIGNATURE = "com.josezamora.tcscanner";
@@ -45,5 +50,10 @@ public interface AppGlobals {
     String COMPOSITION_CONTROLLER_KEY = "KEY_COMPOSITIONS";
 
 
+    List<AuthUI.IdpConfig> PROVIDERS = Arrays.asList(
+            new AuthUI.IdpConfig.EmailBuilder().build(),
+            new AuthUI.IdpConfig.GoogleBuilder().build());
+
+    int REQUEST_CODE_SIGN_IN = 3;
     int THUMBNAILS_SIZE = 128;
 }

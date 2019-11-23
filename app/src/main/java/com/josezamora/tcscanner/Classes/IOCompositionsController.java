@@ -55,7 +55,7 @@ public class IOCompositionsController implements Serializable {
         Type type = new TypeToken<ArrayList<Composition>>(){}.getType();
         String json = sharedPreferences.getString(SHARED_COMPOSITIONS, null);
 
-        if(json!=null)
+        if(json != null)
             this.compositions = gson.fromJson(json, type);
     }
 

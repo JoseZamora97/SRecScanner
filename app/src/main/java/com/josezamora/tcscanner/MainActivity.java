@@ -8,20 +8,24 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 
-import com.google.android.material.snackbar.Snackbar;
+import com.firebase.ui.auth.AuthUI;
+import com.firebase.ui.auth.ErrorCodes;
+import com.firebase.ui.auth.IdpResponse;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.josezamora.tcscanner.Adapters.CompositionsRecyclerAdapter;
-import com.josezamora.tcscanner.Classes.Composition;
 import com.josezamora.tcscanner.Classes.IOCompositionsController;
 import com.josezamora.tcscanner.Dialogs.NewCompositionDialog;
+import com.josezamora.tcscanner.Firebase.Classes.CloudUser;
+import com.josezamora.tcscanner.Firebase.Controllers.FirebaseDatabaseController;
+import com.josezamora.tcscanner.Firebase.Controllers.FirebaseStorageController;
 import com.josezamora.tcscanner.Interfaces.AppGlobals;
 import com.josezamora.tcscanner.Interfaces.RecyclerViewOnClickInterface;
 
-import java.io.File;
-import java.util.Stack;
+import java.util.Objects;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -35,19 +39,27 @@ public class MainActivity extends AppCompatActivity
         implements RecyclerViewOnClickInterface, SwipeRefreshLayout.OnRefreshListener {
 
     Toolbar toolbar;
+
     RecyclerView recyclerView;
     CompositionsRecyclerAdapter recyclerAdapter;
-    SwipeRefreshLayout swipeRefreshLayout;
-    ImageView btnSwitchViewMode;
-    ItemTouchHelper itemTouchHelper;
-    IOCompositionsController compositionsController;
 
-    private Stack<Composition> compositionsRemoved;
+    SwipeRefreshLayout swipeRefreshLayout;
+
+    ImageView btnSwitchViewMode;
+
+    ItemTouchHelper itemTouchHelper;
+
+    IOCompositionsController compositionsController;
 
     private int viewMode = 0;
 
     public static final int VIEW_MODEL_LIST = 0;
     public static final int VIEW_MODEL_GRID = 1;
+
+    CloudUser user;
+
+    FirebaseDatabaseController databaseController;
+    FirebaseStorageController storageController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,59 +72,70 @@ public class MainActivity extends AppCompatActivity
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        btnSwitchViewMode = findViewById(R.id.imageViewMode);
-        recyclerView = findViewById(R.id.rv_compositions);
-        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
-        swipeRefreshLayout.setOnRefreshListener(this);
+        databaseController = new FirebaseDatabaseController();
 
-        compositionsController = new IOCompositionsController(this);
-        compositionsController.loadCompositions();
+        startActivityForResult(
+                AuthUI.getInstance()
+                        .createSignInIntentBuilder()
+                        .setAvailableProviders(AppGlobals.PROVIDERS)
+                        .setIsSmartLockEnabled(false, true)
+                        .setTheme(R.style.AppTheme)
+                        .build(),
+                AppGlobals.REQUEST_CODE_SIGN_IN);
 
-        recyclerAdapter = new CompositionsRecyclerAdapter(compositionsController,
-                this);
 
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(recyclerAdapter);
-
-        itemTouchHelper = new ItemTouchHelper(simpleCallback);
-        itemTouchHelper.attachToRecyclerView(recyclerView);
-
-        updateViewMode();
-
-        compositionsRemoved = new Stack<>();
-
+//        btnSwitchViewMode = findViewById(R.id.imageViewMode);
+//        recyclerView = findViewById(R.id.rv_compositions);
+//
+//        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
+//        swipeRefreshLayout.setOnRefreshListener(this);
+//
+//        compositionsController = new IOCompositionsController(this);
+//        compositionsController.loadCompositions();
+//
+//        recyclerAdapter = new CompositionsRecyclerAdapter(compositionsController,
+//                this);
+//
+//        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+//        recyclerView.setAdapter(recyclerAdapter);
+//
+//        itemTouchHelper = new ItemTouchHelper(simpleCallback);
+//        itemTouchHelper.attachToRecyclerView(recyclerView);
+//
+//        updateViewMode();
     }
-
 
     @Override
     protected void onStop() {
         super.onStop();
-        compositionsController.saveCompositions();
+//        TODO: fix
+//        compositionsController.saveCompositions();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        compositionsController.saveCompositions();
+        //TODO: fix
+//        compositionsController.saveCompositions();
     }
 
     @Override
     public void onItemClick(int position) {
-
-        Intent toCompositionActivityIntent = new Intent(this,
-                CompositionActivity.class);
-
-        toCompositionActivityIntent.putExtra(AppGlobals.COMPOSITION_KEY, position);
-
-        startActivity(toCompositionActivityIntent);
-
+//  TODO: fix.
+//        Intent toCompositionActivityIntent = new Intent(this,
+//                CompositionActivity.class);
+//
+//        toCompositionActivityIntent.putExtra(AppGlobals.COMPOSITION_KEY, position);
+//
+//        startActivity(toCompositionActivityIntent);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        compositionsController.loadCompositions();
-        recyclerAdapter.notifyDataSetChanged();
+        //TODO: fix
+//        compositionsController.loadCompositions();
+//        recyclerAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -129,7 +152,7 @@ public class MainActivity extends AppCompatActivity
         getMenuInflater().inflate(R.menu.main_menu, menu);
 
         MenuItem itemSearch = menu.findItem(R.id.mItemActionSearch);
-
+        /* TODO: Fix.
         SearchView searchView = (SearchView) itemSearch.getActionView();
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -142,7 +165,7 @@ public class MainActivity extends AppCompatActivity
                 recyclerAdapter.getFilter().filter(newText);
                 return false;
             }
-        });
+        }); */
 
         return super.onCreateOptionsMenu(menu);
     }
@@ -176,8 +199,40 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void addNewComposition(View view) {
-        new NewCompositionDialog(compositionsController)
+        new NewCompositionDialog(user, databaseController)
                 .show(getSupportFragmentManager(), "NEW");
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == AppGlobals.REQUEST_CODE_SIGN_IN) {
+            IdpResponse response = IdpResponse.fromResultIntent(data);
+            if (resultCode == RESULT_OK) {
+                FirebaseUser userFromOAuth = FirebaseAuth.getInstance().getCurrentUser();
+                assert userFromOAuth != null;
+                user = CloudUser.userFromFirebase(userFromOAuth);
+                databaseController.createUser(user);
+            }
+            else {
+                if (response == null) {
+                    // User pressed back button
+                    showSnackbar(R.string.sign_in_cancelled);
+                    return;
+                }
+                if (Objects.requireNonNull(response.getError()).getErrorCode()
+                        == ErrorCodes.NO_NETWORK) {
+                    showSnackbar(R.string.no_internet_connection);
+                    return;
+                }
+                showSnackbar(R.string.unknown_error);
+            }
+        }
+    }
+
+    private void showSnackbar(int stringRes) {
+        //TODO: snack con error.
     }
 
     ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0,
@@ -190,37 +245,12 @@ public class MainActivity extends AppCompatActivity
             return false;
         }
 
-        boolean undo;
-
         @Override
         public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
             // Swipe Right to Left to delete.
             if(direction == ItemTouchHelper.LEFT) {
-
-                final int position  = viewHolder.getAdapterPosition();
-
-                compositionsRemoved.push(compositionsController.getCompositions().remove(position));
-                recyclerAdapter.notifyItemRemoved(position);
-
-                undo = false;
-
-                Snackbar.make(recyclerView, compositionsRemoved.peek().getName() + " "
-                                + "ha sido eliminado"
-                        , Snackbar.LENGTH_INDEFINITE)
-                        .setDuration(3000)
-                        .setAction("Deshacer", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                undo = true;
-                                compositionsController.getCompositions().add(position, compositionsRemoved.pop());
-                                recyclerAdapter.notifyItemInserted(position);
-                            }
-                        })
-                        .show();
-
-                if(!undo)
-                    // Todo: esto puede ir en un hilo.
-                    new File(compositionsRemoved.pop().getAbsolutePath()).delete();
+                // TODO:
+                throw new RuntimeException("not implemented");
             }
         }
 

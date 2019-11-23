@@ -1,3 +1,9 @@
 <resources>
-    <string name="app_name">SRecScanner</string>
+    <string name="app_name">SRec Scanner</string>
+
+    <string name="fui_progress_dialog_signing_up">Creando tu nueva cuenta…</string>
+    <string name="sign_in_cancelled">Cancelado por el usuario</string>
+    <string name="no_internet_connection">No estás conectado a internet</string>
+    <string name="unknown_error">Error desconocido</string>
+
 </resources>

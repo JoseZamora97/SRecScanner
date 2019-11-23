@@ -1,12 +1,10 @@
 package com.josezamora.tcscanner;
 
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
-import android.media.ExifInterface;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
@@ -23,13 +21,11 @@ import com.google.android.material.snackbar.Snackbar;
 import com.josezamora.tcscanner.Adapters.PhotoCompositionRecyclerAdapter;
 import com.josezamora.tcscanner.Classes.Composition;
 import com.josezamora.tcscanner.Classes.IOCompositionsController;
-import com.josezamora.tcscanner.Classes.PhotoComposition;
+import com.josezamora.tcscanner.Classes.ImageComposition;
 import com.josezamora.tcscanner.Interfaces.AppGlobals;
 import com.josezamora.tcscanner.Interfaces.RecyclerViewOnClickInterface;
 
 import java.io.File;
-import java.io.FileDescriptor;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -56,7 +52,7 @@ public class CompositionActivity extends AppCompatActivity
     RecyclerView recyclerView;
     PhotoCompositionRecyclerAdapter recyclerAdapter;
     ItemTouchHelper itemTouchHelper;
-    PhotoComposition photoDeleted;
+    ImageComposition photoDeleted;
     IOCompositionsController compositionsController;
 
     FloatingActionButton btnAdd, btnCamera, btnGallery;
@@ -164,7 +160,6 @@ public class CompositionActivity extends AppCompatActivity
 
         startActivityForResult(Intent.createChooser(galleryOpen,
                 "Selecciona una imagen"), AppGlobals.REQUEST_CODE_STORAGE);
-
     }
 
     @Override
@@ -232,7 +227,7 @@ public class CompositionActivity extends AppCompatActivity
             dst.compress(Bitmap.CompressFormat.PNG, 100, os);
             os.close();
         }
-        composition.addPhoto(new PhotoComposition(uriSrc.getPath() ,
+        composition.addPhoto(new ImageComposition(uriSrc.getPath() ,
                 Uri.fromFile(destinationThumb).getPath()))  ;
         recyclerAdapter.notifyDataSetChanged();
     }

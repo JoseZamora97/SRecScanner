@@ -8,11 +8,12 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 
-import com.josezamora.tcscanner.Classes.Composition;
-import com.josezamora.tcscanner.Classes.IOCompositionsController;
+import com.josezamora.tcscanner.Firebase.Classes.CloudComposition;
+import com.josezamora.tcscanner.Firebase.Classes.CloudUser;
+import com.josezamora.tcscanner.Firebase.Controllers.FirebaseDatabaseController;
 import com.josezamora.tcscanner.R;
 
-import java.io.File;
+import java.util.HashMap;
 import java.util.Objects;
 
 import androidx.annotation.NonNull;
@@ -21,11 +22,14 @@ import androidx.appcompat.app.AppCompatDialogFragment;
 
 public class NewCompositionDialog extends AppCompatDialogFragment {
 
+    private CloudUser user;
     private EditText editTextName;
-    private IOCompositionsController compositionsController;
 
-    public NewCompositionDialog (IOCompositionsController compositionsController) {
-        this.compositionsController = compositionsController;
+    private FirebaseDatabaseController databaseController;
+
+    public NewCompositionDialog (CloudUser user, FirebaseDatabaseController databaseController) {
+        this.user = user;
+        this.databaseController = databaseController;
     }
 
     @SuppressLint("InflateParams")
@@ -51,21 +55,19 @@ public class NewCompositionDialog extends AppCompatDialogFragment {
                 .setPositiveButton("Crear", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        addNewComposition();
+                        if(!editTextName.getText().toString().equals(""))
+                            addComposition();
                     }
                 });
 
         return builder.create();
     }
 
-    private void addNewComposition() {
-        Composition composition = new Composition(editTextName.getText().toString());
-        File path = new File(compositionsController.getPathRoot(), String.valueOf(composition.getId()));
-        
-        if(path.mkdirs()) {
-            composition.setAbsolutePath(path.getAbsolutePath());
-            compositionsController.getCompositions().add(composition);
-        }
+    private void addComposition() {
+        String compositionId = String.valueOf(System.currentTimeMillis());
+        CloudComposition composition = new CloudComposition(
+                compositionId, editTextName.getText().toString(), user.getuId());
 
+        databaseController.addComposition(composition);
     }
 }

@@ -8,14 +8,16 @@ public class Composition implements Serializable {
 
     private long id;
     private String name;
-
-    private List<PhotoComposition> listPhotos;
+    private List<ImageComposition> listPhotos;
     private String absolutePath;
 
+    private String url;
+
     public Composition(String name) {
+        this.id = System.currentTimeMillis();
         this.name = name;
         this.listPhotos = new ArrayList<>();
-        this.id = System.currentTimeMillis();
+        this.url = "";
     }
 
     public long getId() {
@@ -30,19 +32,27 @@ public class Composition implements Serializable {
         return this.listPhotos.size();
     }
 
-    public List<PhotoComposition> getListPhotos() {
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public List<ImageComposition> getListPhotos() {
         return listPhotos;
     }
 
-    public void addPhoto(PhotoComposition newPhoto) {
+    public void addPhoto(ImageComposition newPhoto) {
         this.listPhotos.add(newPhoto);
     }
 
-    public PhotoComposition removePhoto(int position) {
+    public ImageComposition removePhoto(int position) {
         return listPhotos.remove(position);
     }
 
-    public void addPhotoAt(int position, PhotoComposition uriDeleted) {
+    public void addPhotoAt(int position, ImageComposition uriDeleted) {
         listPhotos.add(position, uriDeleted);
     }
 
