@@ -1,6 +1,5 @@
 package com.josezamora.tcscanner;
 
-import android.content.Intent;
 import android.graphics.Canvas;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -8,19 +7,17 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.firebase.ui.auth.AuthUI;
-import com.firebase.ui.auth.ErrorCodes;
-import com.firebase.ui.auth.IdpResponse;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.josezamora.tcscanner.Adapters.CompositionsRecyclerAdapter;
 import com.josezamora.tcscanner.Dialogs.NewCloudCompositionDialog;
 import com.josezamora.tcscanner.Firebase.Classes.CloudComposition;
+import com.josezamora.tcscanner.Firebase.Classes.CloudImage;
 import com.josezamora.tcscanner.Firebase.Classes.CloudUser;
 import com.josezamora.tcscanner.Firebase.Controllers.FirebaseDatabaseController;
 import com.josezamora.tcscanner.Firebase.Controllers.FirebaseStorageController;
@@ -28,11 +25,13 @@ import com.josezamora.tcscanner.Interfaces.AppGlobals;
 import com.josezamora.tcscanner.Interfaces.RecyclerViewOnClickInterface;
 import com.josezamora.tcscanner.ViewHolders.CloudCompositionViewHolder;
 
+
 import java.util.Objects;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.appcompat.widget.SearchView;
 import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -47,7 +46,6 @@ public class MainActivity extends AppCompatActivity
     Toolbar toolbar;
 
     RecyclerView recyclerView;
-    CompositionsRecyclerAdapter recyclerAdapter;
     SwipeRefreshLayout swipeRefreshLayout;
     ImageView btnSwitchViewMode;
     ItemTouchHelper itemTouchHelper;
@@ -93,35 +91,6 @@ public class MainActivity extends AppCompatActivity
         itemTouchHelper.attachToRecyclerView(recyclerView);
     }
 
-    private FirestoreRecyclerAdapter getCloudRecyclerAdapter() {
-        return new FirestoreRecyclerAdapter<CloudComposition, CloudCompositionViewHolder>(
-                databaseController.recyclerOptions(user)) {
-
-            @NonNull
-            @Override
-            public CloudCompositionViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                View view = LayoutInflater.from(parent.getContext())
-                        .inflate(viewMode, parent, false);
-                return new CloudCompositionViewHolder(view);
-            }
-
-            @Override
-            protected void onBindViewHolder(@NonNull CloudCompositionViewHolder holder, int position,
-                                            @NonNull CloudComposition model) {
-                String name = model.getName();
-                if (viewMode != LIST_ITEM) {
-                    if (name.length() >= 10) {
-                        name = new StringBuffer(name).substring(0, 9);
-                        name += "...";
-                    }
-                }
-
-                holder.getTxtName().setText(name);
-            }
-
-        };
-    }
-
     @Override
     protected void onStart() {
         super.onStart();
@@ -135,14 +104,19 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onItemClick(int position) {}
+    public void onItemClick(int position) {
+        final CloudComposition composition = (CloudComposition) cloudCompositionsAdapter
+                .getItem(position);
+
+        Toast.makeText(this, composition.getId(), Toast.LENGTH_SHORT).show();
+    }
 
     @Override
     public void onLongItemClick(int position) {}
 
     @Override
     public void onRefresh() {
-        recyclerAdapter.notifyDataSetChanged();
+        cloudCompositionsAdapter.notifyDataSetChanged();
         swipeRefreshLayout.setRefreshing(false);
     }
 
@@ -151,22 +125,60 @@ public class MainActivity extends AppCompatActivity
         getMenuInflater().inflate(R.menu.main_menu, menu);
 
         MenuItem itemSearch = menu.findItem(R.id.mItemActionSearch);
-        /* TODO: Fix.
+
         SearchView searchView = (SearchView) itemSearch.getActionView();
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                return false;
+                return true;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                recyclerAdapter.getFilter().filter(newText);
+                if(newText.equals(""))
+                    cloudCompositionsAdapter.updateOptions(databaseController
+                            .createRecyclerOptions(user));
+
+                else
+                    cloudCompositionsAdapter.updateOptions(databaseController
+                            .createFilterOptions(user, newText));
+
+                cloudCompositionsAdapter.startListening();
                 return false;
             }
-        }); */
+        });
 
         return super.onCreateOptionsMenu(menu);
+    }
+
+    private FirestoreRecyclerAdapter getCloudRecyclerAdapter() {
+
+        final RecyclerViewOnClickInterface rvOnClick = this;
+
+        return new FirestoreRecyclerAdapter<CloudComposition, CloudCompositionViewHolder>(
+                databaseController.createRecyclerOptions(user)) {
+
+            @NonNull
+            @Override
+            public CloudCompositionViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                View view = LayoutInflater.from(parent.getContext())
+                        .inflate(viewMode, parent, false);
+                return new CloudCompositionViewHolder(view, rvOnClick);
+            }
+
+            @Override
+            protected void onBindViewHolder(@NonNull CloudCompositionViewHolder holder, int position,
+                                            @NonNull CloudComposition model) {
+                String name = model.getName();
+                if (viewMode != LIST_ITEM) {
+                    if (name.length() >= 10) {
+                        name = new StringBuffer(name).substring(0, 9);
+                        name += "...";
+                    }
+                }
+                holder.getTxtName().setText(name);
+            }
+        };
     }
 
     public void updateViewMode() {
@@ -184,6 +196,7 @@ public class MainActivity extends AppCompatActivity
 
         recyclerView.setAdapter(cloudCompositionsAdapter);
         cloudCompositionsAdapter.startListening();
+
     }
 
     public void swapViewMode(View v) {

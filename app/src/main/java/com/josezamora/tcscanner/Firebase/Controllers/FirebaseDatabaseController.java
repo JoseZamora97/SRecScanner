@@ -2,21 +2,17 @@ package com.josezamora.tcscanner.Firebase.Controllers;
 
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.josezamora.tcscanner.Classes.Composition;
 import com.josezamora.tcscanner.Firebase.Classes.CloudComposition;
 import com.josezamora.tcscanner.Firebase.Classes.CloudImage;
 import com.josezamora.tcscanner.Firebase.Classes.CloudUser;
 
-import java.util.List;
 import java.util.Objects;
 
 import androidx.annotation.NonNull;
@@ -28,6 +24,8 @@ public class FirebaseDatabaseController {
     private static final String USERS = "users";
     private static final String COMPOSITIONS = "compositions";
     private static final String IMAGES = "photos";
+
+    private static final String FIELD_NAME = "name";
 
     public FirebaseDatabaseController() {
         database = FirebaseFirestore.getInstance();
@@ -44,31 +42,23 @@ public class FirebaseDatabaseController {
                 .document(composition.getId());
     }
 
+    private DocumentReference getReference(CloudImage image) {
+        return database.collection(USERS)
+                .document(image.getOwner())
+                .collection(COMPOSITIONS)
+                .document(image.getComposition())
+                .collection(IMAGES)
+                .document(image.getId());
+    }
+
     public void addComposition(CloudComposition composition) {
         DocumentReference docRef = getReference(composition);
         docRef.set(composition);
     }
 
     public void addImage(CloudImage image) {
-        DocumentReference docRef = database.collection(USERS)
-                .document(image.getOwner())
-                .collection(COMPOSITIONS)
-                .document(image.getComposition())
-                .collection(IMAGES)
-                .document(image.getId());
-
+        DocumentReference docRef = getReference(image);
         docRef.set(image);
-    }
-
-    public FirestoreRecyclerOptions<CloudComposition> recyclerOptions(CloudUser user) {
-        Query query = FirebaseFirestore.getInstance()
-                .collection(USERS)
-                .document(user.getuId())
-                .collection(COMPOSITIONS);
-
-        return new FirestoreRecyclerOptions.Builder<CloudComposition>()
-                .setQuery(query, CloudComposition.class)
-                .build();
     }
 
     public void deleteComposition(CloudComposition composition) {
@@ -86,5 +76,31 @@ public class FirebaseDatabaseController {
         });
 
         docRef.delete();
+    }
+
+    public FirestoreRecyclerOptions<CloudComposition> createFilterOptions(CloudUser user, String newText) {
+        Query query = FirebaseFirestore.getInstance()
+                .collection(USERS)
+                .document(user.getuId())
+                .collection(COMPOSITIONS)
+                .whereGreaterThanOrEqualTo(FIELD_NAME, newText)
+                .whereLessThanOrEqualTo(FIELD_NAME, newText+"z");
+
+        return setQuery(query);
+    }
+
+    public FirestoreRecyclerOptions<CloudComposition> createRecyclerOptions(CloudUser user) {
+        Query query = FirebaseFirestore.getInstance()
+                .collection(USERS)
+                .document(user.getuId())
+                .collection(COMPOSITIONS);
+
+        return setQuery(query);
+    }
+
+    private FirestoreRecyclerOptions<CloudComposition> setQuery(Query query) {
+        return new FirestoreRecyclerOptions.Builder<CloudComposition>()
+                .setQuery(query, CloudComposition.class)
+                .build();
     }
 }
