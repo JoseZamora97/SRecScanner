@@ -8,10 +8,9 @@ import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.josezamora.tcscanner.Classes.Composition;
-import com.josezamora.tcscanner.Classes.IOCompositionsController;
-import com.josezamora.tcscanner.R;
+import com.josezamora.tcscanner.Firebase.Classes.CloudComposition;
 import com.josezamora.tcscanner.Interfaces.RecyclerViewOnClickInterface;
+import com.josezamora.tcscanner.R;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,28 +19,25 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 
+@SuppressWarnings("unchecked")
 public class CompositionsRecyclerAdapter extends
         RecyclerView.Adapter<CompositionsRecyclerAdapter.CompositionsViewHolder>
         implements Filterable {
 
     private RecyclerViewOnClickInterface recyclerViewOnClick;
-    private List<Composition> allCompositionsList;
-    private IOCompositionsController compositionsController;
+    private List<CloudComposition> allCompositionsList;
 
     public static final int LIST_ITEM = R.layout.list_composition_item;
     public static final int GRID_ITEM = R.layout.grid_composition_item;
 
     private int viewMode;
 
-    public CompositionsRecyclerAdapter(IOCompositionsController compositionsController,
-                                       RecyclerViewOnClickInterface recyclerViewOnClick) {
+    public CompositionsRecyclerAdapter(List<CloudComposition> compositions, RecyclerViewOnClickInterface recyclerViewOnClick) {
 
-        this.compositionsController = compositionsController;
         this.recyclerViewOnClick = recyclerViewOnClick;
-        this.allCompositionsList = new ArrayList<>(compositionsController.getCompositions());
+        this.allCompositionsList = compositions;
 
         viewMode = LIST_ITEM;
-
     }
 
     public void switchViewMode(int type) {
@@ -61,7 +57,7 @@ public class CompositionsRecyclerAdapter extends
     @Override
     public void onBindViewHolder(@NonNull CompositionsViewHolder holder, int position) {
 
-        String name = compositionsController.getCompositions().get(position).getName();
+        String name = allCompositionsList.get(position).getName();
         if (viewMode != LIST_ITEM) {
             if (name.length() >= 10) {
                 name = new StringBuffer(name).substring(0, 9);
@@ -70,15 +66,11 @@ public class CompositionsRecyclerAdapter extends
         }
 
         holder.txtName.setText(name);
-
-        String numImages = String.valueOf(compositionsController.getCompositions().get(position).getNumImages());
-        holder.txtImages.setText(numImages + "/10 Imágenes");
-
     }
 
     @Override
     public int getItemCount() {
-        return compositionsController.getCompositions().size();
+        return allCompositionsList.size();
     }
 
     @Override
@@ -90,13 +82,13 @@ public class CompositionsRecyclerAdapter extends
         @Override
         protected FilterResults performFiltering(CharSequence constraint) {
 
-            List<Composition> filteredCompositions = new ArrayList<>();
+            List<CloudComposition> filteredCompositions = new ArrayList<>();
             FilterResults filterResults = new FilterResults();
 
             if(constraint.toString().isEmpty())
                 filteredCompositions.addAll(allCompositionsList);
             else
-                for(Composition c : allCompositionsList)
+                for(CloudComposition c : allCompositionsList)
                     if(c.getName().toLowerCase().contains(constraint.toString().toLowerCase()))
                         filteredCompositions.add(c);
 
@@ -107,8 +99,8 @@ public class CompositionsRecyclerAdapter extends
 
         @Override
         protected void publishResults(CharSequence constraint, FilterResults results) {
-            compositionsController.getCompositions().clear();
-            compositionsController.getCompositions().addAll((List<Composition>) results.values);
+            allCompositionsList.clear();
+            allCompositionsList.addAll((List<CloudComposition>) results.values);
             notifyDataSetChanged();
         }
     };
@@ -123,8 +115,8 @@ public class CompositionsRecyclerAdapter extends
             super(itemView);
 
             imageView = itemView.findViewById(R.id.imagePreview);
-            txtImages = itemView.findViewById(R.id.textViewImages);
             txtName = itemView.findViewById(R.id.textviewName);
+            txtImages = itemView.findViewById(R.id.textViewImages);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override

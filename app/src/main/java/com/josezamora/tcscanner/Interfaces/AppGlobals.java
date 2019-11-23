@@ -56,4 +56,6 @@ public interface AppGlobals {
 
     int REQUEST_CODE_SIGN_IN = 3;
     int THUMBNAILS_SIZE = 128;
+
+    String SIGN_TOKEN = "TOKEN";
 }
