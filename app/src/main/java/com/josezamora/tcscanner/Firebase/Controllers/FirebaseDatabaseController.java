@@ -5,6 +5,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -101,6 +102,20 @@ public class FirebaseDatabaseController {
     private FirestoreRecyclerOptions<CloudComposition> setQuery(Query query) {
         return new FirestoreRecyclerOptions.Builder<CloudComposition>()
                 .setQuery(query, CloudComposition.class)
+                .build();
+    }
+
+    public FirestoreRecyclerOptions<CloudImage> createRecyclerOptions(CloudUser user,
+                                                                      CloudComposition composition) {
+        Query query = FirebaseFirestore.getInstance()
+                .collection(USERS)
+                .document(user.getuId())
+                .collection(COMPOSITIONS)
+                .document(composition.getId())
+                .collection(IMAGES);
+
+        return new FirestoreRecyclerOptions.Builder<CloudImage>()
+                .setQuery(query, CloudImage.class)
                 .build();
     }
 }

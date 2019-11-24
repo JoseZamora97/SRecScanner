@@ -6,14 +6,16 @@ public class CloudImage {
     private String owner;
     private String composition;
     private String firebaseStoragePath;
+    private String downloadLink;
 
     public CloudImage() {}
 
-    public CloudImage(String id, String owner, String composition, String firebaseStoragePath) {
+    public CloudImage(String id, String owner, String composition, String firebaseStoragePath, String downloadLink) {
         this.id = id;
         this.owner = owner;
         this.composition = composition;
         this.firebaseStoragePath = firebaseStoragePath;
+        this.downloadLink = downloadLink;
     }
 
     public String getId() {
@@ -30,5 +32,9 @@ public class CloudImage {
 
     public String getFirebaseStoragePath() {
         return firebaseStoragePath;
+    }
+
+    public String getDownloadLink() {
+        return downloadLink;
     }
 }

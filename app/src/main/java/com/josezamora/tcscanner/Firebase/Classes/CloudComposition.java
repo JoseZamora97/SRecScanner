@@ -1,6 +1,8 @@
 package com.josezamora.tcscanner.Firebase.Classes;
 
-public class CloudComposition {
+import java.io.Serializable;
+
+public class CloudComposition implements Serializable {
 
     private String id;
     private String name;

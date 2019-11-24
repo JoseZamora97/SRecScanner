@@ -1,59 +1,70 @@
 package com.josezamora.tcscanner;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Matrix;
-import android.media.ThumbnailUtils;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
+import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-import com.josezamora.tcscanner.Adapters.PhotoCompositionRecyclerAdapter;
-import com.josezamora.tcscanner.Classes.Composition;
-import com.josezamora.tcscanner.Classes.IOCompositionsController;
-import com.josezamora.tcscanner.Classes.ImageComposition;
+import com.google.firebase.auth.FirebaseAuth;
+import com.josezamora.tcscanner.Firebase.Classes.CloudComposition;
+import com.josezamora.tcscanner.Firebase.Classes.CloudImage;
+import com.josezamora.tcscanner.Firebase.Classes.CloudUser;
+import com.josezamora.tcscanner.Firebase.Controllers.FirebaseDatabaseController;
+import com.josezamora.tcscanner.Firebase.Controllers.FirebaseStorageController;
 import com.josezamora.tcscanner.Interfaces.AppGlobals;
 import com.josezamora.tcscanner.Interfaces.RecyclerViewOnClickInterface;
+import com.josezamora.tcscanner.ViewHolders.CloudImageViewHolder;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Collections;
 import java.util.Objects;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 
 
 public class CompositionActivity extends AppCompatActivity
         implements RecyclerViewOnClickInterface {
 
     Toolbar toolbar;
-    Composition composition;
+
+    CloudComposition composition;
+    CloudUser user;
+
+    ProgressBar progressBar;
+
     RecyclerView recyclerView;
-    PhotoCompositionRecyclerAdapter recyclerAdapter;
     ItemTouchHelper itemTouchHelper;
-    ImageComposition photoDeleted;
-    IOCompositionsController compositionsController;
+
+    FirebaseDatabaseController databaseController;
+    FirebaseStorageController storageController;
 
     FloatingActionButton btnAdd, btnCamera, btnGallery;
     Animation fabOpen, fabClose, rotateForward, rotateBackward;
@@ -61,11 +72,20 @@ public class CompositionActivity extends AppCompatActivity
     private boolean isOpen = false;
 
     private Uri photoUri;
+    private FirestoreRecyclerAdapter cloudImagesAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_composition);
+
+        databaseController = new FirebaseDatabaseController();
+        storageController = new FirebaseStorageController();
+
+        user = CloudUser.userFromFirebase(
+                Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()));
+
+        composition = (CloudComposition) getIntent().getSerializableExtra(AppGlobals.COMPOSITION_KEY);
 
         btnAdd = findViewById(R.id.fabAdd);
         btnCamera = findViewById(R.id.fabAddFromCamera);
@@ -82,34 +102,79 @@ public class CompositionActivity extends AppCompatActivity
 
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
-        compositionsController = new IOCompositionsController(this);
-        compositionsController.loadCompositions();
-
-        int position = getIntent().getIntExtra(AppGlobals.COMPOSITION_KEY, 0);
-        composition = compositionsController.getCompositions().get(position);
-
         ((TextView) findViewById(R.id.composition)).setText(composition.getName());
-
         recyclerView = findViewById(R.id.rv_photos);
+
+        cloudImagesAdapter = getCloudRecyclerAdapter();
+
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerAdapter = new PhotoCompositionRecyclerAdapter(composition, this);
+        recyclerView.setAdapter(cloudImagesAdapter);
 
-        recyclerView.setAdapter(recyclerAdapter);
+        DividerItemDecoration itemDecor = new DividerItemDecoration(this,
+                DividerItemDecoration.VERTICAL);
+        itemDecor.setDrawable(Objects.requireNonNull(
+                ContextCompat.getDrawable(this, R.drawable.recycler_divider)));
+        recyclerView.addItemDecoration(itemDecor);
 
-        itemTouchHelper = new ItemTouchHelper(simpleCallback);
-        itemTouchHelper.attachToRecyclerView(recyclerView);
+//        itemTouchHelper = new ItemTouchHelper(simpleCallback);
+//        itemTouchHelper.attachToRecyclerView(recyclerView);
+    }
+
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        cloudImagesAdapter.startListening();
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        compositionsController.saveCompositions();
+    protected void onStop() {
+        super.onStop();
+        cloudImagesAdapter.stopListening();
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        compositionsController.saveCompositions();
+    private FirestoreRecyclerAdapter getCloudRecyclerAdapter() {
+
+        final int resourceLayout = R.layout.list_photo_item;
+        final RecyclerViewOnClickInterface rvOnClick = this;
+
+        return new FirestoreRecyclerAdapter<CloudImage, CloudImageViewHolder>(
+                databaseController.createRecyclerOptions(user, composition)) {
+
+            @NonNull
+            @Override
+            public CloudImageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                View view = LayoutInflater.from(parent.getContext())
+                        .inflate(resourceLayout, parent, false);
+                return new CloudImageViewHolder(view, rvOnClick);
+            }
+
+            @Override
+            protected void onBindViewHolder(@NonNull CloudImageViewHolder holder, int position,
+                                            @NonNull CloudImage model) {
+
+                ImageView imageView = holder.getImageView();
+                final ProgressBar progressBar = holder.getProgressBar();
+
+                GlideApp.with(getApplicationContext())
+                        .load(storageController.getReference(model))
+                        .transition(DrawableTransitionOptions.withCrossFade())
+                        .listener(new RequestListener<Drawable>() {
+                            @Override
+                            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                progressBar.setVisibility(View.GONE);
+                                return false;
+                            }
+                            @Override
+                            public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                progressBar.setVisibility(View.GONE);
+                                return false;
+                            }
+                        })
+                        .into(imageView);
+
+            }
+        };
     }
 
     public void animateFabs(View v) {
@@ -140,7 +205,7 @@ public class CompositionActivity extends AppCompatActivity
 
         Intent cameraOpenIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
-        File file = new File(composition.getAbsolutePath(),
+        File file = new File(getExternalCacheDir(),
                 System.currentTimeMillis() + ".png");
 
         photoUri = FileProvider.getUriForFile(this,
@@ -164,79 +229,30 @@ public class CompositionActivity extends AppCompatActivity
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-
         super.onActivityResult(requestCode, resultCode, data);
 
         if (resultCode == RESULT_OK) {
             switch (requestCode) {
-
                 case AppGlobals.REQUEST_CODE_CAMERA:
-                    try {
-                        addPhotoUtil(photoUri);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                    uploadImage(photoUri);
                     break;
 
                 case AppGlobals.REQUEST_CODE_STORAGE:
                     assert data != null;
-                    try {
-                        addPhotoFromGallery(Objects.requireNonNull(data.getData()));
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                    uploadImage(data.getData());
                     break;
-
-                default:
-                    throw new IllegalStateException("Error request code : " + requestCode);
             }
         }
     }
 
-    private void addPhotoFromGallery(Uri uriSrc) throws IOException {
-        InputStream is = getContentResolver().openInputStream(uriSrc);
-        File destination = new File(composition.getAbsolutePath(),
-                String.valueOf(System.currentTimeMillis()));
-
-        assert is != null;
-        byte[] buffer = new byte[is.available()];
-        is.read(buffer);
-
-        OutputStream os = new FileOutputStream(destination);
-        os.write(buffer);
-
-        addPhotoUtil(Uri.fromFile(destination));
-    }
-
-    private void addPhotoUtil(Uri uriSrc) throws IOException {
-
-        File thumbnailsFolder = new File(composition.getAbsolutePath(), "thumbnails");
-        File destinationThumb = new File(thumbnailsFolder, new File(uriSrc.getPath()).getName());
-
-        if(thumbnailsFolder.mkdirs() || thumbnailsFolder.exists()) {
-            InputStream is = this.getContentResolver().openInputStream(uriSrc);
-            OutputStream os = new FileOutputStream(destinationThumb);
-
-            Bitmap src = BitmapFactory.decodeStream(is);
-
-            // Todo: comprobar que siempre pasa.
-            Bitmap dst = ThumbnailUtils.extractThumbnail(rotateImage(src, 90),
-                    AppGlobals.THUMBNAILS_SIZE,
-                    AppGlobals.THUMBNAILS_SIZE);
-
-            dst.compress(Bitmap.CompressFormat.PNG, 100, os);
-            os.close();
+    private void uploadImage(Uri data) {
+        InputStream stream;
+        try {
+            stream = getContentResolver().openInputStream(data);
+            storageController.uploadImage(user, composition, stream);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         }
-        composition.addPhoto(new ImageComposition(uriSrc.getPath() ,
-                Uri.fromFile(destinationThumb).getPath()))  ;
-        recyclerAdapter.notifyDataSetChanged();
-    }
-
-    public static Bitmap rotateImage(Bitmap source, float angle) {
-        Matrix matrix = new Matrix();
-        matrix.postRotate(angle);
-        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),
-                matrix, true);
     }
 
     @Override
@@ -258,67 +274,66 @@ public class CompositionActivity extends AppCompatActivity
         }
         return super.onOptionsItemSelected(item);
     }
-
-    ItemTouchHelper.SimpleCallback simpleCallback =
-            new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP
-            | ItemTouchHelper.DOWN
-            | ItemTouchHelper.START
-            | ItemTouchHelper.END, 0) {
-        @Override
-        public boolean onMove(@NonNull RecyclerView recyclerView,
-                              @NonNull RecyclerView.ViewHolder viewHolder,
-                              @NonNull RecyclerView.ViewHolder target) {
-
-            int srcPosition = viewHolder.getAdapterPosition();
-            int dstPosition = target.getAdapterPosition();
-
-            Collections.swap(composition.getListPhotos(), srcPosition, dstPosition);
-            Objects.requireNonNull(recyclerView.getAdapter()).notifyItemMoved(srcPosition,
-                    dstPosition);
-
-            return false;
-        }
-
-        @Override
-        public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-
-            if(direction == ItemTouchHelper.LEFT) {
-
-                final int position  = viewHolder.getAdapterPosition();
-
-                photoDeleted = composition.removePhoto(position);
-                recyclerAdapter.notifyItemRemoved(position);
-
-                Snackbar.make(recyclerView, "Foto eliminada"
-                        , Snackbar.LENGTH_INDEFINITE)
-                        .setDuration(3000)
-                        .setAction("Deshacer", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                composition.addPhotoAt(position, photoDeleted);
-                                recyclerAdapter.notifyItemInserted(position);
-                            }
-                        })
-                        .show();
-            }
-        }
-
-        @Override
-        public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView,
-                                @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY,
-                                int actionState, boolean isCurrentlyActive) {
-
-            new RecyclerViewSwipeDecorator.Builder(c, recyclerView, viewHolder, dX, dY, actionState
-                    , isCurrentlyActive)
-                    .addBackgroundColor(getResources().getColor(R.color.colorAccent))
-                    .addActionIcon(R.drawable.ic_delete_sweep_30dp)
-                    .addSwipeLeftLabel("Eliminar")
-                    .setSwipeLeftLabelColor(getResources().getColor(R.color.colorPrimary))
-                    .create()
-                    .decorate();
-
-            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
-        }
-    };
-
+//     TODO: fix
+//    ItemTouchHelper.SimpleCallback simpleCallback =
+//            new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP
+//            | ItemTouchHelper.DOWN
+//            | ItemTouchHelper.START
+//            | ItemTouchHelper.END, 0) {
+//        @Override
+//        public boolean onMove(@NonNull RecyclerView recyclerView,
+//                              @NonNull RecyclerView.ViewHolder viewHolder,
+//                              @NonNull RecyclerView.ViewHolder target) {
+//
+//            int srcPosition = viewHolder.getAdapterPosition();
+//            int dstPosition = target.getAdapterPosition();
+//
+//            Collections.swap(composition.getListPhotos(), srcPosition, dstPosition);
+//            Objects.requireNonNull(recyclerView.getAdapter()).notifyItemMoved(srcPosition,
+//                    dstPosition);
+//
+//            return false;
+//        }
+//
+//        @Override
+//        public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+//
+//            if(direction == ItemTouchHelper.LEFT) {
+//
+//                final int position  = viewHolder.getAdapterPosition();
+//
+//                photoDeleted = composition.removePhoto(position);
+//                recyclerAdapter.notifyItemRemoved(position);
+//
+//                Snackbar.make(recyclerView, "Foto eliminada"
+//                        , Snackbar.LENGTH_INDEFINITE)
+//                        .setDuration(3000)
+//                        .setAction("Deshacer", new View.OnClickListener() {
+//                            @Override
+//                            public void onClick(View v) {
+//                                composition.addPhotoAt(position, photoDeleted);
+//                                recyclerAdapter.notifyItemInserted(position);
+//                            }
+//                        })
+//                        .show();
+//            }
+//        }
+//
+//        @Override
+//        public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView,
+//                                @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY,
+//                                int actionState, boolean isCurrentlyActive) {
+//
+//            new RecyclerViewSwipeDecorator.Builder(c, recyclerView, viewHolder, dX, dY, actionState
+//                    , isCurrentlyActive)
+//                    .addBackgroundColor(getResources().getColor(R.color.colorAccent))
+//                    .addActionIcon(R.drawable.ic_delete_sweep_30dp)
+//                    .addSwipeLeftLabel("Eliminar")
+//                    .setSwipeLeftLabelColor(getResources().getColor(R.color.colorPrimary))
+//                    .create()
+//                    .decorate();
+//
+//            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+//        }
+//    };
 }

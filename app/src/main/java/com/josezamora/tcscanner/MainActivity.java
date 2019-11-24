@@ -1,5 +1,6 @@
 package com.josezamora.tcscanner;
 
+import android.content.Intent;
 import android.graphics.Canvas;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -15,6 +16,7 @@ import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.josezamora.tcscanner.Adapters.CompositionsRecyclerAdapter;
+import com.josezamora.tcscanner.Classes.Composition;
 import com.josezamora.tcscanner.Dialogs.NewCloudCompositionDialog;
 import com.josezamora.tcscanner.Firebase.Classes.CloudComposition;
 import com.josezamora.tcscanner.Firebase.Classes.CloudImage;
@@ -40,6 +42,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 
+@SuppressWarnings("unchecked")
 public class MainActivity extends AppCompatActivity
         implements RecyclerViewOnClickInterface, SwipeRefreshLayout.OnRefreshListener {
 
@@ -57,8 +60,6 @@ public class MainActivity extends AppCompatActivity
     CloudUser user;
 
     FirebaseDatabaseController databaseController;
-    FirebaseStorageController storageController;
-
     FirestoreRecyclerAdapter cloudCompositionsAdapter;
 
     @Override
@@ -108,7 +109,9 @@ public class MainActivity extends AppCompatActivity
         final CloudComposition composition = (CloudComposition) cloudCompositionsAdapter
                 .getItem(position);
 
-        Toast.makeText(this, composition.getId(), Toast.LENGTH_SHORT).show();
+        Intent toCompositionActivity = new Intent(this, CompositionActivity.class);
+        toCompositionActivity.putExtra(AppGlobals.COMPOSITION_KEY, composition);
+        startActivity(toCompositionActivity);
     }
 
     @Override
@@ -154,7 +157,6 @@ public class MainActivity extends AppCompatActivity
     private FirestoreRecyclerAdapter getCloudRecyclerAdapter() {
 
         final RecyclerViewOnClickInterface rvOnClick = this;
-
         return new FirestoreRecyclerAdapter<CloudComposition, CloudCompositionViewHolder>(
                 databaseController.createRecyclerOptions(user)) {
 

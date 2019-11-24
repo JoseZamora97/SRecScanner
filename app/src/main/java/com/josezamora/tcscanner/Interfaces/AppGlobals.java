@@ -40,22 +40,16 @@ public interface AppGlobals {
     int REQUEST_CODE_QR = 2;
 
     /**
+     * The constant REQUEST_CODE_SIGN_IN.
+     */
+    int REQUEST_CODE_SIGN_IN = 3;
+
+    /**
      * The constant COMPOSITION_KEY
      */
     String COMPOSITION_KEY = "KEY_COMPOSITION";
 
-    /**
-     * The constant COMPOSITIONS_CONTROLLER_KEY
-     */
-    String COMPOSITION_CONTROLLER_KEY = "KEY_COMPOSITIONS";
-
-
     List<AuthUI.IdpConfig> PROVIDERS = Arrays.asList(
             new AuthUI.IdpConfig.EmailBuilder().build(),
             new AuthUI.IdpConfig.GoogleBuilder().build());
-
-    int REQUEST_CODE_SIGN_IN = 3;
-    int THUMBNAILS_SIZE = 128;
-
-    String SIGN_TOKEN = "TOKEN";
 }

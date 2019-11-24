@@ -63,21 +63,21 @@ public class PhotoCompositionRecyclerAdapter extends
                 }
             });
 
-            itemView.findViewById(R.id.btnRestore).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Toast.makeText(itemView.getContext(), "Restaurar",
-                            Toast.LENGTH_SHORT).show();
-                }
-            });
-
-            itemView.findViewById(R.id.btnCrop).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Toast.makeText(itemView.getContext(), "Abrir Recortar",
-                            Toast.LENGTH_SHORT).show();
-                }
-            });
+//            itemView.findViewById(R.id.btnRestore).setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    Toast.makeText(itemView.getContext(), "Restaurar",
+//                            Toast.LENGTH_SHORT).show();
+//                }
+//            });
+//
+//            itemView.findViewById(R.id.btnCrop).setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    Toast.makeText(itemView.getContext(), "Abrir Recortar",
+//                            Toast.LENGTH_SHORT).show();
+//                }
+//            });
 
             imageView = itemView.findViewById(R.id.imagePreview);
 
