@@ -20,12 +20,11 @@ import androidx.annotation.NonNull;
 public class FirebaseStorageController {
 
     private FirebaseStorage storage;
+    private Task<Uri> urlTask;
 
-    private static final String USERS = "users";
     private static final String COMPOSITIONS = "compositions";
-    private static final String IMAGES = "photos";
 
-    FirebaseDatabaseController controller;
+    private FirebaseDatabaseController controller;
 
     public FirebaseStorageController () {
         storage = FirebaseStorage.getInstance();
@@ -38,20 +37,13 @@ public class FirebaseStorageController {
 
         final StorageReference imgRef = storage.getReference()
                 .child(user.getuId())
-                .child(COMPOSITIONS)
                 .child(composition.getId())
                 .child(imageId)
                 .child(imageId + ".jpg");
 
         UploadTask uploadTask = imgRef.putStream(data);
 
-        Task<Uri> urlTask = uploadTask
-                .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onProgress(@NonNull UploadTask.TaskSnapshot taskSnapshot) {
-
-                    }
-                })
+        urlTask = uploadTask
                 .continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
                     @Override
                     public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
@@ -73,5 +65,10 @@ public class FirebaseStorageController {
     public StorageReference getReference(CloudImage model) {
         StorageReference storageReference = storage.getReference();
         return storageReference.child(model.getFirebaseStoragePath());
+    }
+
+    public void delete(CloudImage image) {
+        StorageReference storageReference = getReference(image);
+        storageReference.delete();
     }
 }

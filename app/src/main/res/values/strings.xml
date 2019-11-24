@@ -7,5 +7,6 @@
     <string name="unknown_error">Error desconocido</string>
     <string name="num_total_images">/10 Imágenes</string>
     <string name="imagen_de_la_nube">Imagen de la nube</string>
+    <string name="boton_configurar">boton configurar</string>
 
 </resources>

@@ -1,6 +1,7 @@
 package com.josezamora.tcscanner;
 
 import android.content.Intent;
+import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -23,6 +24,8 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.josezamora.tcscanner.Firebase.Classes.CloudComposition;
 import com.josezamora.tcscanner.Firebase.Classes.CloudImage;
@@ -48,6 +51,7 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 
 
 public class CompositionActivity extends AppCompatActivity
@@ -116,8 +120,8 @@ public class CompositionActivity extends AppCompatActivity
                 ContextCompat.getDrawable(this, R.drawable.recycler_divider)));
         recyclerView.addItemDecoration(itemDecor);
 
-//        itemTouchHelper = new ItemTouchHelper(simpleCallback);
-//        itemTouchHelper.attachToRecyclerView(recyclerView);
+        itemTouchHelper = new ItemTouchHelper(simpleCallback);
+        itemTouchHelper.attachToRecyclerView(recyclerView);
     }
 
 
@@ -257,7 +261,7 @@ public class CompositionActivity extends AppCompatActivity
 
     @Override
     public void onItemClick(int position) {
-        // Nothing
+        // TODO: abrir imagen en pantalla completa.
     }
 
     @Override
@@ -274,66 +278,77 @@ public class CompositionActivity extends AppCompatActivity
         }
         return super.onOptionsItemSelected(item);
     }
-//     TODO: fix
-//    ItemTouchHelper.SimpleCallback simpleCallback =
-//            new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP
-//            | ItemTouchHelper.DOWN
-//            | ItemTouchHelper.START
-//            | ItemTouchHelper.END, 0) {
-//        @Override
-//        public boolean onMove(@NonNull RecyclerView recyclerView,
-//                              @NonNull RecyclerView.ViewHolder viewHolder,
-//                              @NonNull RecyclerView.ViewHolder target) {
-//
+
+    ItemTouchHelper.SimpleCallback simpleCallback =
+            new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP
+            | ItemTouchHelper.DOWN
+            | ItemTouchHelper.START
+            | ItemTouchHelper.END,
+                    ItemTouchHelper.LEFT) {
+
+        @Override
+        public boolean onMove(@NonNull RecyclerView recyclerView,
+                              @NonNull RecyclerView.ViewHolder viewHolder,
+                              @NonNull RecyclerView.ViewHolder target) {
+
+//            TODO: fix
 //            int srcPosition = viewHolder.getAdapterPosition();
 //            int dstPosition = target.getAdapterPosition();
 //
 //            Collections.swap(composition.getListPhotos(), srcPosition, dstPosition);
 //            Objects.requireNonNull(recyclerView.getAdapter()).notifyItemMoved(srcPosition,
 //                    dstPosition);
-//
-//            return false;
-//        }
-//
-//        @Override
-//        public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-//
-//            if(direction == ItemTouchHelper.LEFT) {
-//
-//                final int position  = viewHolder.getAdapterPosition();
-//
-//                photoDeleted = composition.removePhoto(position);
-//                recyclerAdapter.notifyItemRemoved(position);
-//
-//                Snackbar.make(recyclerView, "Foto eliminada"
-//                        , Snackbar.LENGTH_INDEFINITE)
-//                        .setDuration(3000)
-//                        .setAction("Deshacer", new View.OnClickListener() {
-//                            @Override
-//                            public void onClick(View v) {
-//                                composition.addPhotoAt(position, photoDeleted);
-//                                recyclerAdapter.notifyItemInserted(position);
-//                            }
-//                        })
-//                        .show();
-//            }
-//        }
-//
-//        @Override
-//        public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView,
-//                                @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY,
-//                                int actionState, boolean isCurrentlyActive) {
-//
-//            new RecyclerViewSwipeDecorator.Builder(c, recyclerView, viewHolder, dX, dY, actionState
-//                    , isCurrentlyActive)
-//                    .addBackgroundColor(getResources().getColor(R.color.colorAccent))
-//                    .addActionIcon(R.drawable.ic_delete_sweep_30dp)
-//                    .addSwipeLeftLabel("Eliminar")
-//                    .setSwipeLeftLabelColor(getResources().getColor(R.color.colorPrimary))
-//                    .create()
-//                    .decorate();
-//
-//            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
-//        }
-//    };
+
+            return false;
+        }
+
+        boolean undo;
+
+        @Override
+        public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+
+            if(direction == ItemTouchHelper.LEFT) {
+                final int position  = viewHolder.getAdapterPosition();
+                final CloudImage image = (CloudImage) cloudImagesAdapter.getItem(position);
+
+                databaseController.deleteImage(image);
+
+                Snackbar.make(recyclerView, "Foto eliminada", Snackbar.LENGTH_INDEFINITE)
+                        .setDuration(3000)
+                        .addCallback(new Snackbar.Callback(){
+                            @Override
+                            public void onDismissed(Snackbar snackbar, int event) {
+                                undo = event == BaseTransientBottomBar
+                                        .BaseCallback.DISMISS_EVENT_ACTION;
+                                if(!undo)
+                                    storageController.delete(image);
+                                else
+                                    databaseController.addImage(image);
+                            }
+                        })
+                        .setAction("Deshacer", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {}
+                        })
+                        .show();
+            }
+        }
+
+        @Override
+        public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView,
+                                @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY,
+                                int actionState, boolean isCurrentlyActive) {
+
+            new RecyclerViewSwipeDecorator.Builder(c, recyclerView, viewHolder, dX, dY, actionState
+                    , isCurrentlyActive)
+                    .addBackgroundColor(getResources().getColor(R.color.colorAccent))
+                    .addActionIcon(R.drawable.ic_delete_sweep_30dp)
+                    .addSwipeLeftLabel("Eliminar")
+                    .setSwipeLeftLabelColor(getResources().getColor(R.color.colorPrimary))
+                    .create()
+                    .decorate();
+
+            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+        }
+    };
 }

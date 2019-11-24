@@ -10,4 +10,6 @@
     <color name="colorBodies">#424242</color>
     <color name="rippleColor">#D6D3D3</color>
 
+    <color name="colorItemContrast">#66000000</color>
+
 </resources>

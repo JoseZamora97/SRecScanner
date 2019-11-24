@@ -79,6 +79,11 @@ public class FirebaseDatabaseController {
         docRef.delete();
     }
 
+    public void deleteImage(CloudImage image) {
+        DocumentReference docRef = getReference(image);
+        docRef.delete();
+    }
+
     public FirestoreRecyclerOptions<CloudComposition> createFilterOptions(CloudUser user, String newText) {
         Query query = FirebaseFirestore.getInstance()
                 .collection(USERS)
