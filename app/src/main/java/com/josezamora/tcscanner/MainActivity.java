@@ -231,7 +231,6 @@ public class MainActivity extends AppCompatActivity
         public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
             // Swipe Right to Left to delete.
             if(direction == ItemTouchHelper.LEFT) {
-
                 final int position = viewHolder.getAdapterPosition();
                 final CloudComposition composition = (CloudComposition) cloudCompositionsAdapter
                         .getItem(position);

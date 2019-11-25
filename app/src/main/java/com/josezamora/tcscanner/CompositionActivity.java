@@ -124,7 +124,6 @@ public class CompositionActivity extends AppCompatActivity
         itemTouchHelper.attachToRecyclerView(recyclerView);
     }
 
-
     @Override
     protected void onStart() {
         super.onStart();
@@ -136,6 +135,45 @@ public class CompositionActivity extends AppCompatActivity
         super.onStop();
         cloudImagesAdapter.stopListening();
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == RESULT_OK) {
+            switch (requestCode) {
+                case AppGlobals.REQUEST_CODE_CAMERA:
+                    uploadImage(photoUri);
+                    break;
+
+                case AppGlobals.REQUEST_CODE_STORAGE:
+                    assert data != null;
+                    uploadImage(data.getData());
+                    break;
+            }
+        }
+    }
+
+    @Override
+    public void onItemClick(int position) {
+
+    }
+
+    @Override
+    public void onLongItemClick(int position) {
+        Toast.makeText(this, "Arrastra y suelta la foto en la posición que desees",
+                Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
 
     private FirestoreRecyclerAdapter getCloudRecyclerAdapter() {
 
@@ -231,24 +269,6 @@ public class CompositionActivity extends AppCompatActivity
                 "Selecciona una imagen"), AppGlobals.REQUEST_CODE_STORAGE);
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (resultCode == RESULT_OK) {
-            switch (requestCode) {
-                case AppGlobals.REQUEST_CODE_CAMERA:
-                    uploadImage(photoUri);
-                    break;
-
-                case AppGlobals.REQUEST_CODE_STORAGE:
-                    assert data != null;
-                    uploadImage(data.getData());
-                    break;
-            }
-        }
-    }
-
     private void uploadImage(Uri data) {
         InputStream stream;
         try {
@@ -257,26 +277,6 @@ public class CompositionActivity extends AppCompatActivity
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-    }
-
-    @Override
-    public void onItemClick(int position) {
-        // TODO: abrir imagen en pantalla completa.
-    }
-
-    @Override
-    public void onLongItemClick(int position) {
-        Toast.makeText(this, "Arrastra y suelta la foto en la posición que desees",
-                Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            onBackPressed();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     ItemTouchHelper.SimpleCallback simpleCallback =
@@ -298,7 +298,6 @@ public class CompositionActivity extends AppCompatActivity
 //            Collections.swap(composition.getListPhotos(), srcPosition, dstPosition);
 //            Objects.requireNonNull(recyclerView.getAdapter()).notifyItemMoved(srcPosition,
 //                    dstPosition);
-
             return false;
         }
 
