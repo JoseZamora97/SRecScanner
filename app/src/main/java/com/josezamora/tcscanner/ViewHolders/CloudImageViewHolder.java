@@ -80,12 +80,7 @@ public class CloudImageViewHolder extends RecyclerView.ViewHolder {
         itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!expanded)
-                    animExpand.start();
-                else
-                    animCollapse.start();
-
-                expanded = !expanded;
+                recyclerViewOnClickInterface.onItemClick(getAdapterPosition());
             }
         });
 
@@ -99,6 +94,19 @@ public class CloudImageViewHolder extends RecyclerView.ViewHolder {
 
     }
 
+    public void update() {
+        if(!expanded)
+            animExpand.start();
+        else
+            animCollapse.start();
+
+        expanded = !expanded;
+    }
+
+    public boolean isExpanded() {
+        return expanded;
+    }
+
     public ImageView getImageView() {
         return imageView;
     }
@@ -107,17 +115,4 @@ public class CloudImageViewHolder extends RecyclerView.ViewHolder {
         return progressBar;
     }
 
-    public void collapse() {
-        if(expanded)
-            animCollapse.start();
-
-        expanded = !expanded;
-    }
-
-    public void expand(){
-        if(!expanded)
-            animExpand.start();
-
-        expanded = !expanded;
-    }
 }

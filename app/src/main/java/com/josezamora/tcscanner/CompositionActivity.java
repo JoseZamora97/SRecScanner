@@ -156,7 +156,15 @@ public class CompositionActivity extends AppCompatActivity
 
     @Override
     public void onItemClick(int position) {
-
+        for (int childCount = recyclerView.getChildCount(), i = 0; i < childCount; ++i) {
+            CloudImageViewHolder holder = (CloudImageViewHolder)recyclerView
+                    .getChildViewHolder(recyclerView.getChildAt(i));
+            if(i == position)
+                holder.update();
+            else
+                if(holder.isExpanded())
+                    holder.update();
+        }
     }
 
     @Override
