@@ -2,12 +2,9 @@ package com.josezamora.tcscanner.ViewHolders;
 
 import android.animation.ValueAnimator;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 
 import com.josezamora.tcscanner.Interfaces.RecyclerViewOnClickInterface;
 import com.josezamora.tcscanner.R;
