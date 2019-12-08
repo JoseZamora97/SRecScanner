@@ -8,32 +8,26 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Filter;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
-import com.josezamora.tcscanner.Adapters.CompositionsRecyclerAdapter;
-import com.josezamora.tcscanner.Classes.Composition;
 import com.josezamora.tcscanner.Dialogs.NewCloudCompositionDialog;
 import com.josezamora.tcscanner.Firebase.Classes.CloudComposition;
-import com.josezamora.tcscanner.Firebase.Classes.CloudImage;
 import com.josezamora.tcscanner.Firebase.Classes.CloudUser;
-import com.josezamora.tcscanner.Firebase.Controllers.FirebaseDatabaseController;
-import com.josezamora.tcscanner.Firebase.Controllers.FirebaseStorageController;
+import com.josezamora.tcscanner.Firebase.Controllers.FirebaseController;
 import com.josezamora.tcscanner.Interfaces.AppGlobals;
 import com.josezamora.tcscanner.Interfaces.RecyclerViewOnClickInterface;
 import com.josezamora.tcscanner.ViewHolders.CloudCompositionViewHolder;
-
 
 import java.util.Objects;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.appcompat.widget.SearchView;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -59,7 +53,7 @@ public class MainActivity extends AppCompatActivity
 
     CloudUser user;
 
-    FirebaseDatabaseController databaseController;
+    FirebaseController firebaseController;
     FirestoreRecyclerAdapter cloudCompositionsAdapter;
 
     @Override
@@ -73,12 +67,12 @@ public class MainActivity extends AppCompatActivity
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        databaseController = new FirebaseDatabaseController();
+        firebaseController = new FirebaseController();
 
         user = CloudUser.userFromFirebase(
                 Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()));
 
-        databaseController.createUser(user);
+        firebaseController.createUser(user);
 
         btnSwitchViewMode = findViewById(R.id.imageViewMode);
         recyclerView = findViewById(R.id.rv_compositions);
@@ -115,7 +109,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onLongItemClick(int position) {}
+    public void onLongItemClick(int position) { /* Nothing */ }
 
     @Override
     public void onRefresh() {
@@ -138,14 +132,10 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                if(newText.equals(""))
-                    cloudCompositionsAdapter.updateOptions(databaseController
-                            .createRecyclerOptions(user));
-
-                else
-                    cloudCompositionsAdapter.updateOptions(databaseController
-                            .createFilterOptions(user, newText));
-
+                if(newText.equals("")) cloudCompositionsAdapter
+                        .updateOptions(firebaseController.getRecyclerOptions(user));
+                else cloudCompositionsAdapter
+                        .updateOptions(firebaseController.getRecyclerOptions(user, newText));
                 cloudCompositionsAdapter.startListening();
                 return false;
             }
@@ -158,7 +148,7 @@ public class MainActivity extends AppCompatActivity
 
         final RecyclerViewOnClickInterface rvOnClick = this;
         return new FirestoreRecyclerAdapter<CloudComposition, CloudCompositionViewHolder>(
-                databaseController.createRecyclerOptions(user)) {
+                firebaseController.getRecyclerOptions(user)) {
 
             @NonNull
             @Override
@@ -213,7 +203,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void addNewComposition(View view) {
-        new NewCloudCompositionDialog(user, databaseController)
+        new NewCloudCompositionDialog(user, firebaseController)
                 .show(getSupportFragmentManager(), "NEW");
     }
 
@@ -227,6 +217,8 @@ public class MainActivity extends AppCompatActivity
             return false;
         }
 
+        boolean undo;
+
         @Override
         public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
             // Swipe Right to Left to delete.
@@ -235,17 +227,25 @@ public class MainActivity extends AppCompatActivity
                 final CloudComposition composition = (CloudComposition) cloudCompositionsAdapter
                         .getItem(position);
 
-                databaseController.deleteComposition(composition);
+                firebaseController.deleteComposition(composition, false);
 
-                Snackbar.make(recyclerView, composition.getName() + " "
-                                + "ha sido eliminado"
-                        , Snackbar.LENGTH_INDEFINITE)
+                Snackbar.make(recyclerView, composition.getName() + " ha sido eliminado"
+                                , Snackbar.LENGTH_INDEFINITE)
                         .setDuration(3000)
+                        .addCallback(new Snackbar.Callback(){
+                            @Override
+                            public void onDismissed(Snackbar snackbar, int event) {
+                                undo = event == BaseTransientBottomBar
+                                        .BaseCallback.DISMISS_EVENT_ACTION;
+
+                                if(undo) firebaseController.addComposition(composition);
+                                else firebaseController
+                                        .deleteComposition(composition, true);
+                            }
+                        })
                         .setAction("Deshacer", new View.OnClickListener() {
                             @Override
-                            public void onClick(View v) {
-                                databaseController.addComposition(composition);
-                            }
+                            public void onClick(View v) {}
                         })
                         .show();
             }

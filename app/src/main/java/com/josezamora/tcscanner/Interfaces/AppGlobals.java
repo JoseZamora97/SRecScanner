@@ -44,6 +44,11 @@ public interface AppGlobals {
      */
     int REQUEST_CODE_SIGN_IN = 3;
 
+    /*
+     * The constant MAX_PHOTOS_PER_COMPOSITION.
+     */
+    int MAX_PHOTOS_PER_COMPOSITION = 5;
+
     /**
      * The constant COMPOSITION_KEY
      */

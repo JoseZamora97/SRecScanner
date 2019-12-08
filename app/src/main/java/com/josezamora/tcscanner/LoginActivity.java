@@ -10,14 +10,12 @@ import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.josezamora.tcscanner.Firebase.Controllers.FirebaseDatabaseController;
 import com.josezamora.tcscanner.Interfaces.AppGlobals;
 
 import java.util.Objects;
 
 public class LoginActivity extends AppCompatActivity {
 
-    FirebaseDatabaseController databaseController;
     FirebaseAuth auth;
 
     @Override
@@ -25,7 +23,6 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        databaseController = new FirebaseDatabaseController();
         auth = FirebaseAuth.getInstance();
 
         FirebaseUser user = auth.getCurrentUser();

@@ -17,21 +17,20 @@ import java.io.InputStream;
 
 import androidx.annotation.NonNull;
 
-public class FirebaseStorageController {
+@SuppressWarnings("SpellCheckingInspection")
+class FirebaseStorageController {
 
     private FirebaseStorage storage;
     private Task<Uri> urlTask;
 
-    private static final String COMPOSITIONS = "compositions";
-
     private FirebaseDatabaseController controller;
 
-    public FirebaseStorageController () {
+    FirebaseStorageController() {
         storage = FirebaseStorage.getInstance();
         controller = new FirebaseDatabaseController();
     }
 
-    public void uploadImage(final CloudUser user, final CloudComposition composition, InputStream data) {
+    void uploadImage(final CloudUser user, final CloudComposition composition, InputStream data) {
 
         final String imageId = String.valueOf(System.currentTimeMillis());
 
@@ -62,12 +61,12 @@ public class FirebaseStorageController {
                 });
     }
 
-    public StorageReference getReference(CloudImage model) {
+    StorageReference getReference(CloudImage image) {
         StorageReference storageReference = storage.getReference();
-        return storageReference.child(model.getFirebaseStoragePath());
+        return storageReference.child(image.getFirebaseStoragePath());
     }
 
-    public void delete(CloudImage image) {
+    void delete(CloudImage image) {
         StorageReference storageReference = getReference(image);
         storageReference.delete();
     }

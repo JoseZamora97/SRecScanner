@@ -10,7 +10,8 @@ public class CloudImage {
 
     public CloudImage() {}
 
-    public CloudImage(String id, String owner, String composition, String firebaseStoragePath, String downloadLink) {
+    public CloudImage(String id, String owner, String composition, String firebaseStoragePath,
+                      String downloadLink ){
         this.id = id;
         this.owner = owner;
         this.composition = composition;

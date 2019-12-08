@@ -27,7 +27,7 @@ public class CloudImageViewHolder extends RecyclerView.ViewHolder {
 
     private int height;
 
-    private static int ANIM_SPEED = 300;
+    private static int ANIM_SPEED = 250;
 
     public CloudImageViewHolder(@NonNull final View itemView,
                                 final RecyclerViewOnClickInterface recyclerViewOnClickInterface) {
@@ -42,6 +42,7 @@ public class CloudImageViewHolder extends RecyclerView.ViewHolder {
         ViewTreeObserver.OnGlobalLayoutListener viewTreeListener = new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
+
                 height = cardView.getMeasuredHeight();
 
                 animExpand = ValueAnimator.ofInt(height, height * 2);
@@ -55,7 +56,6 @@ public class CloudImageViewHolder extends RecyclerView.ViewHolder {
                         cardView.setLayoutParams(layoutParams);
                     }
                 });
-
                 animCollapse = ValueAnimator.ofInt(height * 2, height);
                 animCollapse.setDuration(ANIM_SPEED);
                 animCollapse.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
@@ -88,15 +88,15 @@ public class CloudImageViewHolder extends RecyclerView.ViewHolder {
                 return false;
             }
         });
-
     }
 
     public void update() {
-        if(!expanded)
+        if(!expanded) {
             animExpand.start();
-        else
+        }
+        else {
             animCollapse.start();
-
+        }
         expanded = !expanded;
     }
 
@@ -111,5 +111,4 @@ public class CloudImageViewHolder extends RecyclerView.ViewHolder {
     public ProgressBar getProgressBar() {
         return progressBar;
     }
-
 }

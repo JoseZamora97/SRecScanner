@@ -5,7 +5,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -18,7 +17,8 @@ import java.util.Objects;
 
 import androidx.annotation.NonNull;
 
-public class FirebaseDatabaseController {
+@SuppressWarnings("SpellCheckingInspection")
+class FirebaseDatabaseController {
 
     private FirebaseFirestore database;
 
@@ -28,11 +28,11 @@ public class FirebaseDatabaseController {
 
     private static final String FIELD_NAME = "name";
 
-    public FirebaseDatabaseController() {
+    FirebaseDatabaseController() {
         database = FirebaseFirestore.getInstance();
     }
 
-    public void createUser(CloudUser user) {
+    void createUser(CloudUser user) {
         database.collection(USERS).document(user.getuId()).set(user);
     }
 
@@ -52,17 +52,22 @@ public class FirebaseDatabaseController {
                 .document(image.getId());
     }
 
-    public void addComposition(CloudComposition composition) {
+    void addComposition(CloudComposition composition) {
         DocumentReference docRef = getReference(composition);
         docRef.set(composition);
     }
 
-    public void addImage(CloudImage image) {
+    void addImage(CloudImage image) {
         DocumentReference docRef = getReference(image);
         docRef.set(image);
     }
 
-    public void deleteComposition(CloudComposition composition) {
+    void deleteComposition(CloudComposition composition) {
+        DocumentReference docRef = getReference(composition);
+        docRef.delete();
+    }
+
+    void deleteCompositionDefinitive(CloudComposition composition) {
         DocumentReference docRef = getReference(composition);
         final CollectionReference colRef = docRef.collection(IMAGES);
 
@@ -79,12 +84,12 @@ public class FirebaseDatabaseController {
         docRef.delete();
     }
 
-    public void deleteImage(CloudImage image) {
+    void deleteImage(CloudImage image) {
         DocumentReference docRef = getReference(image);
         docRef.delete();
     }
 
-    public FirestoreRecyclerOptions<CloudComposition> createFilterOptions(CloudUser user, String newText) {
+    FirestoreRecyclerOptions<CloudComposition> createFilterOptions(CloudUser user, String newText) {
         Query query = FirebaseFirestore.getInstance()
                 .collection(USERS)
                 .document(user.getuId())
@@ -95,7 +100,7 @@ public class FirebaseDatabaseController {
         return setQuery(query);
     }
 
-    public FirestoreRecyclerOptions<CloudComposition> createRecyclerOptions(CloudUser user) {
+    FirestoreRecyclerOptions<CloudComposition> createRecyclerOptions(CloudUser user) {
         Query query = FirebaseFirestore.getInstance()
                 .collection(USERS)
                 .document(user.getuId())
@@ -110,8 +115,8 @@ public class FirebaseDatabaseController {
                 .build();
     }
 
-    public FirestoreRecyclerOptions<CloudImage> createRecyclerOptions(CloudUser user,
-                                                                      CloudComposition composition) {
+    FirestoreRecyclerOptions<CloudImage> createRecyclerOptions(CloudUser user,
+                                                               CloudComposition composition) {
         Query query = FirebaseFirestore.getInstance()
                 .collection(USERS)
                 .document(user.getuId())

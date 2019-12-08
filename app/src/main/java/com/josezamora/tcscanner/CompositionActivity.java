@@ -30,8 +30,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.josezamora.tcscanner.Firebase.Classes.CloudComposition;
 import com.josezamora.tcscanner.Firebase.Classes.CloudImage;
 import com.josezamora.tcscanner.Firebase.Classes.CloudUser;
-import com.josezamora.tcscanner.Firebase.Controllers.FirebaseDatabaseController;
-import com.josezamora.tcscanner.Firebase.Controllers.FirebaseStorageController;
+import com.josezamora.tcscanner.Firebase.Controllers.FirebaseController;
 import com.josezamora.tcscanner.Interfaces.AppGlobals;
 import com.josezamora.tcscanner.Interfaces.RecyclerViewOnClickInterface;
 import com.josezamora.tcscanner.ViewHolders.CloudImageViewHolder;
@@ -67,8 +66,7 @@ public class CompositionActivity extends AppCompatActivity
     RecyclerView recyclerView;
     ItemTouchHelper itemTouchHelper;
 
-    FirebaseDatabaseController databaseController;
-    FirebaseStorageController storageController;
+    FirebaseController firebaseController;
 
     FloatingActionButton btnAdd, btnCamera, btnGallery;
     Animation fabOpen, fabClose, rotateForward, rotateBackward;
@@ -83,8 +81,7 @@ public class CompositionActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_composition);
 
-        databaseController = new FirebaseDatabaseController();
-        storageController = new FirebaseStorageController();
+        firebaseController = new FirebaseController();
 
         user = CloudUser.userFromFirebase(
                 Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()));
@@ -139,13 +136,11 @@ public class CompositionActivity extends AppCompatActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
         if (resultCode == RESULT_OK) {
             switch (requestCode) {
                 case AppGlobals.REQUEST_CODE_CAMERA:
                     uploadImage(photoUri);
                     break;
-
                 case AppGlobals.REQUEST_CODE_STORAGE:
                     assert data != null;
                     uploadImage(data.getData());
@@ -156,11 +151,13 @@ public class CompositionActivity extends AppCompatActivity
 
     @Override
     public void onItemClick(int position) {
+        CloudImage image = (CloudImage)cloudImagesAdapter.getItem(position);
         for (int childCount = recyclerView.getChildCount(), i = 0; i < childCount; ++i) {
             CloudImageViewHolder holder = (CloudImageViewHolder)recyclerView
                     .getChildViewHolder(recyclerView.getChildAt(i));
-            if(i == position)
+            if(i == position) {
                 holder.update();
+            }
             else
                 if(holder.isExpanded())
                     holder.update();
@@ -182,14 +179,13 @@ public class CompositionActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-
     private FirestoreRecyclerAdapter getCloudRecyclerAdapter() {
 
         final int resourceLayout = R.layout.list_photo_item;
         final RecyclerViewOnClickInterface rvOnClick = this;
 
         return new FirestoreRecyclerAdapter<CloudImage, CloudImageViewHolder>(
-                databaseController.createRecyclerOptions(user, composition)) {
+                firebaseController.getRecyclerOptions(user, composition)) {
 
             @NonNull
             @Override
@@ -203,31 +199,35 @@ public class CompositionActivity extends AppCompatActivity
             protected void onBindViewHolder(@NonNull CloudImageViewHolder holder, int position,
                                             @NonNull CloudImage model) {
 
-                ImageView imageView = holder.getImageView();
-                final ProgressBar progressBar = holder.getProgressBar();
 
-                GlideApp.with(getApplicationContext())
-                        .load(storageController.getReference(model))
-                        .transition(DrawableTransitionOptions.withCrossFade())
-                        .listener(new RequestListener<Drawable>() {
-                            @Override
-                            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                                progressBar.setVisibility(View.GONE);
-                                return false;
-                            }
-                            @Override
-                            public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                                progressBar.setVisibility(View.GONE);
-                                return false;
-                            }
-                        })
-                        .into(imageView);
-
+                fetchImage(holder, model);
             }
         };
     }
 
-    public void animateFabs(View v) {
+    private void fetchImage(CloudImageViewHolder holder, CloudImage image) {
+        ImageView imageView = holder.getImageView();
+        final ProgressBar progressBar = holder.getProgressBar();
+
+        GlideApp.with(getApplicationContext())
+                .load(firebaseController.getReference(image))
+                .transition(DrawableTransitionOptions.withCrossFade())
+                .listener(new RequestListener<Drawable>() {
+                    @Override
+                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                        progressBar.setVisibility(View.GONE);
+                        return false;
+                    }
+                    @Override
+                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                        progressBar.setVisibility(View.GONE);
+                        return false;
+                    }
+                })
+                .into(imageView);
+    }
+
+    public void animateFloatActionButtons(View v) {
         if(isOpen){
             btnAdd.startAnimation(rotateBackward);
 
@@ -251,7 +251,7 @@ public class CompositionActivity extends AppCompatActivity
     }
 
     public void addPhotoFromCamera(View v) {
-        animateFabs(v);
+        animateFloatActionButtons(v);
 
         Intent cameraOpenIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
@@ -268,7 +268,7 @@ public class CompositionActivity extends AppCompatActivity
     }
 
     public void addPhotoFromGallery(View v) {
-        animateFabs(v);
+        animateFloatActionButtons(v);
 
         Intent galleryOpen = new Intent(Intent.ACTION_PICK,
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -281,7 +281,7 @@ public class CompositionActivity extends AppCompatActivity
         InputStream stream;
         try {
             stream = getContentResolver().openInputStream(data);
-            storageController.uploadImage(user, composition, stream);
+            firebaseController.uploadImage(user, composition, stream);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -299,14 +299,12 @@ public class CompositionActivity extends AppCompatActivity
                               @NonNull RecyclerView.ViewHolder viewHolder,
                               @NonNull RecyclerView.ViewHolder target) {
 
-//            TODO: fix
-//            int srcPosition = viewHolder.getAdapterPosition();
-//            int dstPosition = target.getAdapterPosition();
-//
-//            Collections.swap(composition.getListPhotos(), srcPosition, dstPosition);
-//            Objects.requireNonNull(recyclerView.getAdapter()).notifyItemMoved(srcPosition,
-//                    dstPosition);
-            return false;
+            int srcPosition = viewHolder.getAdapterPosition();
+            int dstPosition = target.getAdapterPosition();
+            Objects.requireNonNull(recyclerView.getAdapter()).notifyItemMoved(srcPosition,
+                    dstPosition);
+
+            return true;
         }
 
         boolean undo;
@@ -318,7 +316,7 @@ public class CompositionActivity extends AppCompatActivity
                 final int position  = viewHolder.getAdapterPosition();
                 final CloudImage image = (CloudImage) cloudImagesAdapter.getItem(position);
 
-                databaseController.deleteImage(image);
+                firebaseController.deleteImage(image, false);
 
                 Snackbar.make(recyclerView, "Foto eliminada", Snackbar.LENGTH_INDEFINITE)
                         .setDuration(3000)
@@ -328,9 +326,9 @@ public class CompositionActivity extends AppCompatActivity
                                 undo = event == BaseTransientBottomBar
                                         .BaseCallback.DISMISS_EVENT_ACTION;
                                 if(!undo)
-                                    storageController.delete(image);
+                                    firebaseController.deleteImage(image, false);
                                 else
-                                    databaseController.addImage(image);
+                                    firebaseController.addImage(image);
                             }
                         })
                         .setAction("Deshacer", new View.OnClickListener() {

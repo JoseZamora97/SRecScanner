@@ -10,7 +10,7 @@ import android.widget.EditText;
 
 import com.josezamora.tcscanner.Firebase.Classes.CloudComposition;
 import com.josezamora.tcscanner.Firebase.Classes.CloudUser;
-import com.josezamora.tcscanner.Firebase.Controllers.FirebaseDatabaseController;
+import com.josezamora.tcscanner.Firebase.Controllers.FirebaseController;
 import com.josezamora.tcscanner.R;
 
 import java.util.Objects;
@@ -24,11 +24,11 @@ public class NewCloudCompositionDialog extends AppCompatDialogFragment {
     private CloudUser user;
     private EditText editTextName;
 
-    private FirebaseDatabaseController databaseController;
+    private FirebaseController firebaseController;
 
-    public NewCloudCompositionDialog(CloudUser user, FirebaseDatabaseController databaseController) {
+    public NewCloudCompositionDialog(CloudUser user, FirebaseController firebaseController) {
         this.user = user;
-        this.databaseController = databaseController;
+        this.firebaseController = firebaseController;
     }
 
     @SuppressLint("InflateParams")
@@ -66,6 +66,6 @@ public class NewCloudCompositionDialog extends AppCompatDialogFragment {
         String compositionId = String.valueOf(System.currentTimeMillis());
         CloudComposition composition = new CloudComposition(compositionId, editTextName.getText().toString(), user.getuId());
 
-        databaseController.addComposition(composition);
+        firebaseController.addComposition(composition);
     }
 }
