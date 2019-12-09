@@ -122,10 +122,20 @@ class FirebaseDatabaseController {
                 .document(user.getuId())
                 .collection(COMPOSITIONS)
                 .document(composition.getId())
-                .collection(IMAGES);
+                .collection(IMAGES).orderBy("order");
 
         return new FirestoreRecyclerOptions.Builder<CloudImage>()
                 .setQuery(query, CloudImage.class)
                 .build();
+    }
+
+    void updateComposition(CloudComposition composition) {
+        DocumentReference docRef = getReference(composition);
+        docRef.update("numImages", composition.getNumImages());
+    }
+
+    void updateImage(CloudImage image) {
+        DocumentReference docRef = getReference(image);
+        docRef.update("order", image.getOrder());
     }
 }

@@ -64,8 +64,8 @@ public class NewCloudCompositionDialog extends AppCompatDialogFragment {
 
     private void addComposition() {
         String compositionId = String.valueOf(System.currentTimeMillis());
-        CloudComposition composition = new CloudComposition(compositionId, editTextName.getText().toString(), user.getuId());
-
+        CloudComposition composition = new CloudComposition(compositionId, editTextName
+                .getText().toString(), user.getuId());
         firebaseController.addComposition(composition);
     }
 }

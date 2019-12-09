@@ -106,7 +106,7 @@ public class CompositionActivity extends AppCompatActivity
         ((TextView) findViewById(R.id.composition)).setText(composition.getName());
         recyclerView = findViewById(R.id.rv_photos);
 
-        cloudImagesAdapter = getCloudRecyclerAdapter();
+        cloudImagesAdapter = setUpRecyclerAdapter();
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(cloudImagesAdapter);
@@ -117,8 +117,8 @@ public class CompositionActivity extends AppCompatActivity
                 ContextCompat.getDrawable(this, R.drawable.recycler_divider)));
         recyclerView.addItemDecoration(itemDecor);
 
-        itemTouchHelper = new ItemTouchHelper(simpleCallback);
-        itemTouchHelper.attachToRecyclerView(recyclerView);
+//        itemTouchHelper = new ItemTouchHelper(simpleCallback);
+//        itemTouchHelper.attachToRecyclerView(recyclerView);
     }
 
     @Override
@@ -179,7 +179,7 @@ public class CompositionActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    private FirestoreRecyclerAdapter getCloudRecyclerAdapter() {
+    private FirestoreRecyclerAdapter setUpRecyclerAdapter() {
 
         final int resourceLayout = R.layout.list_photo_item;
         final RecyclerViewOnClickInterface rvOnClick = this;
@@ -301,8 +301,16 @@ public class CompositionActivity extends AppCompatActivity
 
             int srcPosition = viewHolder.getAdapterPosition();
             int dstPosition = target.getAdapterPosition();
-            Objects.requireNonNull(recyclerView.getAdapter()).notifyItemMoved(srcPosition,
-                    dstPosition);
+
+            CloudImage srcImage = (CloudImage)cloudImagesAdapter.getItem(srcPosition);
+            CloudImage dstImage = (CloudImage)cloudImagesAdapter.getItem(dstPosition);
+
+            int aux = srcImage.getOrder();
+            srcImage.setOrder(dstImage.getOrder());
+            dstImage.setOrder(aux);
+
+            firebaseController.updateImage(srcImage);
+            firebaseController.updateImage(dstImage);
 
             return true;
         }
@@ -325,10 +333,8 @@ public class CompositionActivity extends AppCompatActivity
                             public void onDismissed(Snackbar snackbar, int event) {
                                 undo = event == BaseTransientBottomBar
                                         .BaseCallback.DISMISS_EVENT_ACTION;
-                                if(!undo)
-                                    firebaseController.deleteImage(image, false);
-                                else
-                                    firebaseController.addImage(image);
+                                if(!undo) firebaseController.deleteImage(image, false);
+                                else firebaseController.addImage(image);
                             }
                         })
                         .setAction("Deshacer", new View.OnClickListener() {

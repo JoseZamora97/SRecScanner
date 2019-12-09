@@ -2,21 +2,19 @@ package com.josezamora.tcscanner.Firebase.Classes;
 
 
 import java.io.Serializable;
-import java.util.HashMap;
 
 public class CloudComposition implements Serializable {
 
     private String id;
     private String name;
     private String owner;
-
-    private HashMap<String, Integer> idPhotos;
+    private int numImages;
 
     public CloudComposition(String id, String name, String owner) {
         this.id = id;
         this.name = name;
         this.owner = owner;
-        this.idPhotos = new HashMap<>();
+        this.numImages = 0;
     }
 
     public CloudComposition() {}
@@ -33,11 +31,11 @@ public class CloudComposition implements Serializable {
         return owner;
     }
 
-    public HashMap<String, Integer> getIdPhotos() {
-        return idPhotos;
+    public int getNumImages() {
+        return numImages;
     }
 
-    public void setIdPhotos(HashMap<String, Integer> idPhotos){
-        this.idPhotos = idPhotos;
+    public void setNumImages(int numImages) {
+        this.numImages = numImages;
     }
 }

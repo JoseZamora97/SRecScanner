@@ -54,8 +54,9 @@ class FirebaseStorageController {
                     public void onComplete(@NonNull Task<Uri> task) {
                         Uri downloadUri = task.getResult();
                         assert downloadUri != null;
+                        composition.setNumImages(composition.getNumImages() + 1);
                         CloudImage image = new CloudImage(imageId, user.getuId(), composition.getId(),
-                                imgRef.getPath(), downloadUri.toString());
+                                imgRef.getPath(), downloadUri.toString(), composition.getNumImages());
                         controller.addImage(image);
                     }
                 });

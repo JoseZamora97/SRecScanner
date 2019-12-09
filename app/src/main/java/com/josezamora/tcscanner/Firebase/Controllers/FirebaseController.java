@@ -62,4 +62,8 @@ public class FirebaseController {
     public void addImage(CloudImage image) {
         databaseController.addImage(image);
     }
+
+    public void updateImage(CloudImage image) {
+        databaseController.updateImage(image);
+    }
 }
