@@ -23,10 +23,13 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.UploadTask;
 import com.josezamora.tcscanner.Firebase.Classes.CloudComposition;
 import com.josezamora.tcscanner.Firebase.Classes.CloudImage;
 import com.josezamora.tcscanner.Firebase.Classes.CloudUser;
@@ -44,6 +47,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -61,7 +65,7 @@ public class CompositionActivity extends AppCompatActivity
     CloudComposition composition;
     CloudUser user;
 
-    ProgressBar progressBar;
+    CardView progressBar;
 
     RecyclerView recyclerView;
     ItemTouchHelper itemTouchHelper;
@@ -72,6 +76,7 @@ public class CompositionActivity extends AppCompatActivity
     Animation fabOpen, fabClose, rotateForward, rotateBackward;
 
     private boolean isOpen = false;
+    private boolean newChanges = false;
 
     private Uri photoUri;
     private FirestoreRecyclerAdapter cloudImagesAdapter;
@@ -91,6 +96,8 @@ public class CompositionActivity extends AppCompatActivity
         btnAdd = findViewById(R.id.fabAdd);
         btnCamera = findViewById(R.id.fabAddFromCamera);
         btnGallery = findViewById(R.id.fabAddFromGallery);
+
+        progressBar = findViewById(R.id.card_progress);
 
         fabOpen = AnimationUtils.loadAnimation(this, R.anim.fab_open);
         fabClose = AnimationUtils.loadAnimation(this, R.anim.fab_close);
@@ -117,8 +124,8 @@ public class CompositionActivity extends AppCompatActivity
                 ContextCompat.getDrawable(this, R.drawable.recycler_divider)));
         recyclerView.addItemDecoration(itemDecor);
 
-//        itemTouchHelper = new ItemTouchHelper(simpleCallback);
-//        itemTouchHelper.attachToRecyclerView(recyclerView);
+        itemTouchHelper = new ItemTouchHelper(simpleCallback);
+        itemTouchHelper.attachToRecyclerView(recyclerView);
     }
 
     @Override
@@ -128,10 +135,30 @@ public class CompositionActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onRestart() {
+        super.onRestart();
+        cloudImagesAdapter.startListening();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        cloudImagesAdapter.stopListening();
+    }
+
+    @Override
     protected void onStop() {
         super.onStop();
         cloudImagesAdapter.stopListening();
     }
+
+    private void updateCompositionAndImages() {
+        firebaseController.update(composition);
+        for (int childCount = recyclerView.getChildCount(), i = 0; i < childCount; ++i)
+            firebaseController.update((CloudImage)cloudImagesAdapter.getItem(i));
+        this.newChanges = !this.newChanges;
+    }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -151,13 +178,11 @@ public class CompositionActivity extends AppCompatActivity
 
     @Override
     public void onItemClick(int position) {
-        CloudImage image = (CloudImage)cloudImagesAdapter.getItem(position);
         for (int childCount = recyclerView.getChildCount(), i = 0; i < childCount; ++i) {
             CloudImageViewHolder holder = (CloudImageViewHolder)recyclerView
                     .getChildViewHolder(recyclerView.getChildAt(i));
-            if(i == position) {
+            if(i == position)
                 holder.update();
-            }
             else
                 if(holder.isExpanded())
                     holder.update();
@@ -179,8 +204,7 @@ public class CompositionActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    private FirestoreRecyclerAdapter setUpRecyclerAdapter() {
-
+    private FirestoreRecyclerAdapter<CloudImage, CloudImageViewHolder> setUpRecyclerAdapter() {
         final int resourceLayout = R.layout.list_photo_item;
         final RecyclerViewOnClickInterface rvOnClick = this;
 
@@ -198,8 +222,6 @@ public class CompositionActivity extends AppCompatActivity
             @Override
             protected void onBindViewHolder(@NonNull CloudImageViewHolder holder, int position,
                                             @NonNull CloudImage model) {
-
-
                 fetchImage(holder, model);
             }
         };
@@ -280,8 +302,22 @@ public class CompositionActivity extends AppCompatActivity
     private void uploadImage(Uri data) {
         InputStream stream;
         try {
+            progressBar.setVisibility(View.VISIBLE);
             stream = getContentResolver().openInputStream(data);
-            firebaseController.uploadImage(user, composition, stream);
+            firebaseController.uploadImage(user, composition, stream)
+                    .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onProgress(@NonNull UploadTask.TaskSnapshot taskSnapshot) {
+                    double progress = (100.0 * taskSnapshot.getBytesTransferred())
+                            / taskSnapshot.getTotalByteCount();
+                    //progressBar.setProgress((int) progress);
+                }
+            }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    progressBar.setVisibility(View.GONE);
+                }
+            });
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -309,8 +345,8 @@ public class CompositionActivity extends AppCompatActivity
             srcImage.setOrder(dstImage.getOrder());
             dstImage.setOrder(aux);
 
-            firebaseController.updateImage(srcImage);
-            firebaseController.updateImage(dstImage);
+            newChanges = !newChanges;
+            cloudImagesAdapter.notifyItemMoved(srcPosition, dstPosition);
 
             return true;
         }
