@@ -6,7 +6,8 @@
     android:id="@+id/cardview_imagen_item"
     android:layout_height="130dp"
     app:cardElevation="5dp"
-    android:background="@color/fui_transparent">
+    android:background="@color/fui_transparent"
+    android:animateLayoutChanges="true">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -29,18 +30,20 @@
             android:layout_centerInParent="true"/>
 
         <RelativeLayout
+            android:id="@+id/relative_tint"
             android:layout_width="match_parent"
             android:layout_height="40dp"
             android:layout_alignParentBottom="true"
             android:background="@color/colorItemContrast">
 
-            <ImageView
+            <TextView
+                android:id="@+id/text_image"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_marginEnd="13dp"
-                android:layout_alignParentEnd="true"
-                android:src="@drawable/ic_settings_white_24dp"
-                android:contentDescription="@string/boton_configurar" />
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="13dp"
+                android:fontFamily="@font/nunito"
+                android:textColor="@color/colorPrimary"/>
 
         </RelativeLayout>
 

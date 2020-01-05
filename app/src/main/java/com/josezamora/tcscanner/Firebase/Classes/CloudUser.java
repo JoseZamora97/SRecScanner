@@ -2,11 +2,12 @@ package com.josezamora.tcscanner.Firebase.Classes;
 
 import com.google.firebase.auth.FirebaseUser;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class CloudUser {
+public class CloudUser implements Serializable {
 
     private String uId;
     private String name;

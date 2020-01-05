@@ -1,10 +1,15 @@
 package com.josezamora.tcscanner.ViewHolders;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.josezamora.tcscanner.Interfaces.RecyclerViewOnClickInterface;
 import com.josezamora.tcscanner.R;
@@ -19,6 +24,7 @@ public class CloudImageViewHolder extends RecyclerView.ViewHolder {
     private ImageView imageView;
     private ProgressBar progressBar;
     private CardView cardView;
+    private TextView textView;
 
     private boolean expanded;
 
@@ -36,6 +42,7 @@ public class CloudImageViewHolder extends RecyclerView.ViewHolder {
         imageView = itemView.findViewById(R.id.imagePreview);
         progressBar = itemView.findViewById(R.id.progress_bar);
         cardView = itemView.findViewById(R.id.cardview_imagen_item);
+        textView = itemView.findViewById(R.id.text_image);
 
         ViewTreeObserver viewTreeObserver = cardView.getViewTreeObserver();
 
@@ -51,20 +58,21 @@ public class CloudImageViewHolder extends RecyclerView.ViewHolder {
                     @Override
                     public void onAnimationUpdate(ValueAnimator valueAnimator) {
                         int val = (Integer) valueAnimator.getAnimatedValue();
-                        RecyclerView.LayoutParams layoutParams = (RecyclerView.LayoutParams) cardView.getLayoutParams();
-                        layoutParams.height = val;
-                        cardView.setLayoutParams(layoutParams);
+                        RecyclerView.LayoutParams cardLayoutParams = (RecyclerView.LayoutParams) cardView.getLayoutParams();
+                        cardLayoutParams.height = val;
+                        cardView.setLayoutParams(cardLayoutParams);
                     }
                 });
+
                 animCollapse = ValueAnimator.ofInt(height * 2, height);
                 animCollapse.setDuration(ANIM_SPEED);
                 animCollapse.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                     @Override
                     public void onAnimationUpdate(ValueAnimator valueAnimator) {
                         int val = (Integer) valueAnimator.getAnimatedValue();
-                        RecyclerView.LayoutParams layoutParams = (RecyclerView.LayoutParams) cardView.getLayoutParams();
-                        layoutParams.height = val;
-                        cardView.setLayoutParams(layoutParams);
+                        RecyclerView.LayoutParams cardLayoutParams = (RecyclerView.LayoutParams) cardView.getLayoutParams();
+                        cardLayoutParams.height = val;
+                        cardView.setLayoutParams(cardLayoutParams);
                     }
                 });
 
@@ -91,12 +99,10 @@ public class CloudImageViewHolder extends RecyclerView.ViewHolder {
     }
 
     public void update() {
-        if(!expanded) {
+        if(!expanded)
             animExpand.start();
-        }
-        else {
+        else
             animCollapse.start();
-        }
         expanded = !expanded;
     }
 
@@ -110,5 +116,9 @@ public class CloudImageViewHolder extends RecyclerView.ViewHolder {
 
     public ProgressBar getProgressBar() {
         return progressBar;
+    }
+
+    public TextView getTextView() {
+        return textView;
     }
 }

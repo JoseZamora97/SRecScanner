@@ -1,35 +1,31 @@
 package com.josezamora.tcscanner;
 
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.drawable.Drawable;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
-import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.FutureTarget;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.BaseTransientBottomBar;
-import com.google.android.material.snackbar.Snackbar;
+import com.google.common.collect.BiMap;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.UploadTask;
+import com.josezamora.tcscanner.Firebase.Adapters.CloudCompositionRecyclerAdapter;
 import com.josezamora.tcscanner.Firebase.Classes.CloudComposition;
 import com.josezamora.tcscanner.Firebase.Classes.CloudImage;
 import com.josezamora.tcscanner.Firebase.Classes.CloudUser;
@@ -37,24 +33,36 @@ import com.josezamora.tcscanner.Firebase.Controllers.FirebaseController;
 import com.josezamora.tcscanner.Interfaces.AppGlobals;
 import com.josezamora.tcscanner.Interfaces.RecyclerViewOnClickInterface;
 import com.josezamora.tcscanner.ViewHolders.CloudImageViewHolder;
+import com.theartofdev.edmodo.cropper.CropImage;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
+
+import static android.util.TypedValue.COMPLEX_UNIT_SP;
 
 
 public class CompositionActivity extends AppCompatActivity
@@ -65,7 +73,7 @@ public class CompositionActivity extends AppCompatActivity
     CloudComposition composition;
     CloudUser user;
 
-    CardView progressBar;
+    CardView cardViewProgressShow;
 
     RecyclerView recyclerView;
     ItemTouchHelper itemTouchHelper;
@@ -76,10 +84,11 @@ public class CompositionActivity extends AppCompatActivity
     Animation fabOpen, fabClose, rotateForward, rotateBackward;
 
     private boolean isOpen = false;
+
     private boolean newChanges = false;
 
     private Uri photoUri;
-    private FirestoreRecyclerAdapter cloudImagesAdapter;
+    private CloudCompositionRecyclerAdapter cloudImagesAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,7 +106,7 @@ public class CompositionActivity extends AppCompatActivity
         btnCamera = findViewById(R.id.fabAddFromCamera);
         btnGallery = findViewById(R.id.fabAddFromGallery);
 
-        progressBar = findViewById(R.id.card_progress);
+        cardViewProgressShow = findViewById(R.id.card_progress);
 
         fabOpen = AnimationUtils.loadAnimation(this, R.anim.fab_open);
         fabClose = AnimationUtils.loadAnimation(this, R.anim.fab_close);
@@ -113,7 +122,8 @@ public class CompositionActivity extends AppCompatActivity
         ((TextView) findViewById(R.id.composition)).setText(composition.getName());
         recyclerView = findViewById(R.id.rv_photos);
 
-        cloudImagesAdapter = setUpRecyclerAdapter();
+        cloudImagesAdapter = new CloudCompositionRecyclerAdapter(
+                firebaseController.getRecyclerOptions(user,composition), this);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(cloudImagesAdapter);
@@ -152,25 +162,20 @@ public class CompositionActivity extends AppCompatActivity
         cloudImagesAdapter.stopListening();
     }
 
-    private void updateCompositionAndImages() {
-        firebaseController.update(composition);
-        for (int childCount = recyclerView.getChildCount(), i = 0; i < childCount; ++i)
-            firebaseController.update((CloudImage)cloudImagesAdapter.getItem(i));
-        this.newChanges = !this.newChanges;
-    }
-
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             switch (requestCode) {
                 case AppGlobals.REQUEST_CODE_CAMERA:
-                    uploadImage(photoUri);
+                    cropImage(photoUri);
                     break;
                 case AppGlobals.REQUEST_CODE_STORAGE:
                     assert data != null;
-                    uploadImage(data.getData());
+                    cropImage(data.getData());
+                    break;
+                case CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE:
+                    uploadImage(Objects.requireNonNull(CropImage.getActivityResult(data)).getUri());
                     break;
             }
         }
@@ -196,57 +201,169 @@ public class CompositionActivity extends AppCompatActivity
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_scan, menu);
+
+        MenuItem itemScan = menu.findItem(R.id.mItemActionScan);
+
+        itemScan.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem menuItem) {
+
+                if(cloudImagesAdapter.getCloudImages().size()>0) {
+                    try {
+                        toVisionActivity();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                return true;
+            }
+        });
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    private void cropImage(Uri uri) {
+        CropImage.activity(uri)
+                .setFixAspectRatio(true)
+                .setActivityMenuIconColor(getResources().getColor(R.color.colorBodies))
+                .setAspectRatio(AppGlobals.MAX_PHOTO_HEIGHT, AppGlobals.MAX_PHOTO_WIDTH)
+                .setActivityTitle("Recortar")
+                .start(this);
+    }
+
+    private class GlideImageDownload implements Runnable {
+
+        CloudImage image;
+        Context context;
+        Bitmap result = null;
+        CountDownLatch countDownLatch;
+
+        GlideImageDownload(CloudImage image, CountDownLatch countDownLatch, Context context) {
+            this.image = image;
+            this.context = context;
+            this.countDownLatch = countDownLatch;
+        }
+
+        @Override
+        public void run() {
+            FutureTarget<Bitmap> futureBitmap = GlideApp.with(this.context)
+                    .asBitmap()
+                    .load(this.image.getDownloadLink())
+                    .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                    .submit();
+            try {
+                result = futureBitmap.get();
+                this.countDownLatch.countDown();
+            } catch (ExecutionException | InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void toVisionActivity() throws InterruptedException {
+
+        CountDownLatch countDownLatch = new CountDownLatch(cloudImagesAdapter.getItemCount());
+        List<GlideImageDownload> tasks = new ArrayList<>();
+
+        for(CloudImage image : cloudImagesAdapter.getCloudImages()){
+            GlideImageDownload download = new GlideImageDownload(
+                    image, countDownLatch, this);
+            tasks.add(download);
+            new Thread(download).start();
+        }
+
+        countDownLatch.await();
+
+        List<Bitmap> bitmaps = new ArrayList<>();
+        for(GlideImageDownload download : tasks)
+            bitmaps.add(download.result);
+
+        Bitmap temp = combineBitmaps(bitmaps);
+
+        // TODO: fix parcel transaction
+        Intent toVisionActivity = new Intent(this, VisionActivity.class);
+        toVisionActivity.putExtra(AppGlobals.IMAGES_KEY, temp);
+        startActivity(toVisionActivity);
+    }
+
+    private Bitmap combineBitmaps(List<Bitmap> bitmaps) {
+
+        int height, width;
+        height = width = 0;
+
+        for(Bitmap bitmap : bitmaps) {
+            height += bitmap.getHeight();
+            width = bitmap.getWidth() > width ? bitmap.getWidth() : width;
+        }
+
+        Bitmap bitmapResult = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmapResult);
+        int index = 0;
+
+        Paint paint = new Paint();
+
+        for(Bitmap bitmap : bitmaps) {
+            canvas.drawBitmap(bitmap, 0, index, paint);
+            index += bitmap.getHeight();
+            bitmap = null;
+        }
+
+        return resizeBitmap(bitmapResult);
+    }
+
+    public Bitmap resizeBitmap(Bitmap bitmap) {
+        return bitmap;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            onBackPressed();
+            if(newChanges){
+
+                AlertDialog.Builder builderConfig = new AlertDialog.Builder(this);
+
+                builderConfig.setCancelable(false);
+                builderConfig.setTitle("Ups!!");
+                builderConfig.setMessage("Estás a punto de salir y hay cambios que no " +
+                        "se han guardado.¿Desea guardar cambios y volver?");
+
+                builderConfig.setPositiveButton("Guardar", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        saveChanges();
+                        onBackPressed();
+                    }
+                });
+
+                builderConfig.setNegativeButton("Descartar", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                        onBackPressed();
+                    }
+                });
+
+                AlertDialog alertDialog = builderConfig.create();
+                alertDialog.show();
+            }
+            else{
+                onBackPressed();
+            }
+
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private FirestoreRecyclerAdapter<CloudImage, CloudImageViewHolder> setUpRecyclerAdapter() {
-        final int resourceLayout = R.layout.list_photo_item;
-        final RecyclerViewOnClickInterface rvOnClick = this;
-
-        return new FirestoreRecyclerAdapter<CloudImage, CloudImageViewHolder>(
-                firebaseController.getRecyclerOptions(user, composition)) {
-
-            @NonNull
-            @Override
-            public CloudImageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                View view = LayoutInflater.from(parent.getContext())
-                        .inflate(resourceLayout, parent, false);
-                return new CloudImageViewHolder(view, rvOnClick);
-            }
-
-            @Override
-            protected void onBindViewHolder(@NonNull CloudImageViewHolder holder, int position,
-                                            @NonNull CloudImage model) {
-                fetchImage(holder, model);
-            }
-        };
-    }
-
-    private void fetchImage(CloudImageViewHolder holder, CloudImage image) {
-        ImageView imageView = holder.getImageView();
-        final ProgressBar progressBar = holder.getProgressBar();
-
-        GlideApp.with(getApplicationContext())
-                .load(firebaseController.getReference(image))
-                .transition(DrawableTransitionOptions.withCrossFade())
-                .listener(new RequestListener<Drawable>() {
-                    @Override
-                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                        progressBar.setVisibility(View.GONE);
-                        return false;
-                    }
-                    @Override
-                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                        progressBar.setVisibility(View.GONE);
-                        return false;
-                    }
-                })
-                .into(imageView);
+    public void saveChanges() {
+        for (int i = 0; i<cloudImagesAdapter.getCloudImages().size(); i++) {
+            CloudImage image = cloudImagesAdapter.getCloudImages().get(i);
+            image.setOrder(i+1);
+            firebaseController.update(image);
+        }
     }
 
     public void animateFloatActionButtons(View v) {
@@ -302,22 +419,16 @@ public class CompositionActivity extends AppCompatActivity
     private void uploadImage(Uri data) {
         InputStream stream;
         try {
-            progressBar.setVisibility(View.VISIBLE);
+            cardViewProgressShow.setVisibility(View.VISIBLE);
             stream = getContentResolver().openInputStream(data);
-            firebaseController.uploadImage(user, composition, stream)
-                    .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onProgress(@NonNull UploadTask.TaskSnapshot taskSnapshot) {
-                    double progress = (100.0 * taskSnapshot.getBytesTransferred())
-                            / taskSnapshot.getTotalByteCount();
-                    //progressBar.setProgress((int) progress);
-                }
-            }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    progressBar.setVisibility(View.GONE);
-                }
-            });
+            firebaseController
+                    .uploadImage(user, composition, stream)
+                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            cardViewProgressShow.setVisibility(View.GONE);
+                        }
+                    });
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -335,18 +446,15 @@ public class CompositionActivity extends AppCompatActivity
                               @NonNull RecyclerView.ViewHolder viewHolder,
                               @NonNull RecyclerView.ViewHolder target) {
 
+
             int srcPosition = viewHolder.getAdapterPosition();
             int dstPosition = target.getAdapterPosition();
 
-            CloudImage srcImage = (CloudImage)cloudImagesAdapter.getItem(srcPosition);
-            CloudImage dstImage = (CloudImage)cloudImagesAdapter.getItem(dstPosition);
-
-            int aux = srcImage.getOrder();
-            srcImage.setOrder(dstImage.getOrder());
-            dstImage.setOrder(aux);
-
-            newChanges = !newChanges;
-            cloudImagesAdapter.notifyItemMoved(srcPosition, dstPosition);
+            if(srcPosition!=dstPosition) {
+                newChanges = true;
+                Collections.swap(cloudImagesAdapter.getCloudImages(), srcPosition, dstPosition);
+                cloudImagesAdapter.notifyItemMoved(srcPosition, dstPosition);
+            }
 
             return true;
         }
@@ -354,31 +462,30 @@ public class CompositionActivity extends AppCompatActivity
         boolean undo;
 
         @Override
-        public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-
-            if(direction == ItemTouchHelper.LEFT) {
-                final int position  = viewHolder.getAdapterPosition();
-                final CloudImage image = (CloudImage) cloudImagesAdapter.getItem(position);
-
-                firebaseController.deleteImage(image, false);
-
-                Snackbar.make(recyclerView, "Foto eliminada", Snackbar.LENGTH_INDEFINITE)
-                        .setDuration(3000)
-                        .addCallback(new Snackbar.Callback(){
-                            @Override
-                            public void onDismissed(Snackbar snackbar, int event) {
-                                undo = event == BaseTransientBottomBar
-                                        .BaseCallback.DISMISS_EVENT_ACTION;
-                                if(!undo) firebaseController.deleteImage(image, false);
-                                else firebaseController.addImage(image);
-                            }
-                        })
-                        .setAction("Deshacer", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {}
-                        })
-                        .show();
-            }
+        public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) { // Todo: Fix
+//            if(direction == ItemTouchHelper.LEFT) {
+//                final int position  = viewHolder.getAdapterPosition();
+//                final CloudImage image = cloudImagesAdapter.getItem(position);
+//
+//                firebaseController.deleteImage(image, false);
+//
+//                Snackbar.make(recyclerView, "Foto eliminada", Snackbar.LENGTH_INDEFINITE)
+//                        .setDuration(3000)
+//                        .addCallback(new Snackbar.Callback(){
+//                            @Override
+//                            public void onDismissed(Snackbar snackbar, int event) {
+//                                undo = event == BaseTransientBottomBar
+//                                        .BaseCallback.DISMISS_EVENT_ACTION;
+//                                if(!undo) firebaseController.deleteImage(image, false);
+//                                else firebaseController.addImage(image);
+//                            }
+//                        })
+//                        .setAction("Deshacer", new View.OnClickListener() {
+//                            @Override
+//                            public void onClick(View v) {}
+//                        })
+//                        .show();
+//            }
         }
 
         @Override
@@ -391,6 +498,8 @@ public class CompositionActivity extends AppCompatActivity
                     .addBackgroundColor(getResources().getColor(R.color.colorAccent))
                     .addActionIcon(R.drawable.ic_delete_sweep_30dp)
                     .addSwipeLeftLabel("Eliminar")
+                    .setSwipeLeftLabelTextSize(COMPLEX_UNIT_SP, 16)
+                    .setSwipeLeftLabelTypeface(ResourcesCompat.getFont(getApplicationContext(), R.font.nunito))
                     .setSwipeLeftLabelColor(getResources().getColor(R.color.colorPrimary))
                     .create()
                     .decorate();

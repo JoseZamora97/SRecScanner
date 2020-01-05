@@ -29,12 +29,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
+
+import static android.util.TypedValue.COMPLEX_UNIT_SP;
 
 @SuppressWarnings("unchecked")
 public class MainActivity extends AppCompatActivity
@@ -261,6 +264,8 @@ public class MainActivity extends AppCompatActivity
                     .addBackgroundColor(getResources().getColor(R.color.colorAccent))
                     .addActionIcon(R.drawable.ic_delete_sweep_30dp)
                     .addSwipeLeftLabel("Eliminar")
+                    .setSwipeLeftLabelTextSize(COMPLEX_UNIT_SP, 16)
+                    .setSwipeLeftLabelTypeface(ResourcesCompat.getFont(getApplicationContext(), R.font.nunito))
                     .setSwipeLeftLabelColor(getResources().getColor(R.color.colorPrimary))
                     .create()
                     .decorate();

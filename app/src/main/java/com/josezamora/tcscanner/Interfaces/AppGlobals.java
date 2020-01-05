@@ -44,6 +44,11 @@ public interface AppGlobals {
      */
     int REQUEST_CODE_SIGN_IN = 3;
 
+    /**
+     * The constant REQUEST_CODE_CROP.
+     */
+    int REQUEST_CODE_CROP = 4;
+
     /*
      * The constant MAX_PHOTOS_PER_COMPOSITION.
      */
@@ -57,4 +62,9 @@ public interface AppGlobals {
     List<AuthUI.IdpConfig> PROVIDERS = Arrays.asList(
             new AuthUI.IdpConfig.EmailBuilder().build(),
             new AuthUI.IdpConfig.GoogleBuilder().build());
+
+    String IMAGES_KEY = "KEY_IMAGES";
+
+    int MAX_PHOTO_HEIGHT = 1268;
+    int MAX_PHOTO_WIDTH = 720;
 }

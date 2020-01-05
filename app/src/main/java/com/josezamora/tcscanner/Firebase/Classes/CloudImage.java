@@ -1,6 +1,8 @@
 package com.josezamora.tcscanner.Firebase.Classes;
 
-public class CloudImage {
+import java.io.Serializable;
+
+public class CloudImage implements Serializable {
 
     private String id;
     private String owner;
