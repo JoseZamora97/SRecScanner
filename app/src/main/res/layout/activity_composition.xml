@@ -8,8 +8,6 @@
     tools:context=".CompositionActivity"
     android:background="@color/fui_transparent">
 
-
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"

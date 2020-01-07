@@ -65,6 +65,6 @@ public interface AppGlobals {
 
     String IMAGES_KEY = "KEY_IMAGES";
 
-    int MAX_PHOTO_HEIGHT = 1268;
-    int MAX_PHOTO_WIDTH = 720;
+    int MAX_PHOTO_HEIGHT = 720;
+    int MAX_PHOTO_WIDTH = 1268;
 }

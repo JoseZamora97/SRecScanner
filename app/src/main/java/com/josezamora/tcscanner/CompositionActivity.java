@@ -40,6 +40,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -209,113 +210,13 @@ public class CompositionActivity extends AppCompatActivity
         itemScan.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem menuItem) {
-
-                if(cloudImagesAdapter.getCloudImages().size()>0) {
-                    try {
-                        toVisionActivity();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                return true;
+                if(cloudImagesAdapter.getCloudImages().size()>0)
+                    toVisionActivity();
+                return false;
             }
         });
 
         return super.onCreateOptionsMenu(menu);
-    }
-
-    private void cropImage(Uri uri) {
-        CropImage.activity(uri)
-                .setFixAspectRatio(true)
-                .setActivityMenuIconColor(getResources().getColor(R.color.colorBodies))
-                .setAspectRatio(AppGlobals.MAX_PHOTO_HEIGHT, AppGlobals.MAX_PHOTO_WIDTH)
-                .setActivityTitle("Recortar")
-                .start(this);
-    }
-
-    private class GlideImageDownload implements Runnable {
-
-        CloudImage image;
-        Context context;
-        Bitmap result = null;
-        CountDownLatch countDownLatch;
-
-        GlideImageDownload(CloudImage image, CountDownLatch countDownLatch, Context context) {
-            this.image = image;
-            this.context = context;
-            this.countDownLatch = countDownLatch;
-        }
-
-        @Override
-        public void run() {
-            FutureTarget<Bitmap> futureBitmap = GlideApp.with(this.context)
-                    .asBitmap()
-                    .load(this.image.getDownloadLink())
-                    .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
-                    .submit();
-            try {
-                result = futureBitmap.get();
-                this.countDownLatch.countDown();
-            } catch (ExecutionException | InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private void toVisionActivity() throws InterruptedException {
-
-        CountDownLatch countDownLatch = new CountDownLatch(cloudImagesAdapter.getItemCount());
-        List<GlideImageDownload> tasks = new ArrayList<>();
-
-        for(CloudImage image : cloudImagesAdapter.getCloudImages()){
-            GlideImageDownload download = new GlideImageDownload(
-                    image, countDownLatch, this);
-            tasks.add(download);
-            new Thread(download).start();
-        }
-
-        countDownLatch.await();
-
-        List<Bitmap> bitmaps = new ArrayList<>();
-        for(GlideImageDownload download : tasks)
-            bitmaps.add(download.result);
-
-        Bitmap temp = combineBitmaps(bitmaps);
-
-        // TODO: fix parcel transaction
-        Intent toVisionActivity = new Intent(this, VisionActivity.class);
-        toVisionActivity.putExtra(AppGlobals.IMAGES_KEY, temp);
-        startActivity(toVisionActivity);
-    }
-
-    private Bitmap combineBitmaps(List<Bitmap> bitmaps) {
-
-        int height, width;
-        height = width = 0;
-
-        for(Bitmap bitmap : bitmaps) {
-            height += bitmap.getHeight();
-            width = bitmap.getWidth() > width ? bitmap.getWidth() : width;
-        }
-
-        Bitmap bitmapResult = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmapResult);
-        int index = 0;
-
-        Paint paint = new Paint();
-
-        for(Bitmap bitmap : bitmaps) {
-            canvas.drawBitmap(bitmap, 0, index, paint);
-            index += bitmap.getHeight();
-            bitmap = null;
-        }
-
-        return resizeBitmap(bitmapResult);
-    }
-
-    public Bitmap resizeBitmap(Bitmap bitmap) {
-        return bitmap;
     }
 
     @Override
@@ -356,6 +257,19 @@ public class CompositionActivity extends AppCompatActivity
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void cropImage(Uri uri) {
+        CropImage.activity(uri)
+                .setActivityMenuIconColor(getResources().getColor(R.color.colorBodies))
+                .setActivityTitle("Recortar")
+                .start(this);
+    }
+
+    private void toVisionActivity() {
+        Intent toVisionActivity = new Intent(this, VisionActivity.class);
+        toVisionActivity.putExtra(AppGlobals.IMAGES_KEY, (Serializable) cloudImagesAdapter.getCloudImages());
+        startActivity(toVisionActivity);
     }
 
     public void saveChanges() {
