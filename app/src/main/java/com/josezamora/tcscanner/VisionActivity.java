@@ -1,10 +1,12 @@
 package com.josezamora.tcscanner;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -16,12 +18,20 @@ import com.josezamora.tcscanner.Interfaces.AppGlobals;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
+import androidx.core.content.res.ResourcesCompat;
+import io.github.kbiakov.codeview.CodeView;
+import io.github.kbiakov.codeview.adapters.Options;
+import io.github.kbiakov.codeview.highlight.ColorTheme;
+import io.github.kbiakov.codeview.highlight.ColorThemeData;
+import io.github.kbiakov.codeview.highlight.SyntaxColors;
 
 
 @SuppressWarnings("unchecked")
@@ -31,7 +41,7 @@ public class VisionActivity extends AppCompatActivity {
     Toolbar toolbar;
 
     CardView progressCard;
-    ImageView imageView;
+    CodeView codeView;
 
     GlideTaskMaker glideDownloader;
     List<CloudImage> images;
@@ -41,7 +51,6 @@ public class VisionActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_vision);
 
-        imageView = findViewById(R.id.imagePreview);
         progressCard = findViewById(R.id.card_progress);
         progressCard.setVisibility(View.VISIBLE);
 
@@ -52,6 +61,47 @@ public class VisionActivity extends AppCompatActivity {
         toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle("Previsualización del Código");
         setSupportActionBar(toolbar);
+
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+
+        setUpCodeView();
+
+    }
+
+    public void setUpCodeView() {
+
+        codeView = findViewById(R.id.code_view);
+
+        int colorAccent = getResources().getColor(R.color.colorAccent);
+        int colorPrimary = getResources().getColor(R.color.colorPrimary);
+
+        int colorPrimaryDark = getResources().getColor(R.color.colorPrimaryDark);
+        int colorTitles= getResources().getColor(R.color.colorTitles);
+        int colorBodies= getResources().getColor(R.color.colorBodies);
+
+        SyntaxColors syntaxColors = new SyntaxColors(
+                colorAccent, colorAccent, colorBodies, colorPrimaryDark,
+                colorTitles, colorTitles, colorBodies, colorBodies,
+                colorTitles, colorTitles, colorBodies
+        );
+
+        ColorThemeData myTheme = ColorTheme.MONOKAI.theme()
+                .withSyntaxColors(syntaxColors);
+
+        codeView.setOptions(Options.Default.get(this)
+                .withLanguage("python")
+                .withTheme(myTheme)
+                .withFont(Objects.requireNonNull(ResourcesCompat.getFont(this,
+                        R.font.nunito))));
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -66,9 +116,8 @@ public class VisionActivity extends AppCompatActivity {
             bitmaps.add(download.result);
 
         image = combineBitmaps(bitmaps);
-        imageView.setImageBitmap(image);
 
-        VisualAnalyzer visualAnalyzer = new VisualAnalyzer(image);
+        VisualAnalyzer visualAnalyzer = new VisualAnalyzer(image, codeView);
         Thread analyzerTask = new Thread(visualAnalyzer);
         analyzerTask.start();
 
@@ -77,7 +126,6 @@ public class VisionActivity extends AppCompatActivity {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
     }
 
     public void export(View v){

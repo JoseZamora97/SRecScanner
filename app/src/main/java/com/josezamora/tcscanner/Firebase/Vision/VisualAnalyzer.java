@@ -12,30 +12,18 @@ import com.google.firebase.ml.vision.text.FirebaseVisionTextRecognizer;
 import java.util.List;
 
 import androidx.annotation.NonNull;
+import io.github.kbiakov.codeview.CodeView;
 
 public class VisualAnalyzer implements Runnable {
 
     private StringBuilder scanResult;
     private Bitmap bitmap;
+    private CodeView codeView;
 
-    public VisualAnalyzer(Bitmap bitmap) {
+    public VisualAnalyzer(Bitmap bitmap, CodeView codeView) {
         this.bitmap = bitmap;
-    }
-
-    private void processTextRecognitionResult(FirebaseVisionText texts) {
-
+        this.codeView = codeView;
         scanResult = new StringBuilder();
-
-        List<FirebaseVisionText.TextBlock> blocks = texts.getTextBlocks();
-
-        if (blocks.size() != 0) {
-            for (int i = 0; i < blocks.size(); i++) {
-                List<FirebaseVisionText.Line> lines = blocks.get(i).getLines();
-                for (int j = 0; j < lines.size(); j++)
-                    scanResult.append(lines.get(j).getText());
-                scanResult.append("\n");
-            }
-        }
     }
 
     @Override
@@ -48,7 +36,18 @@ public class VisualAnalyzer implements Runnable {
                 .addOnSuccessListener(new OnSuccessListener<FirebaseVisionText>() {
                     @Override
                     public void onSuccess(FirebaseVisionText firebaseVisionText) {
-                        processTextRecognitionResult(firebaseVisionText);
+                        scanResult = new StringBuilder();
+                        List<FirebaseVisionText.TextBlock> blocks = firebaseVisionText.getTextBlocks();
+                        if (blocks.size() != 0) {
+                            for (int i = 0; i < blocks.size(); i++) {
+                                List<FirebaseVisionText.Line> lines = blocks.get(i).getLines();
+                                for (int j = 0; j < lines.size(); j++)
+                                    scanResult.append(lines.get(j).getText()).append("\n");
+                                scanResult.append("\n");
+                            }
+                        }
+
+                        codeView.setCode(scanResult.substring(0), "python");
                     }
                 })
                 .addOnFailureListener(
@@ -61,7 +60,7 @@ public class VisualAnalyzer implements Runnable {
 
     }
 
-    public StringBuilder getScanResult() {
-        return scanResult;
+    public String getScanResult() {
+        return scanResult.toString();
     }
 }

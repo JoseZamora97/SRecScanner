@@ -106,11 +106,11 @@
             android:layout_below="@+id/relativeLayout2"
             >
 
-            <ImageView
-                android:layout_centerHorizontal="true"
+            <io.github.kbiakov.codeview.CodeView
+                android:id="@+id/code_view"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/imagePreview"/>
+                android:layout_height="wrap_content"
+                />
 
         </RelativeLayout>
 
