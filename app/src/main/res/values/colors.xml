@@ -13,11 +13,4 @@
 
     <color name="colorItemContrast">#66000000</color>
 
-<!--   Editor Colors -->
-    <color name="syntax_error">#8800</color>
-    <color name="syntax_number">#7ba212</color>
-    <color name="syntax_keyword">#399ed7</color>
-    <color name="syntax_builtin">#d79e39</color>
-    <color name="syntax_comment">#808080</color>
-
 </resources>
