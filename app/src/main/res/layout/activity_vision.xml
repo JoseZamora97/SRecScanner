@@ -19,7 +19,7 @@
         app:srcCompat="@drawable/ic_export_24dp" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabAddFromGallery"
+        android:id="@+id/fabExportToShare"
         android:layout_width="wrap_content"
         android:onClick="exportToShare"
         android:layout_height="wrap_content"
@@ -28,10 +28,10 @@
         android:layout_marginEnd="@dimen/fab_margin"
         android:layout_marginBottom="90dp"
         android:visibility="invisible"
-        android:src="@drawable/ic_library_24dp" />
+        android:src="@drawable/ic_share_black_24dp" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabAddFromCamera"
+        android:id="@+id/fabExportSrec"
         android:onClick="exportToSRec"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -40,7 +40,7 @@
         android:layout_marginEnd="@dimen/fab_margin"
         android:layout_marginBottom="160dp"
         android:visibility="invisible"
-        android:src="@drawable/ic_camera_24dp"/>
+        android:src="@drawable/ic_computer_black_24dp"/>
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -66,37 +66,53 @@
             android:background="@color/colorPrimary"
             android:layout_below="@+id/toolbar">
 
-            <Spinner
-                android:padding="5dp"
-                android:id="@+id/spinnerLenguaje"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="?attr/selectableItemBackground"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:layout_marginEnd="10dp"
-                />
-
             <TextView
                 android:id="@+id/name_file"
+                android:background="?selectableItemBackgroundBorderless"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:layout_marginStart="15dp"
                 android:fontFamily="@font/nunito"
-                android:text="untitled"
+                android:text="@string/untitled_placeholder"
+                android:onClick="rename"
                 android:textColor="@color/colorTitles"
                 android:textSize="18sp" />
 
             <TextView
+                android:id="@+id/text_ext"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:fontFamily="@font/nunito"
-                android:text=".ext"
                 android:layout_toEndOf="@+id/name_file"
                 android:textColor="@color/colorTitles"
                 android:textSize="18sp" />
+
+            <Spinner
+                android:id="@+id/spinnerLenguaje"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="15dp"
+                />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_keyboard_tab_24dp"
+                android:background="?selectableItemBackgroundBorderless"
+                android:layout_toStartOf="@+id/spinnerLenguaje"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="15dp"
+                android:contentDescription="@string/insert_tab"
+                android:onClick="addTab"/>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                />
 
         </RelativeLayout>
 
@@ -106,11 +122,17 @@
             android:layout_below="@+id/relativeLayout2"
             >
 
-            <io.github.kbiakov.codeview.CodeView
-                android:id="@+id/code_view"
+            <com.josezamora.tcscanner.Editor.CodeEditor
+                android:id="@+id/code_editor"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                />
+                android:layout_height="match_parent"
+                android:textSize="14sp"
+                android:fontFamily="@font/nunito"
+                android:textColor="@color/colorPrimary"
+                android:padding="8dp"
+                android:gravity="start|top"
+                android:inputType="textMultiLine|textNoSuggestions"
+                android:background="#3B4A5C"/>
 
         </RelativeLayout>
 

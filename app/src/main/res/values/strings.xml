@@ -8,5 +8,9 @@
     <string name="num_total_images">/10 Imágenes</string>
     <string name="imagen_de_la_nube">Imagen de la nube</string>
     <string name="boton_configurar">boton configurar</string>
+    <string name="insert_tab">Insert Tab</string>
+    <string name="untitled_placeholder">untitled</string>
+    <string name="start_scan">Empezar escaneo</string>
+    <string name="uploading_photo">Subiendo foto ...</string>
 
 </resources>

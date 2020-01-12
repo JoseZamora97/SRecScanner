@@ -8,19 +8,19 @@ import com.google.firebase.ml.vision.FirebaseVision;
 import com.google.firebase.ml.vision.common.FirebaseVisionImage;
 import com.google.firebase.ml.vision.text.FirebaseVisionText;
 import com.google.firebase.ml.vision.text.FirebaseVisionTextRecognizer;
+import com.josezamora.tcscanner.Editor.CodeEditor;
 
 import java.util.List;
 
 import androidx.annotation.NonNull;
-import io.github.kbiakov.codeview.CodeView;
 
 public class VisualAnalyzer implements Runnable {
 
     private StringBuilder scanResult;
     private Bitmap bitmap;
-    private CodeView codeView;
+    private CodeEditor codeView;
 
-    public VisualAnalyzer(Bitmap bitmap, CodeView codeView) {
+    public VisualAnalyzer(Bitmap bitmap, CodeEditor codeView) {
         this.bitmap = bitmap;
         this.codeView = codeView;
         scanResult = new StringBuilder();
@@ -47,7 +47,7 @@ public class VisualAnalyzer implements Runnable {
                             }
                         }
 
-                        codeView.setCode(scanResult.substring(0), "python");
+                        codeView.setText(scanResult.substring(0));
                     }
                 })
                 .addOnFailureListener(
@@ -58,9 +58,5 @@ public class VisualAnalyzer implements Runnable {
                             }
                         });
 
-    }
-
-    public String getScanResult() {
-        return scanResult.toString();
     }
 }

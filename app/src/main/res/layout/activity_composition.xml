@@ -43,9 +43,19 @@
                 android:layout_marginStart="15dp"
                 android:fontFamily="@font/nunito"
                 android:textColor="@color/colorTitles"
-                android:textSize="18sp" />
+                android:textSize="18sp"
+                tools:ignore="RelativeOverlap" />
 
-
+            <ImageView
+                android:onClick="scan"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="15dp"
+                android:src="@drawable/ic_play_arrow_30dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:background="?selectableItemBackgroundBorderless"
+                android:contentDescription="@string/start_scan" />
 
         </RelativeLayout>
 
@@ -123,7 +133,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/nunito"
-                android:text="Subiendo foto ..."
+                android:text="@string/uploading_photo"
                 android:textAlignment="center"
                 android:textColor="@color/colorBodies"
                 android:layout_gravity="center"
@@ -132,16 +142,5 @@
         </LinearLayout>
 
     </androidx.cardview.widget.CardView>
-
-    <ImageView
-        android:id="@+id/imageViewMode"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:layout_gravity="top|end"
-        android:background="?attr/selectableItemBackground"
-        android:padding="5dp"
-        />
-
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

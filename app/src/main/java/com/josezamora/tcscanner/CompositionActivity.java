@@ -1,12 +1,9 @@
 package com.josezamora.tcscanner;
 
-import android.content.Context;
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -18,11 +15,8 @@ import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.request.FutureTarget;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.common.collect.BiMap;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.storage.UploadTask;
 import com.josezamora.tcscanner.Firebase.Adapters.CloudCompositionRecyclerAdapter;
@@ -35,18 +29,12 @@ import com.josezamora.tcscanner.Interfaces.RecyclerViewOnClickInterface;
 import com.josezamora.tcscanner.ViewHolders.CloudImageViewHolder;
 import com.theartofdev.edmodo.cropper.CropImage;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -164,6 +152,40 @@ public class CompositionActivity extends AppCompatActivity
     }
 
     @Override
+    public void onBackPressed() {
+        if(newChanges) {
+            AlertDialog.Builder builderConfig = new AlertDialog.Builder(this);
+
+            builderConfig.setCancelable(false);
+            builderConfig.setTitle("Ups!!");
+            builderConfig.setMessage("Estás a punto de salir y hay cambios que no " +
+                    "se han guardado.¿Desea guardar cambios y volver?");
+
+            builderConfig.setPositiveButton("Guardar", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    saveChanges();
+                    onBackPressed();
+                }
+            });
+
+            builderConfig.setNegativeButton("Descartar", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    dialogInterface.dismiss();
+                    onBackPressed();
+                }
+            });
+
+            AlertDialog alertDialog = builderConfig.create();
+            alertDialog.show();
+        }
+        else{
+            super.onBackPressed();
+        }
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
@@ -202,58 +224,9 @@ public class CompositionActivity extends AppCompatActivity
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_scan, menu);
-
-        MenuItem itemScan = menu.findItem(R.id.mItemActionScan);
-
-        itemScan.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem menuItem) {
-                if(cloudImagesAdapter.getCloudImages().size()>0)
-                    toVisionActivity();
-                return false;
-            }
-        });
-
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            if(newChanges){
-
-                AlertDialog.Builder builderConfig = new AlertDialog.Builder(this);
-
-                builderConfig.setCancelable(false);
-                builderConfig.setTitle("Ups!!");
-                builderConfig.setMessage("Estás a punto de salir y hay cambios que no " +
-                        "se han guardado.¿Desea guardar cambios y volver?");
-
-                builderConfig.setPositiveButton("Guardar", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        saveChanges();
-                        onBackPressed();
-                    }
-                });
-
-                builderConfig.setNegativeButton("Descartar", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
-                        onBackPressed();
-                    }
-                });
-
-                AlertDialog alertDialog = builderConfig.create();
-                alertDialog.show();
-            }
-            else{
-                onBackPressed();
-            }
-
+            onBackPressed();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -278,29 +251,44 @@ public class CompositionActivity extends AppCompatActivity
             image.setOrder(i+1);
             firebaseController.update(image);
         }
+        newChanges = false;
+    }
+
+    public void scan(View v){
+        if(cloudImagesAdapter.getCloudImages().size()>0){
+            saveChanges();
+            toVisionActivity();
+        }
+        else
+            Toast.makeText(this, "Tienes que añadir una imagen", Toast.LENGTH_SHORT)
+                    .show();
     }
 
     public void animateFloatActionButtons(View v) {
-        if(isOpen){
-            btnAdd.startAnimation(rotateBackward);
+        if(cloudImagesAdapter.getCloudImages().size()<5)
+            if(isOpen){
+                btnAdd.startAnimation(rotateBackward);
 
-            btnGallery.startAnimation(fabClose);
-            btnGallery.setClickable(false);
+                btnGallery.startAnimation(fabClose);
+                btnGallery.setClickable(false);
 
-            btnCamera.startAnimation(fabClose);
-            btnCamera.setClickable(false);
-            isOpen = false;
-        }
-        else {
-            btnAdd.startAnimation(rotateForward);
+                btnCamera.startAnimation(fabClose);
+                btnCamera.setClickable(false);
+                isOpen = false;
+            }
+            else {
+                btnAdd.startAnimation(rotateForward);
 
-            btnGallery.startAnimation(fabOpen);
-            btnGallery.setClickable(true);
+                btnGallery.startAnimation(fabOpen);
+                btnGallery.setClickable(true);
 
-            btnCamera.startAnimation(fabOpen);
-            btnCamera.setClickable(true);
-            isOpen = true;
-        }
+                btnCamera.startAnimation(fabOpen);
+                btnCamera.setClickable(true);
+                isOpen = true;
+            }
+        else
+            Toast.makeText(this, "No puedes añadir más imágenes a esta Composición"
+                    , Toast.LENGTH_SHORT).show();
     }
 
     public void addPhotoFromCamera(View v) {

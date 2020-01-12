@@ -17,7 +17,6 @@
             android:id="@+id/imagePreview"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:src="@drawable/captura"
             android:scaleType="centerCrop"
             android:contentDescription="@string/imagen_de_la_nube" />
 

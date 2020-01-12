@@ -1,15 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+<!--    Theme Colors -->
     <color name="colorPrimary">#ffffff</color>
     <color name="colorPrimaryDark">#c7c7c7</color>
     <color name="colorAccent">#CB0017</color>
 
-    <!-- Colores Personalizados -->
+    <!-- User UI colors -->
     <color name="colorTitles">#282930</color>
     <color name="colorBodies">#424242</color>
     <color name="rippleColor">#D6D3D3</color>
 
     <color name="colorItemContrast">#66000000</color>
+
+<!--   Editor Colors -->
+    <color name="syntax_error">#8800</color>
+    <color name="syntax_number">#7ba212</color>
+    <color name="syntax_keyword">#399ed7</color>
+    <color name="syntax_builtin">#d79e39</color>
+    <color name="syntax_comment">#808080</color>
 
 </resources>

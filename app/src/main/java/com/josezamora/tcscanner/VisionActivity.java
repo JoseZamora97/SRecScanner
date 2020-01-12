@@ -1,37 +1,55 @@
 package com.josezamora.tcscanner;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
+import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.FutureTarget;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.josezamora.tcscanner.Editor.CodeEditor;
+import com.josezamora.tcscanner.Editor.LanguageProvider;
 import com.josezamora.tcscanner.Firebase.Classes.CloudImage;
 import com.josezamora.tcscanner.Firebase.Vision.VisualAnalyzer;
 import com.josezamora.tcscanner.Interfaces.AppGlobals;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
+import androidx.core.content.FileProvider;
 import androidx.core.content.res.ResourcesCompat;
-import io.github.kbiakov.codeview.CodeView;
-import io.github.kbiakov.codeview.adapters.Options;
-import io.github.kbiakov.codeview.highlight.ColorTheme;
-import io.github.kbiakov.codeview.highlight.ColorThemeData;
-import io.github.kbiakov.codeview.highlight.SyntaxColors;
 
 
 @SuppressWarnings("unchecked")
@@ -40,11 +58,23 @@ public class VisionActivity extends AppCompatActivity {
     Bitmap image;
     Toolbar toolbar;
 
+    TextView textViewExt;
+    TextView textName;
+
+    SpinnerAdapter spinnerAdapter;
+
     CardView progressCard;
-    CodeView codeView;
 
     GlideTaskMaker glideDownloader;
     List<CloudImage> images;
+
+    CodeEditor codeEditor;
+
+    Spinner spinner;
+
+    boolean isOpen = false;
+    Animation fabOpen, fabClose, rotateForward, rotateBackward;
+    FloatingActionButton btnExport, btnExportToSRec, btnShare;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,35 +94,76 @@ public class VisionActivity extends AppCompatActivity {
 
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
-        setUpCodeView();
+        codeEditor = findViewById(R.id.code_editor);
+        spinner = findViewById(R.id.spinnerLenguaje);
 
+        spinnerAdapter = new SpinnerAdapter(this,
+                android.R.layout.simple_spinner_dropdown_item,
+                LanguageProvider.Languages.values());
+
+        spinner.setAdapter(spinnerAdapter);
+        spinner.setOnItemSelectedListener(spinnerAdapter);
+
+        textViewExt = findViewById(R.id.text_ext);
+        textName = findViewById(R.id.name_file);
+
+        spinner.setSelection(0, true);
+
+        btnExport = findViewById(R.id.fabExport);
+        btnExportToSRec = findViewById(R.id.fabExportSrec);
+        btnShare = findViewById(R.id.fabExportToShare);
+
+        fabOpen = AnimationUtils.loadAnimation(this, R.anim.fab_open);
+        fabClose = AnimationUtils.loadAnimation(this, R.anim.fab_close);
+        rotateForward =  AnimationUtils.loadAnimation(this, R.anim.rotation_forward);
+        rotateBackward =  AnimationUtils.loadAnimation(this, R.anim.rotation_backward);
     }
 
-    public void setUpCodeView() {
+    public class SpinnerAdapter extends ArrayAdapter<LanguageProvider.Languages>
+            implements AdapterView.OnItemSelectedListener{
 
-        codeView = findViewById(R.id.code_view);
+        Typeface font;
 
-        int colorAccent = getResources().getColor(R.color.colorAccent);
-        int colorPrimary = getResources().getColor(R.color.colorPrimary);
+        SpinnerAdapter(@NonNull Context context, int resource,
+                       LanguageProvider.Languages[] items) {
+            super(context, resource, items);
+            font = ResourcesCompat.getFont(context, R.font.nunito);
+        }
 
-        int colorPrimaryDark = getResources().getColor(R.color.colorPrimaryDark);
-        int colorTitles= getResources().getColor(R.color.colorTitles);
-        int colorBodies= getResources().getColor(R.color.colorBodies);
+        @NonNull
+        @Override
+        public View getView(int position, View convertView, @NonNull ViewGroup parent) {
+            TextView view = (TextView) super.getView(position, convertView, parent);
+            view.setTypeface(font);
+            return view;
+        }
 
-        SyntaxColors syntaxColors = new SyntaxColors(
-                colorAccent, colorAccent, colorBodies, colorPrimaryDark,
-                colorTitles, colorTitles, colorBodies, colorBodies,
-                colorTitles, colorTitles, colorBodies
-        );
+        @Override
+        public View getDropDownView(int position, View convertView, @NonNull ViewGroup parent) {
+            TextView view = (TextView) super.getDropDownView(position, convertView, parent);
+            view.setTypeface(font);
+            return view;
+        }
 
-        ColorThemeData myTheme = ColorTheme.MONOKAI.theme()
-                .withSyntaxColors(syntaxColors);
+        @Override
+        public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+            codeEditor.setLanguage((LanguageProvider.Languages) spinner.getSelectedItem());
+            textViewExt.setText(LanguageProvider.getExtension(
+                    (LanguageProvider.Languages)spinner.getSelectedItem()));
+        }
 
-        codeView.setOptions(Options.Default.get(this)
-                .withLanguage("python")
-                .withTheme(myTheme)
-                .withFont(Objects.requireNonNull(ResourcesCompat.getFont(this,
-                        R.font.nunito))));
+        @Override
+        public void onNothingSelected(AdapterView<?> adapterView) {
+            /* Nothing */
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        glideDownloader = null;
+        images.clear();
+        image = null;
+        super.onBackPressed();
     }
 
     @Override
@@ -117,7 +188,7 @@ public class VisionActivity extends AppCompatActivity {
 
         image = combineBitmaps(bitmaps);
 
-        VisualAnalyzer visualAnalyzer = new VisualAnalyzer(image, codeView);
+        VisualAnalyzer visualAnalyzer = new VisualAnalyzer(image, codeEditor);
         Thread analyzerTask = new Thread(visualAnalyzer);
         analyzerTask.start();
 
@@ -128,16 +199,111 @@ public class VisionActivity extends AppCompatActivity {
         }
     }
 
+    public void addTab(View v) {
+        codeEditor.insertTab();
+    }
+
     public void export(View v){
-        /* TODO */
+        if(isOpen){
+            btnExport.setImageDrawable(getResources().getDrawable(R.drawable.ic_export_24dp));
+            btnExport.startAnimation(rotateBackward);
+
+            btnShare.startAnimation(fabClose);
+            btnShare.setClickable(false);
+
+            btnExportToSRec.startAnimation(fabClose);
+            btnExportToSRec.setClickable(false);
+            isOpen = false;
+        }
+        else {
+            btnExport.setImageDrawable(getResources().getDrawable(R.drawable.ic_add_white_24dp));
+            btnExport.startAnimation(rotateForward);
+
+            btnShare.startAnimation(fabOpen);
+            btnShare.setClickable(true);
+
+            btnExportToSRec.startAnimation(fabOpen);
+            btnExportToSRec.setClickable(true);
+            isOpen = true;
+        }
     }
 
     public void exportToSRec(View v) {
-        /* TODO */
+        if(!spinner.getSelectedItem().equals(LanguageProvider.Languages.JAVA)){
+            Toast.makeText(this, "Lo sentimos, SRec solo soporta código Java"
+                    , Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void exportToShare(View v){
-        /* TODO */
+        File temp = new File(getExternalCacheDir(),
+                textName.getText().toString()+textViewExt.getText().toString());
+
+        String content = Objects.requireNonNull(codeEditor.getText()).toString();
+
+        try {
+            FileOutputStream stream = new FileOutputStream(temp);
+            stream.write(content.getBytes());
+            stream.close();
+        }
+        catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType(URLConnection.guessContentTypeFromName(temp.getName()));
+
+        Uri uri = FileProvider.getUriForFile(this,
+                AppGlobals.APP_SIGNATURE + ".provider", temp);
+
+        shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
+        shareIntent.putExtra(Intent.EXTRA_SUBJECT,
+                "Sharing File...");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, "Sharing File...");
+
+        startActivity(Intent.createChooser(shareIntent, "Compartir"));
+    }
+
+    public void rename(View v) {
+
+        LayoutInflater li = LayoutInflater.from(VisionActivity.this);
+        AlertDialog.Builder builderConfig = new AlertDialog.Builder(this);
+
+        @SuppressLint("InflateParams")
+        View view = li.inflate(R.layout.dialog_name_composition, null);
+
+        Typeface font = ResourcesCompat.getFont(this, R.font.nunito_bold);
+
+        builderConfig.setTitle("Renombrar fichero");
+        builderConfig.setView(view);
+        builderConfig.setCancelable(false);
+
+        final EditText editText = view.findViewById(R.id.editTextName);
+
+        builderConfig.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                textName.setText(editText.getText().toString());
+            }
+        });
+
+        builderConfig.setNegativeButton("Descartar", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        });
+
+        AlertDialog alertDialog = builderConfig.create();
+        alertDialog.show();
+
+        Button btn1 = alertDialog.findViewById(android.R.id.button1);
+        assert btn1 != null;
+        btn1.setTypeface(font);
+
+        Button btn2 = alertDialog.findViewById(android.R.id.button2);
+        assert btn2 != null;
+        btn2.setTypeface(font);
     }
 
     private class GlideTaskMaker{
@@ -217,7 +383,6 @@ public class VisionActivity extends AppCompatActivity {
         for(Bitmap bitmap : bitmaps) {
             canvas.drawBitmap(bitmap, 0, index, paint);
             index += bitmap.getHeight();
-            bitmap = null;
         }
 
         return bitmapResult;
