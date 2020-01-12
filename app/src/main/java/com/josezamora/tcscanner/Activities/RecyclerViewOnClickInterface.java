@@ -1,4 +1,4 @@
-package com.josezamora.tcscanner.Interfaces;
+package com.josezamora.tcscanner.Activities;
 
 public interface RecyclerViewOnClickInterface {
     void onItemClick(int position);

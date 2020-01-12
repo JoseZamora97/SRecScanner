@@ -1,4 +1,4 @@
-package com.josezamora.tcscanner.Interfaces;
+package com.josezamora.tcscanner;
 
 import android.Manifest;
 
@@ -65,6 +65,5 @@ public interface AppGlobals {
 
     String IMAGES_KEY = "KEY_IMAGES";
 
-    int MAX_PHOTO_HEIGHT = 720;
-    int MAX_PHOTO_WIDTH = 1268;
+    String VERSION = "v0.9";
 }

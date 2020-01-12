@@ -1,6 +1,5 @@
 package com.josezamora.tcscanner.Firebase.Adapters;
 
-import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,15 +15,14 @@ import com.firebase.ui.common.ChangeEventType;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.josezamora.tcscanner.CompositionActivity;
+import com.josezamora.tcscanner.Activities.CompositionActivity;
 import com.josezamora.tcscanner.Firebase.Classes.CloudImage;
-import com.josezamora.tcscanner.GlideApp;
+import com.josezamora.tcscanner.Firebase.GlideApp;
 import com.josezamora.tcscanner.R;
 import com.josezamora.tcscanner.ViewHolders.CloudImageViewHolder;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;

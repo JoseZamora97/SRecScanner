@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/colorPrimary">
+
+    <RelativeLayout
+        android:id="@+id/nav_head"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        >
+        <RelativeLayout
+            android:id="@+id/toprl"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:background="@color/colorAccent">
+
+        </RelativeLayout>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/card_pic"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_centerInParent="true"
+            app:cardCornerRadius="40dp">
+
+            <ImageView
+                android:id="@+id/user_pic"
+                android:layout_width="80dp"
+                android:layout_height="match_parent"/>
+
+        </androidx.cardview.widget.CardView>
+
+        <TextView
+            android:padding="5dp"
+            android:layout_below="@+id/card_pic"
+            android:id="@+id/user_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:fontFamily="@font/nunito_bold"
+            android:textColor="@color/colorTitles"
+            android:textSize="20sp" />
+
+        <TextView
+            android:layout_below="@+id/user_name"
+            android:id="@+id/user_mail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:fontFamily="@font/nunito"
+            android:textColor="@color/colorBodies"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/version"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="v1.0"
+            android:textColor="@color/colorAccent"
+            android:fontFamily="@font/nunito"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/user_mail"/>
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/report_failure"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:background="?selectableItemBackground"
+        android:padding="15dp"
+        android:gravity="center"
+        android:onClick="send_inform"
+        android:layout_below="@+id/nav_head"
+        >
+
+        <ImageView
+            android:padding="5dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="Informar un error"
+            android:src="@drawable/ic_info_outline_black_24dp">
+        </ImageView>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Informar un error"
+            android:fontFamily="@font/nunito"
+            android:textColor="@color/colorBodies"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/log_out"
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:background="?selectableItemBackgroundBorderless"
+        android:padding="15dp"
+        android:gravity="center"
+        >
+
+        <ImageView
+            android:padding="5dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="Cerrar sesión"
+            android:src="@drawable/ic_exit_24dp">
+        </ImageView>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cerrar Sesión"
+            android:fontFamily="@font/nunito_bold"
+            android:textColor="@color/colorAccent"/>
+    </LinearLayout>
+
+
+
+</RelativeLayout>

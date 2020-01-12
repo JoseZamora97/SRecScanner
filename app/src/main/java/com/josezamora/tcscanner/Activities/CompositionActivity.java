@@ -1,4 +1,4 @@
-package com.josezamora.tcscanner;
+package com.josezamora.tcscanner.Activities;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -36,8 +36,8 @@ import com.josezamora.tcscanner.Firebase.Classes.CloudComposition;
 import com.josezamora.tcscanner.Firebase.Classes.CloudImage;
 import com.josezamora.tcscanner.Firebase.Classes.CloudUser;
 import com.josezamora.tcscanner.Firebase.Controllers.FirebaseController;
-import com.josezamora.tcscanner.Interfaces.AppGlobals;
-import com.josezamora.tcscanner.Interfaces.RecyclerViewOnClickInterface;
+import com.josezamora.tcscanner.AppGlobals;
+import com.josezamora.tcscanner.R;
 import com.josezamora.tcscanner.ViewHolders.CloudImageViewHolder;
 import com.theartofdev.edmodo.cropper.CropImage;
 

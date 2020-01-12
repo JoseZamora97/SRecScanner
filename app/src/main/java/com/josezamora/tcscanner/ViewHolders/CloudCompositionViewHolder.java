@@ -4,7 +4,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.josezamora.tcscanner.Interfaces.RecyclerViewOnClickInterface;
+import com.josezamora.tcscanner.Activities.RecyclerViewOnClickInterface;
 import com.josezamora.tcscanner.R;
 
 import androidx.recyclerview.widget.RecyclerView;

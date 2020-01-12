@@ -1,4 +1,4 @@
-package com.josezamora.tcscanner;
+package com.josezamora.tcscanner.Activities;
 
 import android.content.Intent;
 import android.graphics.Canvas;
@@ -9,6 +9,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
@@ -18,8 +19,9 @@ import com.josezamora.tcscanner.Dialogs.NewCloudCompositionDialog;
 import com.josezamora.tcscanner.Firebase.Classes.CloudComposition;
 import com.josezamora.tcscanner.Firebase.Classes.CloudUser;
 import com.josezamora.tcscanner.Firebase.Controllers.FirebaseController;
-import com.josezamora.tcscanner.Interfaces.AppGlobals;
-import com.josezamora.tcscanner.Interfaces.RecyclerViewOnClickInterface;
+import com.josezamora.tcscanner.AppGlobals;
+import com.josezamora.tcscanner.Firebase.GlideApp;
+import com.josezamora.tcscanner.R;
 import com.josezamora.tcscanner.ViewHolders.CloudCompositionViewHolder;
 
 import java.util.Objects;
@@ -30,6 +32,8 @@ import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -49,6 +53,11 @@ public class MainActivity extends AppCompatActivity
     SwipeRefreshLayout swipeRefreshLayout;
     ImageView btnSwitchViewMode;
     ItemTouchHelper itemTouchHelper;
+    DrawerLayout drawerLayout;
+
+    ImageView userImage;
+    TextView userName;
+    TextView userEmail;
 
     public static final int LIST_ITEM = R.layout.list_composition_item;
     public static final int GRID_ITEM = R.layout.grid_composition_item;
@@ -70,6 +79,17 @@ public class MainActivity extends AppCompatActivity
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        drawerLayout = findViewById(R.id.drawer_layout);
+
+        userImage = findViewById(R.id.user_pic);
+        userName = findViewById(R.id.user_name);
+        userEmail = findViewById(R.id.user_mail);
+
+        ((TextView) findViewById(R.id.version)).setText(AppGlobals.VERSION);
+
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setHomeAsUpIndicator(R.drawable.ic_menu_24dp);
+
         firebaseController = new FirebaseController();
 
         user = CloudUser.userFromFirebase(
@@ -87,6 +107,10 @@ public class MainActivity extends AppCompatActivity
 
         updateViewMode();
         itemTouchHelper.attachToRecyclerView(recyclerView);
+
+        userName.setText(user.getName());
+        userEmail.setText(user.getEmail());
+        GlideApp.with(this).load(user.getPhotoUrl()).into(userImage);
     }
 
     @Override
@@ -121,6 +145,15 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            drawerLayout.openDrawer(GravityCompat.START);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
 
@@ -145,6 +178,12 @@ public class MainActivity extends AppCompatActivity
         });
 
         return super.onCreateOptionsMenu(menu);
+    }
+
+    public void send_inform(View v) {
+        Intent toReportActivity = new Intent(this, ReportActivity.class);
+        toReportActivity.putExtra("USER_KEY", user);
+        startActivity(toReportActivity);
     }
 
     private FirestoreRecyclerAdapter getCloudRecyclerAdapter() {
@@ -177,7 +216,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void updateViewMode() {
-
         cloudCompositionsAdapter = getCloudRecyclerAdapter();
 
         if (viewMode == LIST_ITEM) {
@@ -191,7 +229,6 @@ public class MainActivity extends AppCompatActivity
 
         recyclerView.setAdapter(cloudCompositionsAdapter);
         cloudCompositionsAdapter.startListening();
-
     }
 
     public void swapViewMode(View v) {
@@ -224,7 +261,6 @@ public class MainActivity extends AppCompatActivity
 
         @Override
         public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-            // Swipe Right to Left to delete.
             if(direction == ItemTouchHelper.LEFT) {
                 final int position = viewHolder.getAdapterPosition();
                 final CloudComposition composition = (CloudComposition) cloudCompositionsAdapter

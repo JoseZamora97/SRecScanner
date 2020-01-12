@@ -15,32 +15,30 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".Activities.ReportActivity"></activity>
 
         <meta-data
             android:name="com.google.firebase.ml.vision.DEPENDENCIES"
             android:value="ocr" />
 
         <activity
-            android:name=".LoginActivity"
+            android:name=".Activities.LoginActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
-            android:name=".MainActivity"
+            android:name=".Activities.MainActivity"
+            android:screenOrientation="portrait"></activity>
+        <activity
+            android:name=".Activities.CompositionActivity"
             android:screenOrientation="portrait" />
-
         <activity
-            android:name=".CompositionActivity"
+            android:name=".Activities.VisionActivity"
             android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".VisionActivity"
-            android:screenOrientation="portrait"/>
-
         <activity
             android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
             android:theme="@style/CropTheme" />
@@ -54,7 +52,6 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
-
     </application>
 
 </manifest>

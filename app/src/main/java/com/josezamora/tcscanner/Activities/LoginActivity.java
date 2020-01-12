@@ -1,4 +1,4 @@
-package com.josezamora.tcscanner;
+package com.josezamora.tcscanner.Activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -10,7 +10,8 @@ import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.josezamora.tcscanner.Interfaces.AppGlobals;
+import com.josezamora.tcscanner.AppGlobals;
+import com.josezamora.tcscanner.R;
 
 import java.util.Objects;
 

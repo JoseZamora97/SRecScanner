@@ -1,4 +1,4 @@
-package com.josezamora.tcscanner;
+package com.josezamora.tcscanner.Activities;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -30,8 +30,10 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.josezamora.tcscanner.Editor.CodeEditor;
 import com.josezamora.tcscanner.Editor.LanguageProvider;
 import com.josezamora.tcscanner.Firebase.Classes.CloudImage;
+import com.josezamora.tcscanner.Firebase.GlideApp;
 import com.josezamora.tcscanner.Firebase.Vision.VisualAnalyzer;
-import com.josezamora.tcscanner.Interfaces.AppGlobals;
+import com.josezamora.tcscanner.AppGlobals;
+import com.josezamora.tcscanner.R;
 
 import java.io.File;
 import java.io.FileOutputStream;

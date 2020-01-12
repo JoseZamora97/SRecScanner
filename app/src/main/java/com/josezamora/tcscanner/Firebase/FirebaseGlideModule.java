@@ -1,4 +1,4 @@
-package com.josezamora.tcscanner;
+package com.josezamora.tcscanner.Firebase;
 
 import android.content.Context;
 
@@ -14,7 +14,7 @@ import java.io.InputStream;
 import androidx.annotation.NonNull;
 
 @GlideModule
-public class MyAppGlideModule extends AppGlideModule {
+public class FirebaseGlideModule extends AppGlideModule {
     @Override
     public void registerComponents(@NonNull Context context, @NonNull Glide glide, Registry registry) {
         registry.append(StorageReference.class, InputStream.class,
