@@ -35,6 +35,7 @@ public class LoginActivity extends AppCompatActivity {
                             .createSignInIntentBuilder()
                             .setAvailableProviders(AppGlobals.PROVIDERS)
                             .setIsSmartLockEnabled(false, true)
+                            .setLogo(R.mipmap.ic_launcher)
                             .setTheme(R.style.AppTheme)
                             .build(),
                     AppGlobals.REQUEST_CODE_SIGN_IN);
