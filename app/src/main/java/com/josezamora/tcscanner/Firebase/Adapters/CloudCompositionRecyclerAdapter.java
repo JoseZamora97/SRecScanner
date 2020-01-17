@@ -90,8 +90,12 @@ public class CloudCompositionRecyclerAdapter extends FirestoreRecyclerAdapter<Cl
                                @NonNull DocumentSnapshot snapshot,
                                int newIndex, int oldIndex) {
 
-        CloudImage model = getSnapshots().get(newIndex);
-        onChildUpdate(model, type, newIndex, oldIndex);
+        if(newIndex != -1) {
+            CloudImage model = getSnapshots().get(newIndex);
+            onChildUpdate(model, type, newIndex, oldIndex);
+        }
+        else
+            onChildUpdate(null, type, newIndex, oldIndex);
     }
 
     private void onChildUpdate(CloudImage model, ChangeEventType type,
@@ -111,8 +115,8 @@ public class CloudCompositionRecyclerAdapter extends FirestoreRecyclerAdapter<Cl
                 break;
 
             case REMOVED:
-                listImages.remove(newIndex);
-                notifyItemRemoved(newIndex);
+                listImages.remove(oldIndex);
+                notifyItemRemoved(oldIndex);
                 break;
 
             case MOVED:

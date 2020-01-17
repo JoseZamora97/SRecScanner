@@ -289,7 +289,7 @@ public class VisionActivity extends AppCompatActivity {
             }
         });
 
-        builderConfig.setNegativeButton("Descartar", new DialogInterface.OnClickListener() {
+        builderConfig.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 dialogInterface.dismiss();

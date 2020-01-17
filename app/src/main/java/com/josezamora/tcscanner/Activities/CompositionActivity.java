@@ -29,6 +29,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.storage.UploadTask;
 import com.josezamora.tcscanner.Firebase.Adapters.CloudCompositionRecyclerAdapter;
@@ -264,7 +266,7 @@ public class CompositionActivity extends AppCompatActivity
     }
 
     public void animateFloatActionButtons(View v) {
-        if(cloudImagesAdapter.getCloudImages().size()<5)
+        if(cloudImagesAdapter.getCloudImages().size() < AppGlobals.MAX_PHOTOS_PER_COMPOSITION)
             if(isOpen){
                 btnAdd.startAnimation(rotateBackward);
 
@@ -364,29 +366,30 @@ public class CompositionActivity extends AppCompatActivity
 
         @Override
         public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) { // Todo: Fix
-//            if(direction == ItemTouchHelper.LEFT) {
-//                final int position  = viewHolder.getAdapterPosition();
-//                final CloudImage image = cloudImagesAdapter.getItem(position);
-//
-//                firebaseController.deleteImage(image, false);
-//
-//                Snackbar.make(recyclerView, "Foto eliminada", Snackbar.LENGTH_INDEFINITE)
-//                        .setDuration(3000)
-//                        .addCallback(new Snackbar.Callback(){
-//                            @Override
-//                            public void onDismissed(Snackbar snackbar, int event) {
-//                                undo = event == BaseTransientBottomBar
-//                                        .BaseCallback.DISMISS_EVENT_ACTION;
-//                                if(!undo) firebaseController.deleteImage(image, false);
-//                                else firebaseController.addImage(image);
-//                            }
-//                        })
-//                        .setAction("Deshacer", new View.OnClickListener() {
-//                            @Override
-//                            public void onClick(View v) {}
-//                        })
-//                        .show();
-//            }
+            if(direction == ItemTouchHelper.LEFT) {
+                final int position  = viewHolder.getAdapterPosition();
+                final CloudImage image = cloudImagesAdapter.getItem(position);
+
+                saveChanges();
+                firebaseController.deleteImage(image, false);
+
+                Snackbar.make(recyclerView, "Foto eliminada", Snackbar.LENGTH_INDEFINITE)
+                        .setDuration(3000)
+                        .addCallback(new Snackbar.Callback(){
+                            @Override
+                            public void onDismissed(Snackbar snackbar, int event) {
+                                undo = event == BaseTransientBottomBar
+                                        .BaseCallback.DISMISS_EVENT_ACTION;
+                                if(!undo) firebaseController.deleteImage(image, false);
+                                else firebaseController.addImage(image);
+                            }
+                        })
+                        .setAction("Deshacer", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {}
+                        })
+                        .show();
+            }
         }
 
         @Override

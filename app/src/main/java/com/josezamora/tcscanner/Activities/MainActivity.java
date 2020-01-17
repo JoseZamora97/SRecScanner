@@ -1,21 +1,28 @@
 package com.josezamora.tcscanner.Activities;
 
+import android.annotation.SuppressLint;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Canvas;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
-import com.josezamora.tcscanner.Dialogs.NewCloudCompositionDialog;
 import com.josezamora.tcscanner.Firebase.Classes.CloudComposition;
 import com.josezamora.tcscanner.Firebase.Classes.CloudUser;
 import com.josezamora.tcscanner.Firebase.Controllers.FirebaseController;
@@ -27,6 +34,7 @@ import com.josezamora.tcscanner.ViewHolders.CloudCompositionViewHolder;
 import java.util.Objects;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
@@ -180,9 +188,9 @@ public class MainActivity extends AppCompatActivity
         return super.onCreateOptionsMenu(menu);
     }
 
-    public void send_inform(View v) {
+    public void sendInform(View v) {
         Intent toReportActivity = new Intent(this, ReportActivity.class);
-        toReportActivity.putExtra("USER_KEY", user);
+        toReportActivity.putExtra(AppGlobals.USER_KEY, user);
         startActivity(toReportActivity);
     }
 
@@ -242,9 +250,64 @@ public class MainActivity extends AppCompatActivity
         updateViewMode();
     }
 
-    public void addNewComposition(View view) {
-        new NewCloudCompositionDialog(user, firebaseController)
-                .show(getSupportFragmentManager(), "NEW");
+    public void logOut(View v) {
+        AuthUI.getInstance()
+                .signOut(this)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    public void onComplete(@NonNull Task<Void> task) {
+                        Intent toLoginActivity = new Intent(MainActivity.this, LoginActivity.class);
+                        startActivity(toLoginActivity);
+                        finish();
+                    }
+                });
+    }
+
+    public void addNewComposition(View v) {
+        LayoutInflater li = LayoutInflater.from(MainActivity.this);
+        AlertDialog.Builder builderConfig = new AlertDialog.Builder(this);
+
+        @SuppressLint("InflateParams")
+        View view = li.inflate(R.layout.dialog_name_composition, null);
+
+        Typeface font = ResourcesCompat.getFont(this, R.font.nunito_bold);
+
+        builderConfig.setTitle("Renombrar fichero");
+        builderConfig.setView(view);
+        builderConfig.setCancelable(false);
+
+        final EditText editTextName = view.findViewById(R.id.editTextName);
+
+        builderConfig.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                if(!editTextName.getText().toString().equals(""))
+                    addComposition(editTextName.getText().toString());
+            }
+        });
+
+        builderConfig.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        });
+
+        AlertDialog alertDialog = builderConfig.create();
+        alertDialog.show();
+
+        Button btn1 = alertDialog.findViewById(android.R.id.button1);
+        assert btn1 != null;
+        btn1.setTypeface(font);
+
+        Button btn2 = alertDialog.findViewById(android.R.id.button2);
+        assert btn2 != null;
+        btn2.setTypeface(font);
+    }
+
+    private void addComposition(String name) {
+        String compositionId = String.valueOf(System.currentTimeMillis());
+        CloudComposition composition = new CloudComposition(compositionId, name, user.getuId());
+        firebaseController.addComposition(composition);
     }
 
     ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0,

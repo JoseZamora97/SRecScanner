@@ -74,7 +74,7 @@
                 android:textColor="@color/colorBodies" />
 
             <EditText
-                android:id="@+id/editText2"
+                android:id="@+id/editText_details"
                 android:layout_width="match_parent"
                 android:layout_height="400dp"
                 android:ems="10"

@@ -74,7 +74,7 @@
         android:background="?selectableItemBackground"
         android:padding="15dp"
         android:gravity="center"
-        android:onClick="send_inform"
+        android:onClick="sendInform"
         android:layout_below="@+id/nav_head"
         >
 
@@ -97,13 +97,14 @@
     <LinearLayout
         android:id="@+id/log_out"
         android:orientation="horizontal"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
-        android:background="?selectableItemBackgroundBorderless"
+        android:background="?selectableItemBackground"
         android:padding="15dp"
         android:gravity="center"
+        android:onClick="logOut"
         >
 
         <ImageView
@@ -120,6 +121,7 @@
             android:text="Cerrar Sesión"
             android:fontFamily="@font/nunito_bold"
             android:textColor="@color/colorAccent"/>
+
     </LinearLayout>
 
 

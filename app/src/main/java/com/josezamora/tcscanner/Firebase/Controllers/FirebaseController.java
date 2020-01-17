@@ -12,6 +12,7 @@ import com.google.firebase.storage.UploadTask;
 import com.josezamora.tcscanner.Firebase.Classes.CloudComposition;
 import com.josezamora.tcscanner.Firebase.Classes.CloudImage;
 import com.josezamora.tcscanner.Firebase.Classes.CloudUser;
+import com.josezamora.tcscanner.Firebase.Classes.Report;
 
 import java.io.InputStream;
 import java.util.Objects;
@@ -53,7 +54,7 @@ public class FirebaseController {
         if(!definitive) databaseController.deleteComposition(composition);
         else
             databaseController.deleteCompositionDefinitive(composition);
-            // Todo: clean storage too.
+            // TODO: clean storage too.
     }
 
     public StorageReference getReference(CloudImage image) {
@@ -106,5 +107,9 @@ public class FirebaseController {
 
     public void update(CloudComposition composition) {
         databaseController.updateComposition(composition);
+    }
+
+    public void sendReport(Report report) {
+        databaseController.sendReport(report);
     }
 }

@@ -59,11 +59,22 @@ public interface AppGlobals {
      */
     String COMPOSITION_KEY = "KEY_COMPOSITION";
 
+    /**
+     * The constant KEY_IMAGES
+     */
+    String IMAGES_KEY = "KEY_IMAGES";
+
+    /**
+     * The constant USER_KEY
+     */
+    String USER_KEY = "USER_KEY";
+
     List<AuthUI.IdpConfig> PROVIDERS = Arrays.asList(
             new AuthUI.IdpConfig.EmailBuilder().build(),
             new AuthUI.IdpConfig.GoogleBuilder().build());
 
-    String IMAGES_KEY = "KEY_IMAGES";
-
+    /**
+     * VERSION
+     */
     String VERSION = "v0.9";
 }

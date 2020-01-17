@@ -12,6 +12,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.josezamora.tcscanner.Firebase.Classes.CloudComposition;
 import com.josezamora.tcscanner.Firebase.Classes.CloudImage;
 import com.josezamora.tcscanner.Firebase.Classes.CloudUser;
+import com.josezamora.tcscanner.Firebase.Classes.Report;
 
 import java.util.Objects;
 
@@ -25,6 +26,7 @@ class FirebaseDatabaseController {
     private static final String USERS = "users";
     private static final String COMPOSITIONS = "compositions";
     private static final String IMAGES = "photos";
+    private static final String REPORTS = "reports";
 
     private static final String FIELD_NAME = "name";
 
@@ -137,5 +139,9 @@ class FirebaseDatabaseController {
     void updateImage(CloudImage image) {
         DocumentReference docRef = getReference(image);
         docRef.update("order", image.getOrder());
+    }
+
+    void sendReport(Report report) {
+        database.collection(REPORTS).document(report.getId()).set(report);
     }
 }
