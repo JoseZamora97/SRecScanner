@@ -275,16 +275,10 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void logOut(View v) {
-        AuthUI
-            .getInstance()
-            .signOut(this)
-            .addOnCompleteListener(new OnCompleteListener<Void>() {
-                public void onComplete(@NonNull Task<Void> task) {
-                    Intent toLoginActivity = new Intent(MainActivity.this, LoginActivity.class);
-                    startActivity(toLoginActivity);
-                    finish();
-                }
-            });
+        FirebaseAuth.getInstance().signOut();
+        Intent toLoginActivity = new Intent(MainActivity.this, LoginActivity.class);
+        startActivity(toLoginActivity);
+        finish();
     }
 
     public void addNewComposition(View v) {
