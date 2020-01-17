@@ -5,6 +5,7 @@ import android.Manifest;
 import com.firebase.ui.auth.AuthUI;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public interface AppGlobals {
@@ -69,12 +70,11 @@ public interface AppGlobals {
      */
     String USER_KEY = "USER_KEY";
 
-    List<AuthUI.IdpConfig> PROVIDERS = Arrays.asList(
-            new AuthUI.IdpConfig.EmailBuilder().build(),
+    List<AuthUI.IdpConfig> PROVIDERS = Collections.singletonList(
             new AuthUI.IdpConfig.GoogleBuilder().build());
 
     /**
      * VERSION
      */
-    String VERSION = "v0.9";
+    String VERSION = "v0.9.01";
 }

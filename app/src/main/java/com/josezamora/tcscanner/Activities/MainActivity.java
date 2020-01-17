@@ -23,10 +23,10 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
+import com.josezamora.tcscanner.AppGlobals;
 import com.josezamora.tcscanner.Firebase.Classes.CloudComposition;
 import com.josezamora.tcscanner.Firebase.Classes.CloudUser;
 import com.josezamora.tcscanner.Firebase.Controllers.FirebaseController;
-import com.josezamora.tcscanner.AppGlobals;
 import com.josezamora.tcscanner.Firebase.GlideApp;
 import com.josezamora.tcscanner.R;
 import com.josezamora.tcscanner.ViewHolders.CloudCompositionViewHolder;
@@ -39,9 +39,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -75,6 +77,9 @@ public class MainActivity extends AppCompatActivity
 
     FirebaseController firebaseController;
     FirestoreRecyclerAdapter cloudCompositionsAdapter;
+
+    DividerItemDecoration itemDecorHorizontal;
+    DividerItemDecoration itemDecorVertical;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -119,6 +124,18 @@ public class MainActivity extends AppCompatActivity
         userName.setText(user.getName());
         userEmail.setText(user.getEmail());
         GlideApp.with(this).load(user.getPhotoUrl()).into(userImage);
+
+        itemDecorHorizontal = new DividerItemDecoration(this,
+                DividerItemDecoration.VERTICAL);
+        itemDecorHorizontal.setDrawable(Objects.requireNonNull(
+                ContextCompat.getDrawable(this, R.drawable.recycler_divider_horizontal)));
+
+        recyclerView.addItemDecoration(itemDecorHorizontal);
+
+        itemDecorVertical = new DividerItemDecoration(this,
+                DividerItemDecoration.HORIZONTAL);
+        itemDecorVertical.setDrawable(Objects.requireNonNull(
+                ContextCompat.getDrawable(this, R.drawable.recycler_divider_vertical)));
     }
 
     @Override
@@ -218,7 +235,12 @@ public class MainActivity extends AppCompatActivity
                         name += "...";
                     }
                 }
-                holder.getTxtName().setText(name);
+
+                String numImagesText = getString(R.string.imagenes) + " " + model.getNumImages()
+                        + "/" + AppGlobals.MAX_PHOTOS_PER_COMPOSITION;
+
+                holder.getTxtNameComposition().setText(name);
+                holder.getTxtNumImages().setText(numImagesText);
             }
         };
     }
@@ -227,10 +249,12 @@ public class MainActivity extends AppCompatActivity
         cloudCompositionsAdapter = getCloudRecyclerAdapter();
 
         if (viewMode == LIST_ITEM) {
+            recyclerView.removeItemDecoration(itemDecorVertical);
             btnSwitchViewMode.setImageResource(R.drawable.ic_grid_24dp);
             recyclerView.setLayoutManager(new LinearLayoutManager(this));
         }
         else {
+            recyclerView.addItemDecoration(itemDecorVertical);
             btnSwitchViewMode.setImageResource(R.drawable.ic_list_24dp);
             recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
         }
@@ -251,15 +275,16 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void logOut(View v) {
-        AuthUI.getInstance()
-                .signOut(this)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    public void onComplete(@NonNull Task<Void> task) {
-                        Intent toLoginActivity = new Intent(MainActivity.this, LoginActivity.class);
-                        startActivity(toLoginActivity);
-                        finish();
-                    }
-                });
+        AuthUI
+            .getInstance()
+            .signOut(this)
+            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                public void onComplete(@NonNull Task<Void> task) {
+                    Intent toLoginActivity = new Intent(MainActivity.this, LoginActivity.class);
+                    startActivity(toLoginActivity);
+                    finish();
+                }
+            });
     }
 
     public void addNewComposition(View v) {

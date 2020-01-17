@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:id="@+id/cardview_imagen_item"
     android:layout_height="130dp"
-    app:cardElevation="5dp"
+    app:cardElevation="2dp"
+    app:cardCornerRadius="8dp"
     android:background="@color/fui_transparent"
     android:animateLayoutChanges="true">
 

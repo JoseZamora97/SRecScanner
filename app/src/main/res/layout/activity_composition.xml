@@ -46,16 +46,33 @@
                 android:textSize="18sp"
                 tools:ignore="RelativeOverlap" />
 
-            <ImageView
-                android:onClick="scan"
+            <RelativeLayout
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="15dp"
-                android:src="@drawable/ic_play_arrow_30dp"
+                android:layout_height="match_parent"
                 android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:background="?selectableItemBackgroundBorderless"
-                android:contentDescription="@string/start_scan" />
+                android:paddingEnd="15dp"
+                android:paddingStart="15dp"
+                android:onClick="scan"
+                android:background="?selectableItemBackground">
+
+                <TextView
+                    android:id="@+id/textScan"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Escanear"
+                    android:textSize="18sp"
+                    android:layout_centerVertical="true"
+                    android:textColor="@color/colorAccent"
+                    android:fontFamily="@font/nunito_bold"/>
+
+                <ImageView
+                    android:layout_toEndOf="@+id/textScan"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/ic_play_arrow_30dp"
+                    android:contentDescription="@string/start_scan" />
+
+            </RelativeLayout>
 
         </RelativeLayout>
 

@@ -1,49 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@color/colorPrimary"
+    android:layout_height="90dp"
+    app:cardElevation="2dp"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    app:cardCornerRadius="8dp"
+    android:background="@color/colorPrimary">
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="?attr/selectableItemBackground"
-        style="@style/SelectableItemBackground"
-        >
-
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cardImagePreview"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_margin="15dp"
-            app:cardCornerRadius="@dimen/card_corner_radious"
-            android:layout_centerVertical="true"
-            >
-
-            <ImageView
-                android:id="@+id/imagePreview"
-                android:scaleType="centerCrop"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:src="@drawable/ic_code_24dp"
-                />
-
-        </androidx.cardview.widget.CardView>
+        android:orientation="horizontal"
+        android:baselineAligned="false">
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:layout_marginStart="0dp"
-            android:layout_marginEnd="0dp"
-            android:layout_centerVertical="true"
-            android:layout_toEndOf="@+id/cardImagePreview">
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            >
 
-            <LinearLayout
+            <ImageView
+                android:id="@+id/imageLanguage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_code_24dp"
+                android:contentDescription="Imagen del lenguaje del código"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:orientation="vertical"
-                android:layout_centerVertical="true">
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toEndOf="@+id/imageLanguage"
+                android:gravity="start|center">
 
                 <TextView
                     android:id="@+id/textviewName"
@@ -51,22 +46,34 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/nunito_bold"
                     android:textColor="@color/colorTitles"
-                    android:textSize="17sp" />
+                    android:textSize="18sp" />
 
                 <TextView
-                    android:id="@+id/textViewImages"
+                    android:id="@+id/num_images"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="0dp"
-                    android:layout_marginBottom="0dp"
-                    android:fontFamily="@font/nunito_light"
+                    android:fontFamily="@font/nunito"
                     android:textColor="@color/colorBodies"
-                    android:textSize="13sp" />
+                    android:textSize="15sp" />
 
             </LinearLayout>
 
         </RelativeLayout>
 
-    </RelativeLayout>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/colorPrimaryDark"
+            android:layout_weight="6">
 
-</RelativeLayout>
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_play_arrow_white_30dp"
+                android:contentDescription="Boton escanear" />
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

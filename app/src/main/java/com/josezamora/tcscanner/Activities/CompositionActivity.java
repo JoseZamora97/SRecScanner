@@ -112,16 +112,11 @@ public class CompositionActivity extends AppCompatActivity
         ((TextView) findViewById(R.id.composition)).setText(composition.getName());
         recyclerView = findViewById(R.id.rv_photos);
 
-        cloudImagesAdapter = new CloudCompositionRecyclerAdapter(
-                firebaseController.getRecyclerOptions(user,composition), this);
-
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(cloudImagesAdapter);
 
         DividerItemDecoration itemDecor = new DividerItemDecoration(this,
                 DividerItemDecoration.VERTICAL);
         itemDecor.setDrawable(Objects.requireNonNull(
-                ContextCompat.getDrawable(this, R.drawable.recycler_divider)));
+                ContextCompat.getDrawable(this, R.drawable.recycler_divider_horizontal)));
         recyclerView.addItemDecoration(itemDecor);
 
         itemTouchHelper = new ItemTouchHelper(simpleCallback);
@@ -131,6 +126,13 @@ public class CompositionActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
+
+        cloudImagesAdapter = new CloudCompositionRecyclerAdapter(
+                firebaseController.getRecyclerOptions(user,composition), this);
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(cloudImagesAdapter);
+
         cloudImagesAdapter.startListening();
     }
 
@@ -181,15 +183,14 @@ public class CompositionActivity extends AppCompatActivity
             AlertDialog alertDialog = builderConfig.create();
             alertDialog.show();
         }
-        else{
+        else
             super.onBackPressed();
-        }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK) {
+        if (resultCode == RESULT_OK)
             switch (requestCode) {
                 case AppGlobals.REQUEST_CODE_CAMERA:
                     cropImage(photoUri);
@@ -202,7 +203,6 @@ public class CompositionActivity extends AppCompatActivity
                     uploadImage(Objects.requireNonNull(CropImage.getActivityResult(data)).getUri());
                     break;
             }
-        }
     }
 
     @Override

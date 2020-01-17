@@ -11,13 +11,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class CloudCompositionViewHolder extends RecyclerView.ViewHolder  {
 
-    private ImageView imageView;
-    private TextView txtName;
+    private ImageView imageLanguage;
+    private TextView txtNameComposition;
+    private TextView txtNumImages;
 
     public CloudCompositionViewHolder(View itemView, final RecyclerViewOnClickInterface onClickInterface) {
         super(itemView);
-        imageView = itemView.findViewById(R.id.imagePreview);
-        txtName = itemView.findViewById(R.id.textviewName);
+
+        imageLanguage = itemView.findViewById(R.id.imageLanguage);
+        txtNameComposition = itemView.findViewById(R.id.textviewName);
+        txtNumImages = itemView.findViewById(R.id.num_images);
 
         itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -27,19 +30,12 @@ public class CloudCompositionViewHolder extends RecyclerView.ViewHolder  {
         });
     }
 
-    public ImageView getImageView() {
-        return imageView;
+    public TextView getTxtNameComposition() {
+        return txtNameComposition;
     }
 
-    public void setImageView(ImageView imageView) {
-        this.imageView = imageView;
+    public TextView getTxtNumImages(){
+        return txtNumImages;
     }
 
-    public TextView getTxtName() {
-        return txtName;
-    }
-
-    public void setTxtName(TextView txtName) {
-        this.txtName = txtName;
-    }
 }

@@ -20,6 +20,7 @@
         <item name="titleTextColor">@color/colorAccent</item>
         <item name="actionMenuTextColor">@color/colorAccent</item>
         <item name="android:textColorPrimary">@color/colorBodies</item>
+        <item name="android:elevation">0dp</item>
     </style>
 
     <style name="SelectableItemTheme">

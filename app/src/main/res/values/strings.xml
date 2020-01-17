@@ -12,5 +12,6 @@
     <string name="untitled_placeholder">untitled</string>
     <string name="start_scan">Empezar escaneo</string>
     <string name="uploading_photo">Subiendo foto ...</string>
+    <string name="imagenes">Imágenes:</string>
 
 </resources>
