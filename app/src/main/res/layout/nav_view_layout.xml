@@ -14,7 +14,7 @@
             android:id="@+id/toprl"
             android:layout_width="match_parent"
             android:layout_height="150dp"
-            android:background="@color/colorAccent">
+            android:background="@color/colorPrimaryDark">
 
         </RelativeLayout>
 
@@ -22,7 +22,9 @@
             android:id="@+id/card_pic"
             android:layout_width="80dp"
             android:layout_height="80dp"
-            android:layout_centerInParent="true"
+            android:elevation="2dp"
+            android:layout_marginStart="15dp"
+            android:layout_centerVertical="true"
             app:cardCornerRadius="40dp">
 
             <ImageView
@@ -36,9 +38,9 @@
             android:padding="5dp"
             android:layout_below="@+id/card_pic"
             android:id="@+id/user_name"
+            android:layout_marginStart="15dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
             android:fontFamily="@font/nunito_bold"
             android:textColor="@color/colorTitles"
             android:textSize="20sp" />
@@ -48,7 +50,7 @@
             android:id="@+id/user_mail"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
+            android:layout_marginStart="15dp"
             android:fontFamily="@font/nunito"
             android:textColor="@color/colorBodies"
             android:textSize="16sp" />
@@ -57,41 +59,80 @@
             android:id="@+id/version"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
             android:text="v1.0"
             android:textColor="@color/colorAccent"
             android:fontFamily="@font/nunito"
-            android:layout_centerHorizontal="true"
             android:layout_below="@id/user_mail"/>
 
     </RelativeLayout>
 
     <LinearLayout
-        android:id="@+id/report_failure"
-        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:background="?selectableItemBackground"
-        android:padding="15dp"
-        android:gravity="center"
-        android:onClick="sendInform"
-        android:layout_below="@+id/nav_head"
-        >
+        android:orientation="vertical"
+        android:layout_below="@+id/nav_head">
 
-        <ImageView
-            android:padding="5dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:contentDescription="Informar un error"
-            android:src="@drawable/ic_info_outline_black_24dp">
-        </ImageView>
+        <LinearLayout
+            android:id="@+id/connect_to_srec"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:background="?selectableItemBackground"
+            android:gravity="center"
+            android:layout_height="70dp"
+            android:onClick="qrReaderOpen"
+            >
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Informar un error"
-            android:fontFamily="@font/nunito"
-            android:textColor="@color/colorBodies"/>
+            <ImageView
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:layout_width="30dp"
+                android:layout_height="match_parent"
+                android:contentDescription="Conectar con SRec"
+                android:src="@drawable/ic_computer_black_24dp">
+            </ImageView>
+
+            <TextView
+                android:id="@+id/conectar_srec"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Conectar con SRec"
+                android:textSize="18sp"
+                android:fontFamily="@font/nunito"
+                android:textColor="@color/colorBodies"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/report_failure"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:layout_centerHorizontal="true"
+            android:background="?selectableItemBackground"
+            android:gravity="center"
+            android:onClick="sendInform"
+            >
+
+            <ImageView
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:layout_width="30dp"
+                android:layout_height="match_parent"
+                android:contentDescription="Informar un error"
+                android:src="@drawable/ic_info_outline_black_24dp">
+            </ImageView>
+
+            <TextView
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Informar un error"
+                android:textSize="18sp"
+                android:fontFamily="@font/nunito"
+                android:textColor="@color/colorBodies"/>
+        </LinearLayout>
+
     </LinearLayout>
 
     <LinearLayout

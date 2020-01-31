@@ -112,7 +112,6 @@ public class CompositionActivity extends AppCompatActivity
         ((TextView) findViewById(R.id.composition)).setText(composition.getName());
         recyclerView = findViewById(R.id.rv_photos);
 
-
         DividerItemDecoration itemDecor = new DividerItemDecoration(this,
                 DividerItemDecoration.VERTICAL);
         itemDecor.setDrawable(Objects.requireNonNull(

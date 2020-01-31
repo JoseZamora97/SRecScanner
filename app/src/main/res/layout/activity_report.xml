@@ -7,15 +7,6 @@
     tools:context=".Activities.ReportActivity"
     android:background="@color/colorPrimary">
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabAdd"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
-        android:onClick="send_report"
-        app:srcCompat="@drawable/ic_send_24dp" />
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintLayout"
         android:layout_width="match_parent"
@@ -66,26 +57,30 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/relativeLayout2">
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/nunito_bold"
-                android:text="Por favor, explique brevemente el fallo:"
-                android:textColor="@color/colorBodies" />
-
             <EditText
+                android:background="@android:color/transparent"
                 android:id="@+id/editText_details"
                 android:layout_width="match_parent"
+                android:padding="5dp"
+                android:hint="Por favor, explique brevemente el fallo ... "
                 android:layout_height="400dp"
-                android:ems="10"
+                android:textSize="18sp"
+                android:textColor="@color/colorBodies"
                 android:fontFamily="@font/nunito"
                 android:gravity="start|top"
                 android:inputType="textMultiLine"
                 />
         </LinearLayout>
 
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabAdd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:onClick="send_report"
+        app:srcCompat="@drawable/ic_send_24dp" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

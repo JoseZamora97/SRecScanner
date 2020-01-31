@@ -14,7 +14,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Activities.ReportActivity"></activity>
 
         <meta-data
             android:name="com.google.firebase.ml.vision.DEPENDENCIES"
@@ -25,13 +24,12 @@
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".Activities.MainActivity"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait" />
         <activity
             android:name=".Activities.CompositionActivity"
             android:screenOrientation="portrait" />
@@ -41,6 +39,11 @@
         <activity
             android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
             android:theme="@style/CropTheme" />
+
+        <activity android:name=".Activities.QRActivity"></activity>
+
+        <activity android:name=".Activities.ReportActivity"
+            android:windowSoftInputMode="adjustResize"></activity>
 
         <provider
             android:name="androidx.core.content.FileProvider"

@@ -50,27 +50,27 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_alignParentEnd="true"
-                android:paddingEnd="15dp"
-                android:paddingStart="15dp"
+                android:background="?selectableItemBackground"
                 android:onClick="scan"
-                android:background="?selectableItemBackground">
+                android:paddingStart="15dp"
+                android:paddingEnd="8dp">
 
                 <TextView
                     android:id="@+id/textScan"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Escanear"
-                    android:textSize="18sp"
                     android:layout_centerVertical="true"
-                    android:textColor="@color/colorAccent"
-                    android:fontFamily="@font/nunito_bold"/>
+                    android:fontFamily="@font/nunito"
+                    android:text="Escanear"
+                    android:textColor="@color/colorTitles"
+                    android:textSize="18sp" />
 
                 <ImageView
-                    android:layout_toEndOf="@+id/textScan"
-                    android:layout_width="wrap_content"
+                    android:layout_width="35dp"
                     android:layout_height="match_parent"
-                    android:src="@drawable/ic_play_arrow_30dp"
-                    android:contentDescription="@string/start_scan" />
+                    android:layout_toEndOf="@+id/textScan"
+                    android:contentDescription="@string/start_scan"
+                    android:src="@drawable/ic_play_arrow_30dp" />
 
             </RelativeLayout>
 

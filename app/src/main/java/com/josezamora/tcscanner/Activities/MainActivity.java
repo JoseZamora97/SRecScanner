@@ -16,10 +16,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
@@ -28,12 +25,15 @@ import com.josezamora.tcscanner.Firebase.Classes.CloudComposition;
 import com.josezamora.tcscanner.Firebase.Classes.CloudUser;
 import com.josezamora.tcscanner.Firebase.Controllers.FirebaseController;
 import com.josezamora.tcscanner.Firebase.GlideApp;
+import com.josezamora.tcscanner.Preferences.PreferencesController;
 import com.josezamora.tcscanner.R;
+import com.josezamora.tcscanner.SRecProtocol.SRecController;
 import com.josezamora.tcscanner.ViewHolders.CloudCompositionViewHolder;
 
 import java.util.Objects;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
@@ -81,6 +81,11 @@ public class MainActivity extends AppCompatActivity
     DividerItemDecoration itemDecorHorizontal;
     DividerItemDecoration itemDecorVertical;
 
+    SRecController sRecController;
+    TextView textViewSRec;
+
+    PreferencesController preferencesController;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -98,12 +103,18 @@ public class MainActivity extends AppCompatActivity
         userName = findViewById(R.id.user_name);
         userEmail = findViewById(R.id.user_mail);
 
+        textViewSRec = findViewById(R.id.conectar_srec);
+
         ((TextView) findViewById(R.id.version)).setText(AppGlobals.VERSION);
 
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         Objects.requireNonNull(getSupportActionBar()).setHomeAsUpIndicator(R.drawable.ic_menu_24dp);
 
         firebaseController = new FirebaseController();
+        preferencesController = new PreferencesController(this);
+        sRecController = new SRecController(this);
+
+        preferencesController.clearSRecConnection();
 
         user = CloudUser.userFromFirebase(
                 Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()));
@@ -141,6 +152,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
+        drawerLayout.closeDrawer(GravityCompat.START, false);
         cloudCompositionsAdapter.startListening();
     }
 
@@ -152,6 +164,8 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onItemClick(int position) {
+        preferencesController.connectedToSRec(sRecController.getIp(), sRecController.getPort());
+
         final CloudComposition composition = (CloudComposition) cloudCompositionsAdapter
                 .getItem(position);
 
@@ -205,10 +219,18 @@ public class MainActivity extends AppCompatActivity
         return super.onCreateOptionsMenu(menu);
     }
 
-    public void sendInform(View v) {
-        Intent toReportActivity = new Intent(this, ReportActivity.class);
-        toReportActivity.putExtra(AppGlobals.USER_KEY, user);
-        startActivity(toReportActivity);
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == RESULT_OK && requestCode == AppGlobals.REQUEST_CODE_QR)
+            if (data != null)
+                handleQRResult(Objects.requireNonNull(data.getStringExtra("result")));
+    }
+
+    private void handleQRResult(String result) {
+        String[] ip_port = result.split(":");
+        sRecController.startConnection(ip_port[0], ip_port[1]);
     }
 
     private FirestoreRecyclerAdapter getCloudRecyclerAdapter() {
@@ -243,6 +265,12 @@ public class MainActivity extends AppCompatActivity
                 holder.getTxtNumImages().setText(numImagesText);
             }
         };
+    }
+
+    public void sendInform(View v) {
+        Intent toReportActivity = new Intent(this, ReportActivity.class);
+        toReportActivity.putExtra(AppGlobals.USER_KEY, user);
+        startActivity(toReportActivity);
     }
 
     public void updateViewMode() {
@@ -299,8 +327,12 @@ public class MainActivity extends AppCompatActivity
         builderConfig.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                if(!editTextName.getText().toString().equals(""))
-                    addComposition(editTextName.getText().toString());
+                if(!editTextName.getText().toString().equals("")) {
+                    String compositionId = String.valueOf(System.currentTimeMillis());
+                    CloudComposition composition = new CloudComposition(
+                            compositionId, editTextName.getText().toString(), user.getuId());
+                    firebaseController.addComposition(composition);
+                }
             }
         });
 
@@ -323,10 +355,16 @@ public class MainActivity extends AppCompatActivity
         btn2.setTypeface(font);
     }
 
-    private void addComposition(String name) {
-        String compositionId = String.valueOf(System.currentTimeMillis());
-        CloudComposition composition = new CloudComposition(compositionId, name, user.getuId());
-        firebaseController.addComposition(composition);
+    public void qrReaderOpen(View v) {
+        if(!sRecController.isConnected()) {
+            Intent qrActivity = new Intent(this, QRActivity.class);
+            startActivityForResult(qrActivity, AppGlobals.REQUEST_CODE_QR);
+        }
+        else {
+            sRecController.stopConnection();
+            preferencesController.clearSRecConnection();
+        }
+
     }
 
     ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0,

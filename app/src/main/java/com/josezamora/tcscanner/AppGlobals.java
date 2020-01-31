@@ -73,6 +73,10 @@ public interface AppGlobals {
     List<AuthUI.IdpConfig> PROVIDERS = Collections.singletonList(
             new AuthUI.IdpConfig.GoogleBuilder().build());
 
+
+    String PREFERENCES_NAME = "SREC_SCANNER_PREFERENCES";
+
+
     /**
      * VERSION
      */

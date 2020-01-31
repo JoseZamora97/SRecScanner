@@ -28,6 +28,7 @@ public class ReportActivity extends AppCompatActivity {
     EditText editTextDetails;
     FirebaseController firebaseController;
     CloudUser user;
+    InputMethodManager imm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +48,8 @@ public class ReportActivity extends AppCompatActivity {
         editTextDetails = findViewById(R.id.editText_details);
         editTextDetails.requestFocus();
 
-        InputMethodManager imm = (InputMethodManager)   getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm = (InputMethodManager)   getSystemService(Context.INPUT_METHOD_SERVICE);
+        assert imm != null;
         imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
 
     }
@@ -96,6 +98,7 @@ public class ReportActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
+            imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
             onBackPressed();
             return true;
         }

@@ -33,7 +33,9 @@ import com.josezamora.tcscanner.Firebase.Classes.CloudImage;
 import com.josezamora.tcscanner.Firebase.GlideApp;
 import com.josezamora.tcscanner.Firebase.Vision.VisualAnalyzer;
 import com.josezamora.tcscanner.AppGlobals;
+import com.josezamora.tcscanner.Preferences.PreferencesController;
 import com.josezamora.tcscanner.R;
+import com.josezamora.tcscanner.SRecProtocol.SRecController;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -46,6 +48,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -74,9 +77,14 @@ public class VisionActivity extends AppCompatActivity {
 
     Spinner spinner;
 
+    PreferencesController preferencesController;
+    SRecController sRecController;
+
     boolean isOpen = false;
     Animation fabOpen, fabClose, rotateForward, rotateBackward;
     FloatingActionButton btnExport, btnExportToSRec, btnShare;
+
+    File temp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,6 +118,9 @@ public class VisionActivity extends AppCompatActivity {
         textName = findViewById(R.id.name_file);
 
         spinner.setSelection(0, true);
+
+        preferencesController = new PreferencesController(this);
+        sRecController = new SRecController(this);
 
         btnExport = findViewById(R.id.fabExport);
         btnExportToSRec = findViewById(R.id.fabExportSrec);
@@ -235,22 +246,58 @@ public class VisionActivity extends AppCompatActivity {
             Toast.makeText(this, "Lo sentimos, SRec solo soporta código Java"
                     , Toast.LENGTH_SHORT).show();
         }
+        else {
+
+            temp = editTextToFile();
+
+            String[] ip_port = preferencesController.getConnectionDetailsSRec();
+            if(ip_port[0].equals(SRecController.NONE)) {
+                Intent connectToSRec = new Intent(this, QRActivity.class);
+                startActivityForResult(connectToSRec, AppGlobals.REQUEST_CODE_QR);
+            }
+            else
+                sRecController.connectAndSendFile(ip_port[0], ip_port[1], temp);
+
+        }
     }
 
-    public void exportToShare(View v){
-        File temp = new File(getExternalCacheDir(),
-                textName.getText().toString()+textViewExt.getText().toString());
+    private File editTextToFile(){
+        File file = new File(getExternalCacheDir(),
+                textName.getText().toString() + textViewExt.getText().toString());
 
         String content = Objects.requireNonNull(codeEditor.getText()).toString();
 
         try {
-            FileOutputStream stream = new FileOutputStream(temp);
+            FileOutputStream stream = new FileOutputStream(file);
             stream.write(content.getBytes());
             stream.close();
         }
         catch (IOException ioe) {
             ioe.printStackTrace();
         }
+
+        return file;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == RESULT_OK && requestCode == AppGlobals.REQUEST_CODE_QR)
+            if (data != null)
+                handleQRResult(Objects.requireNonNull(data.getStringExtra("result")));
+
+    }
+
+    private void handleQRResult(String result) {
+        String[] ip_port = result.split(":");
+        sRecController.startConnection(ip_port[0], ip_port[1]);
+        sRecController.sendFile(temp);
+    }
+
+    public void exportToShare(View v){
+
+        temp = editTextToFile();
 
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.setType(URLConnection.guessContentTypeFromName(temp.getName()));

@@ -5,7 +5,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -25,13 +24,10 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import com.josezamora.tcscanner.AppGlobals;
 import com.josezamora.tcscanner.R;
 
-import java.util.Objects;
-
 public class LoginActivity extends AppCompatActivity {
 
-
-    GoogleSignInClient mGoogleSignInClient;
-    GoogleSignInOptions gso;
+    GoogleSignInClient googleSignInClient;
+    GoogleSignInOptions googleSignInOptions;
 
     FirebaseAuth firebaseAuth;
 
@@ -42,12 +38,12 @@ public class LoginActivity extends AppCompatActivity {
 
         firebaseAuth = FirebaseAuth.getInstance();
 
-        gso =  new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+        googleSignInOptions =  new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(AppGlobals.ID_CLIENT_OAUTH_TOKEN)
                 .requestEmail()
                 .build();
 
-        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+        googleSignInClient = GoogleSignIn.getClient(this, googleSignInOptions);
 
         SignInButton signInButton = findViewById(R.id.sign_in_button);
         signInButton.setOnClickListener(new View.OnClickListener() {
@@ -62,7 +58,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void signIn() {
-        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+        Intent signInIntent = googleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, AppGlobals.REQUEST_CODE_SIGN_IN);
     }
 
@@ -106,7 +102,6 @@ public class LoginActivity extends AppCompatActivity {
         Snackbar.make(findViewById(R.id.login_layout),
                 messaje  , Snackbar.LENGTH_SHORT).show();
     }
-
 
     private void toMainActivity() {
         startActivity(new Intent(this, MainActivity.class));

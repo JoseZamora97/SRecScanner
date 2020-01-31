@@ -49,6 +49,8 @@ dependencies {
 
     implementation "com.andkulikov:transitionseverywhere:1.8.1"
     implementation 'com.theartofdev.edmodo:android-image-cropper:2.8.0'
+    implementation files('libs/SRecConnectionProtocol.jar')
+
 }
 
 apply plugin: 'com.google.gms.google-services'
