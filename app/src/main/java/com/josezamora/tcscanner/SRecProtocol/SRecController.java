@@ -6,14 +6,14 @@ import android.os.AsyncTask;
 import android.widget.TextView;
 
 import com.josezamora.tcscanner.R;
+import com.josezamora.tcscanner.SRecProtocol.Client.Client;
+import com.josezamora.tcscanner.SRecProtocol.Client.SRecClient;
+import com.josezamora.tcscanner.SRecProtocol.Messages.SRecMessageRequest;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-import SRecProtocol.Client.Client;
-import SRecProtocol.Client.SRecClient;
-import SRecProtocol.Messages.SRecMessageRequest;
 
 @SuppressLint("StaticFieldLeak")
 public class SRecController {
@@ -52,14 +52,15 @@ public class SRecController {
             this.port = port;
 
             new StartConnectionTask().execute();
-            ((TextView) this.context.findViewById(R.id.conectar_srec)).setText("Desconectar de SRec");
+            ((TextView) this.context.findViewById(R.id.conectar_srec)).setText("Desconectar " +
+                    "de SRecReceiver");
         }
     }
 
 
     public void stopConnection() {
         new StopConnectionTask().execute();
-        ((TextView) context.findViewById(R.id.conectar_srec)).setText("Conectar con SRec");
+        ((TextView) context.findViewById(R.id.conectar_srec)).setText("Conectar con SRecReceiver");
     }
 
     public void sendFile(File file) {
