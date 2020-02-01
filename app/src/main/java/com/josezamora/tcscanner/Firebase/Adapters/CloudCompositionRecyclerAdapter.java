@@ -36,7 +36,7 @@ public class CloudCompositionRecyclerAdapter extends FirestoreRecyclerAdapter<Cl
      * Create a new RecyclerView adapter that listens to a Firestore Query.  See {@link
      * FirestoreRecyclerOptions} for configuration options.
      *
-     * @param options
+     * @param options options to create the adapter.
      */
     public CloudCompositionRecyclerAdapter(@NonNull FirestoreRecyclerOptions<CloudImage> options,
                                            CompositionActivity activity) {

@@ -1,7 +1,6 @@
 package com.josezamora.tcscanner.Activities;
 
 import android.annotation.SuppressLint;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Typeface;
@@ -15,22 +14,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
-import com.google.android.material.snackbar.BaseTransientBottomBar;
-import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.auth.FirebaseAuth;
-import com.josezamora.tcscanner.AppGlobals;
-import com.josezamora.tcscanner.Firebase.Classes.CloudComposition;
-import com.josezamora.tcscanner.Firebase.Classes.CloudUser;
-import com.josezamora.tcscanner.Firebase.Controllers.FirebaseController;
-import com.josezamora.tcscanner.Firebase.GlideApp;
-import com.josezamora.tcscanner.Preferences.PreferencesController;
-import com.josezamora.tcscanner.R;
-import com.josezamora.tcscanner.SRecProtocol.SRecController;
-import com.josezamora.tcscanner.ViewHolders.CloudCompositionViewHolder;
-
-import java.util.Objects;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -49,6 +32,23 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
+import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.auth.FirebaseAuth;
+import com.josezamora.tcscanner.AppGlobals;
+import com.josezamora.tcscanner.Firebase.Classes.CloudComposition;
+import com.josezamora.tcscanner.Firebase.Classes.CloudUser;
+import com.josezamora.tcscanner.Firebase.Controllers.FirebaseController;
+import com.josezamora.tcscanner.Firebase.GlideApp;
+import com.josezamora.tcscanner.Preferences.PreferencesController;
+import com.josezamora.tcscanner.R;
+import com.josezamora.tcscanner.SRecProtocol.SRecController;
+import com.josezamora.tcscanner.ViewHolders.CloudCompositionViewHolder;
+
+import java.util.Objects;
+
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 
 import static android.util.TypedValue.COMPLEX_UNIT_SP;
@@ -230,7 +230,7 @@ public class MainActivity extends AppCompatActivity
 
     private void handleQRResult(String result) {
         String[] ip_port = result.split(":");
-        sRecController.startConnection(ip_port[0], ip_port[1]);
+        sRecController.startConnection(ip_port[1], ip_port[2]);
     }
 
     private FirestoreRecyclerAdapter getCloudRecyclerAdapter() {
@@ -318,30 +318,23 @@ public class MainActivity extends AppCompatActivity
 
         Typeface font = ResourcesCompat.getFont(this, R.font.nunito_bold);
 
-        builderConfig.setTitle("Renombrar fichero");
+        builderConfig.setTitle("Introduce el Nombre");
         builderConfig.setView(view);
         builderConfig.setCancelable(false);
 
         final EditText editTextName = view.findViewById(R.id.editTextName);
 
-        builderConfig.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                if(!editTextName.getText().toString().equals("")) {
-                    String compositionId = String.valueOf(System.currentTimeMillis());
-                    CloudComposition composition = new CloudComposition(
-                            compositionId, editTextName.getText().toString(), user.getuId());
-                    firebaseController.addComposition(composition);
-                }
+        builderConfig.setPositiveButton("Aceptar", (dialogInterface, i) -> {
+            if(!editTextName.getText().toString().equals("")) {
+                String compositionId = String.valueOf(System.currentTimeMillis());
+                CloudComposition composition = new CloudComposition(
+                        compositionId, editTextName.getText().toString(), user.getuId());
+                firebaseController.addComposition(composition);
             }
         });
 
-        builderConfig.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                dialogInterface.dismiss();
-            }
-        });
+        builderConfig.setNegativeButton("Cancelar",
+                (dialogInterface, i) -> dialogInterface.dismiss());
 
         AlertDialog alertDialog = builderConfig.create();
         alertDialog.show();
@@ -363,8 +356,8 @@ public class MainActivity extends AppCompatActivity
         else {
             sRecController.stopConnection();
             preferencesController.clearSRecConnection();
+            drawerLayout.closeDrawer(GravityCompat.START);
         }
-
     }
 
     ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0,
@@ -402,10 +395,7 @@ public class MainActivity extends AppCompatActivity
                                         .deleteComposition(composition, true);
                             }
                         })
-                        .setAction("Deshacer", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {}
-                        })
+                        .setAction("Deshacer", v -> {})
                         .show();
             }
         }

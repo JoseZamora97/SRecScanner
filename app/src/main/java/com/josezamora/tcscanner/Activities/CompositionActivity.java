@@ -1,6 +1,5 @@
 package com.josezamora.tcscanner.Activities;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Canvas;
 import android.net.Uri;
@@ -27,18 +26,16 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.storage.UploadTask;
+import com.josezamora.tcscanner.AppGlobals;
 import com.josezamora.tcscanner.Firebase.Adapters.CloudCompositionRecyclerAdapter;
 import com.josezamora.tcscanner.Firebase.Classes.CloudComposition;
 import com.josezamora.tcscanner.Firebase.Classes.CloudImage;
 import com.josezamora.tcscanner.Firebase.Classes.CloudUser;
 import com.josezamora.tcscanner.Firebase.Controllers.FirebaseController;
-import com.josezamora.tcscanner.AppGlobals;
 import com.josezamora.tcscanner.R;
 import com.josezamora.tcscanner.ViewHolders.CloudImageViewHolder;
 import com.theartofdev.edmodo.cropper.CropImage;
@@ -163,20 +160,14 @@ public class CompositionActivity extends AppCompatActivity
             builderConfig.setMessage("Estás a punto de salir y hay cambios que no " +
                     "se han guardado.¿Desea guardar cambios y volver?");
 
-            builderConfig.setPositiveButton("Guardar", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    saveChanges();
-                    onBackPressed();
-                }
+            builderConfig.setPositiveButton("Guardar", (dialogInterface, i) -> {
+                saveChanges();
+                onBackPressed();
             });
 
-            builderConfig.setNegativeButton("Descartar", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    dialogInterface.dismiss();
-                    onBackPressed();
-                }
+            builderConfig.setNegativeButton("Descartar", (dialogInterface, i) -> {
+                dialogInterface.dismiss();
+                onBackPressed();
             });
 
             AlertDialog alertDialog = builderConfig.create();
@@ -320,18 +311,18 @@ public class CompositionActivity extends AppCompatActivity
 
     private void uploadImage(Uri data) {
         InputStream stream;
+
         try {
+
             cardViewProgressShow.setVisibility(View.VISIBLE);
             stream = getContentResolver().openInputStream(data);
             firebaseController
                     .uploadImage(user, composition, stream)
-                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            cardViewProgressShow.setVisibility(View.GONE);
-                        }
-                    });
-        } catch (FileNotFoundException e) {
+                    .addOnSuccessListener(taskSnapshot ->
+                            cardViewProgressShow.setVisibility(View.GONE));
+
+        }
+        catch (FileNotFoundException e) {
             e.printStackTrace();
         }
     }
@@ -383,10 +374,7 @@ public class CompositionActivity extends AppCompatActivity
                                 else firebaseController.addImage(image);
                             }
                         })
-                        .setAction("Deshacer", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {}
-                        })
+                        .setAction("Deshacer", v -> {})
                         .show();
             }
         }

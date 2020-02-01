@@ -2,7 +2,6 @@ package com.josezamora.tcscanner.Activities;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -24,15 +23,24 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
+import androidx.core.content.FileProvider;
+import androidx.core.content.res.ResourcesCompat;
+
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.FutureTarget;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.josezamora.tcscanner.AppGlobals;
 import com.josezamora.tcscanner.Editor.CodeEditor;
 import com.josezamora.tcscanner.Editor.LanguageProvider;
 import com.josezamora.tcscanner.Firebase.Classes.CloudImage;
 import com.josezamora.tcscanner.Firebase.GlideApp;
 import com.josezamora.tcscanner.Firebase.Vision.VisualAnalyzer;
-import com.josezamora.tcscanner.AppGlobals;
 import com.josezamora.tcscanner.Preferences.PreferencesController;
 import com.josezamora.tcscanner.R;
 import com.josezamora.tcscanner.SRecProtocol.SRecController;
@@ -46,15 +54,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.cardview.widget.CardView;
-import androidx.core.content.FileProvider;
-import androidx.core.content.res.ResourcesCompat;
 
 
 @SuppressWarnings("unchecked")
@@ -95,6 +94,9 @@ public class VisionActivity extends AppCompatActivity {
         progressCard.setVisibility(View.VISIBLE);
 
         images = (List<CloudImage>) getIntent().getSerializableExtra(AppGlobals.IMAGES_KEY);
+
+        assert images != null;
+
         glideDownloader = new GlideTaskMaker(new CountDownLatch(images.size()), this);
         glideDownloader.download(images);
 
@@ -329,19 +331,11 @@ public class VisionActivity extends AppCompatActivity {
 
         final EditText editText = view.findViewById(R.id.editTextName);
 
-        builderConfig.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                textName.setText(editText.getText().toString());
-            }
-        });
+        builderConfig.setPositiveButton("Aceptar",
+                (dialogInterface, i) -> textName.setText(editText.getText().toString()));
 
-        builderConfig.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                dialogInterface.dismiss();
-            }
-        });
+        builderConfig.setNegativeButton("Cancelar",
+                (dialogInterface, i) -> dialogInterface.dismiss());
 
         AlertDialog alertDialog = builderConfig.create();
         alertDialog.show();

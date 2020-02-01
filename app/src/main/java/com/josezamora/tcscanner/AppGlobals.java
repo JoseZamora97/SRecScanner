@@ -2,9 +2,6 @@ package com.josezamora.tcscanner;
 
 import android.Manifest;
 
-import com.firebase.ui.auth.AuthUI;
-
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -70,9 +67,6 @@ public interface AppGlobals {
      */
     String USER_KEY = "USER_KEY";
 
-    List<AuthUI.IdpConfig> PROVIDERS = Collections.singletonList(
-            new AuthUI.IdpConfig.GoogleBuilder().build());
-
 
     String PREFERENCES_NAME = "SREC_SCANNER_PREFERENCES";
 
@@ -81,6 +75,7 @@ public interface AppGlobals {
      * VERSION
      */
     String VERSION = "v0.9.01";
+
 
     String ID_CLIENT_OAUTH_TOKEN = "370776486718-a7765hv30k559a7eg7s26bver5275" +
             "pku.apps.googleusercontent.com";

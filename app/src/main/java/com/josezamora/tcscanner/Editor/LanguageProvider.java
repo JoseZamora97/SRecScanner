@@ -11,7 +11,7 @@ public class LanguageProvider {
 
     private Lang language;
 
-    public LanguageProvider(Languages choice) {
+    LanguageProvider(Languages choice) {
         switch (choice) {
             case JAVA:
                 language = new JavaLang();
@@ -25,7 +25,7 @@ public class LanguageProvider {
         }
     }
 
-    public Lang getLanguage() {
+    Lang getLanguage() {
         return language;
     }
 

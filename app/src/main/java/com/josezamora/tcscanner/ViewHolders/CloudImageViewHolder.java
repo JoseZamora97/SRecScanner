@@ -50,26 +50,20 @@ public class CloudImageViewHolder extends RecyclerView.ViewHolder {
 
                 animExpand = ValueAnimator.ofInt(height, height * 2);
                 animExpand.setDuration(ANIM_SPEED);
-                animExpand.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                    @Override
-                    public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                        int val = (Integer) valueAnimator.getAnimatedValue();
-                        RecyclerView.LayoutParams cardLayoutParams = (RecyclerView.LayoutParams) cardView.getLayoutParams();
-                        cardLayoutParams.height = val;
-                        cardView.setLayoutParams(cardLayoutParams);
-                    }
+                animExpand.addUpdateListener(valueAnimator -> {
+                    int val = (Integer) valueAnimator.getAnimatedValue();
+                    RecyclerView.LayoutParams cardLayoutParams = (RecyclerView.LayoutParams) cardView.getLayoutParams();
+                    cardLayoutParams.height = val;
+                    cardView.setLayoutParams(cardLayoutParams);
                 });
 
                 animCollapse = ValueAnimator.ofInt(height * 2, height);
                 animCollapse.setDuration(ANIM_SPEED);
-                animCollapse.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                    @Override
-                    public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                        int val = (Integer) valueAnimator.getAnimatedValue();
-                        RecyclerView.LayoutParams cardLayoutParams = (RecyclerView.LayoutParams) cardView.getLayoutParams();
-                        cardLayoutParams.height = val;
-                        cardView.setLayoutParams(cardLayoutParams);
-                    }
+                animCollapse.addUpdateListener(valueAnimator -> {
+                    int val = (Integer) valueAnimator.getAnimatedValue();
+                    RecyclerView.LayoutParams cardLayoutParams = (RecyclerView.LayoutParams) cardView.getLayoutParams();
+                    cardLayoutParams.height = val;
+                    cardView.setLayoutParams(cardLayoutParams);
                 });
 
                 cardView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
@@ -78,19 +72,11 @@ public class CloudImageViewHolder extends RecyclerView.ViewHolder {
 
         viewTreeObserver.addOnGlobalLayoutListener(viewTreeListener);
 
-        itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                recyclerViewOnClickInterface.onItemClick(getAdapterPosition());
-            }
-        });
+        itemView.setOnClickListener(view -> recyclerViewOnClickInterface.onItemClick(getAdapterPosition()));
 
-        itemView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                recyclerViewOnClickInterface.onLongItemClick(getAdapterPosition());
-                return false;
-            }
+        itemView.setOnLongClickListener(view -> {
+            recyclerViewOnClickInterface.onLongItemClick(getAdapterPosition());
+            return false;
         });
     }
 

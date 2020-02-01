@@ -30,7 +30,7 @@ public class QRActivity extends AppCompatActivity {
         setContentView(R.layout.activity_qr);
 
         toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitle("Conexión con SRec");
+        toolbar.setTitle("Conexión con SRecReceiver");
         setSupportActionBar(toolbar);
 
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
@@ -61,20 +61,4 @@ public class QRActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
-
-    public void simCon(View v){ // just for debug.
-        String ip = "192.168.1.39";
-        String port = "55555";
-        String token = ip + ":" + port;
-
-        activityResult(token);
-    }
-
-    private void activityResult(String token) {
-        Intent returnActivity = new Intent();
-        returnActivity.putExtra("result", token);
-        setResult(Activity.RESULT_OK, returnActivity);
-        finish();
-    }
-
 }

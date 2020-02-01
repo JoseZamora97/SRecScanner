@@ -12,7 +12,6 @@ public class Report implements Serializable {
     private String model;
     private String board;
     private String hardware;
-    private String serial;
     private String density;
     private String bootloader;
     private String user;
@@ -32,7 +31,6 @@ public class Report implements Serializable {
                   String model,
                   String board,
                   String hardware,
-                  String serial,
                   String density,
                   String bootloader,
                   String user,
@@ -50,7 +48,6 @@ public class Report implements Serializable {
         this.model = model;
         this.board = board;
         this.hardware = hardware;
-        this.serial = serial;
         this.density = density;
         this.bootloader = bootloader;
         this.user = user;
@@ -116,14 +113,6 @@ public class Report implements Serializable {
 
     public void setHardware(String hardware) {
         this.hardware = hardware;
-    }
-
-    public String getSerial() {
-        return serial;
-    }
-
-    public void setSerial(String serial) {
-        this.serial = serial;
     }
 
     public String getDensity() {

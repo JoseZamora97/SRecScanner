@@ -6,20 +6,18 @@ import android.graphics.Paint;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.Spannable;
-import android.text.SpannableStringBuilder;
 import android.text.TextWatcher;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.ReplacementSpan;
 import android.util.AttributeSet;
 
-import java.util.HashMap;
+import androidx.annotation.NonNull;
+import androidx.appcompat.widget.AppCompatEditText;
+
 import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.widget.AppCompatEditText;
 
 public class CodeEditor extends AppCompatEditText {
 
@@ -44,13 +42,10 @@ public class CodeEditor extends AppCompatEditText {
     };
 
     private OnTextChangedListener onTextChangedListener;
-    private int updateDelay = 1000;
+    private int updateDelay = 500;
     private boolean dirty = false;
     private boolean modified = true;
 
-    Map<String, Integer> colors = new HashMap<>();
-
-    private int tabWidthInCharacters = 0;
     private int tabWidth = 0;
 
     LanguageProvider provider;
@@ -79,43 +74,12 @@ public class CodeEditor extends AppCompatEditText {
         onTextChangedListener = listener;
     }
 
-    public void setUpdateDelay(int ms) {
-        updateDelay = ms;
-    }
-
-    public void setTabWidth(int characters) {
-        if (tabWidthInCharacters == characters) {
-            return;
-        }
-
-        tabWidthInCharacters = characters;
-        tabWidth = Math.round(getPaint().measureText("m") * characters);
-    }
-
     public void updateHighlighting() {
         highlightWithoutChange(getText());
     }
 
     public boolean isModified() {
         return dirty;
-    }
-
-    public void setTextHighlighted(CharSequence text) {
-        if (text == null)
-            text = "";
-
-        cancelUpdate();
-
-        dirty = false;
-
-        modified = false;
-        String src = removeNonAscii(text.toString());
-        setText(highlight(new SpannableStringBuilder(src)));
-        modified = true;
-
-        if (onTextChangedListener != null) {
-            onTextChangedListener.onTextChanged(src);
-        }
     }
 
     public void insertTab() {
@@ -181,6 +145,7 @@ public class CodeEditor extends AppCompatEditText {
         modified = true;
     }
 
+    @SuppressWarnings("ConstantConditions")
     private Editable highlight(Editable e) {
 
         int length = e.length();

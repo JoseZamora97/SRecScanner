@@ -6,13 +6,14 @@ import android.os.AsyncTask;
 import android.widget.TextView;
 
 import com.josezamora.tcscanner.R;
-import com.josezamora.tcscanner.SRecProtocol.Client.Client;
-import com.josezamora.tcscanner.SRecProtocol.Client.SRecClient;
-import com.josezamora.tcscanner.SRecProtocol.Messages.SRecMessageRequest;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+
+import SRecProtocol.Client.Client;
+import SRecProtocol.Client.SRecClient;
+import SRecProtocol.Messages.SRecMessageRequest;
 
 
 @SuppressLint("StaticFieldLeak")
@@ -57,9 +58,9 @@ public class SRecController {
         }
     }
 
-
     public void stopConnection() {
         new StopConnectionTask().execute();
+        connected = false;
         ((TextView) context.findViewById(R.id.conectar_srec)).setText("Conectar con SRecReceiver");
     }
 
@@ -119,7 +120,6 @@ public class SRecController {
             client.send(request);
 
             ip = port = NONE;
-            connected = false;
 
             return null;
         }
