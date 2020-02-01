@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/colorPrimary"
     android:orientation="vertical"
-    tools:context=".Activities.QRActivity">
+    tools:context=".activities.QRActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
@@ -36,7 +36,7 @@
             android:layout_centerVertical="true"
             android:layout_marginStart="15dp"
             android:fontFamily="@font/nunito"
-            android:text="Conecta con SRec"
+            android:text="@string/conecta_con_srec"
             android:textColor="@color/colorTitles"
             android:textSize="18sp" />
 
@@ -59,7 +59,7 @@
             android:orientation="vertical"
             android:gravity="center"
             android:layout_centerInParent="true"
-            >
+            tools:ignore="UselessParent">
 
             <androidx.cardview.widget.CardView
                 android:layout_width="300dp"
@@ -82,7 +82,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="15dp"
                 android:fontFamily="@font/nunito"
-                android:text="Escanea el código QR de la aplicación SRecReceiver para conectarte."
+                android:text="@string/escanea_el_c_digo_qr_de_la_aplicaci_n_srecreceiver_para_conectarte"
                 android:textAlignment="center"
                 android:textColor="@color/colorTitles"
                 android:textSize="16sp" />

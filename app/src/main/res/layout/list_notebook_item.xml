@@ -30,7 +30,7 @@
                 android:layout_marginRight="15dp"
                 android:scaleType="centerCrop"
                 android:src="@drawable/ic_code_24dp"
-                android:contentDescription="Imagen del lenguaje del código"/>
+                android:contentDescription="@string/imagen_del_lenguaje_del_c_digo" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -70,7 +70,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:src="@drawable/ic_play_arrow_white_30dp"
-                android:contentDescription="Boton escanear" />
+                android:contentDescription="@string/boton_escanear" />
 
         </RelativeLayout>
 

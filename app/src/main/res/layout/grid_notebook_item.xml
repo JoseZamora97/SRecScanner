@@ -23,7 +23,7 @@
             android:layout_width="90dp"
             android:layout_height="90dp"
             android:src="@drawable/ic_code_24dp"
-            android:contentDescription="Imagen del lenguaje del código"
+            android:contentDescription="@string/imagen_del_lenguaje_del_c_digo"
             />
 
         <TextView

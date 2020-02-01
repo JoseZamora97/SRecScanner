@@ -11,7 +11,32 @@
     <string name="insert_tab">Insert Tab</string>
     <string name="untitled_placeholder">untitled</string>
     <string name="start_scan">Empezar escaneo</string>
-    <string name="uploading_photo">Subiendo foto ...</string>
+    <string name="uploading_photo">Subiendo foto …</string>
     <string name="imagenes">Imágenes:</string>
+    <string name="fullscreen_image">Fullscreen image</string>
+    <string name="imagen_de_inicio_de_sesi_n">Imagen de inicio de sesión</string>
+    <string name="logo_de_inicio_de_sesi_n">Logo de inicio de sesión</string>
+    <string name="scanner">Scanner</string>
+    <string name="srec">SRec</string>
+    <string name="by_jose_zamora">by Jose Zamora</string>
+    <string name="boton_cambiar_de_estilo">Boton cambiar de estilo</string>
+    <string name="cuadernos">Cuadernos</string>
+    <string name="escanear">Escanear</string>
+    <string name="conecta_con_srec">Conecta con SRec</string>
+    <string name="escanea_el_c_digo_qr_de_la_aplicaci_n_srecreceiver_para_conectarte">Escanea el código QR de la aplicación SRecReceiver para conectarte.</string>
+    <string name="descripci_n_del_error">Descripción del Error</string>
+    <string name="explica_fallo">Por favor, explique brevemente el fallo …</string>
+    <string name="cargando">Cargando…</string>
+    <string name="introduce_un_nombre">Introduce un nombre</string>
+    <string name="imagen_del_lenguaje_del_c_digo">Imagen del lenguaje del código</string>
+    <string name="boton_escanear">Boton escanear</string>
+    <string name="boton_fullscreen">Boton fullscreen.</string>
+    <string name="imagen_del_usuario">imagen del usuario</string>
+    <string name="conectar_con_srecreceiver">Conectar con SRecReceiver</string>
+    <string name="informar_un_error">Informar un error</string>
+    <string name="cerrar_sesi_n">Cerrar sesión</string>
+    <string name="buscar">Buscar</string>
+    <string name="conectar_con_srec">Conectar con SRecReceiver</string>
+    <string name="desconectar_de_srec">Desconectar de SRecReceiver</string>
 
 </resources>

@@ -10,6 +10,8 @@
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:fontFamily="@font/nunito"
-        android:hint="Introduce un nombre" />
+        android:hint="@string/introduce_un_nombre"
+        android:importantForAutofill="no"
+        android:inputType="text" />
 
 </RelativeLayout>

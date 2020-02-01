@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorPrimary"
-    tools:context=".Activities.ImageActivity">
+    tools:context=".activities.ImageActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
@@ -24,7 +24,7 @@
         android:id="@+id/imageViewFull"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:contentDescription="Fullscreen image"
+        android:contentDescription="@string/fullscreen_image"
         android:scaleType="fitCenter"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

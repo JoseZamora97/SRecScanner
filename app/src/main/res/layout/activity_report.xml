@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".Activities.ReportActivity"
+    tools:context=".activities.ReportActivity"
     android:background="@color/colorPrimary">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -41,7 +41,7 @@
                 android:layout_centerVertical="true"
                 android:layout_marginStart="15dp"
                 android:fontFamily="@font/nunito"
-                android:text="Descripción del Error"
+                android:text="@string/descripci_n_del_error"
                 android:textColor="@color/colorTitles"
                 android:textSize="18sp" />
 
@@ -62,14 +62,15 @@
                 android:id="@+id/editText_details"
                 android:layout_width="match_parent"
                 android:padding="5dp"
-                android:hint="Por favor, explique brevemente el fallo ... "
+                android:hint="@string/explica_fallo"
                 android:layout_height="400dp"
                 android:textSize="18sp"
                 android:textColor="@color/colorBodies"
                 android:fontFamily="@font/nunito"
                 android:gravity="start|top"
                 android:inputType="textMultiLine"
-                />
+                android:importantForAutofill="no" />
+
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

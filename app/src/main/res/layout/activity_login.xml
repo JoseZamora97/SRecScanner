@@ -2,7 +2,7 @@
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".Activities.LoginActivity"
+    tools:context=".activities.LoginActivity"
     android:id="@+id/login_layout"
     android:layout_weight="1"
     android:layout_width="match_parent"
@@ -14,7 +14,7 @@
         android:layout_height="match_parent"
         android:src="@drawable/login_pic"
         android:scaleType="centerCrop"
-        android:contentDescription="Imagen de inicio de sesión" />
+        android:contentDescription="@string/imagen_de_inicio_de_sesi_n" />
 
     <View
         android:layout_width="match_parent"
@@ -33,7 +33,7 @@
         <ImageView
             android:layout_width="100dp"
             android:layout_height="250dp"
-            android:contentDescription="Logo de inicio de sesión"
+            android:contentDescription="@string/logo_de_inicio_de_sesi_n"
             android:scaleType="centerInside"
             android:src="@drawable/ic_login_logo" />
 
@@ -50,7 +50,7 @@
                 android:fontFamily="@font/nunito"
                 android:includeFontPadding="false"
                 android:lineSpacingExtra="0dp"
-                android:text="SRec"
+                android:text="@string/srec"
                 android:textColor="@color/colorPrimary"
                 android:textSize="50sp" />
 
@@ -60,7 +60,7 @@
                 android:fontFamily="@font/nunito"
                 android:includeFontPadding="false"
                 android:lineSpacingExtra="0dp"
-                android:text="Scanner"
+                android:text="@string/scanner"
                 android:textColor="@color/colorPrimary"
                 android:textSize="50sp" />
 
@@ -82,7 +82,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fontFamily="@font/nunito"
-        android:text="by Jose Zamora"
+        android:text="@string/by_jose_zamora"
         android:padding="10dp"
         android:textAlignment="center"
         android:textColor="@color/colorPrimary"

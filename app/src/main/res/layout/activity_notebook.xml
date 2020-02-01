@@ -5,7 +5,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Activities.NotebookActivity"
+    tools:context=".activities.NotebookActivity"
     android:background="@color/fui_transparent">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -53,7 +53,8 @@
                 android:background="?selectableItemBackground"
                 android:onClick="scan"
                 android:paddingStart="15dp"
-                android:paddingEnd="8dp">
+                android:paddingEnd="8dp"
+                tools:ignore="RelativeOverlap">
 
                 <TextView
                     android:id="@+id/textScan"
@@ -61,7 +62,7 @@
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:fontFamily="@font/nunito"
-                    android:text="Escanear"
+                    android:text="@string/escanear"
                     android:textColor="@color/colorTitles"
                     android:textSize="18sp" />
 

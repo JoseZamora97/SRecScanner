@@ -31,7 +31,8 @@
             <ImageView
                 android:id="@+id/user_pic"
                 android:layout_width="80dp"
-                android:layout_height="match_parent"/>
+                android:layout_height="match_parent"
+                android:contentDescription="@string/imagen_del_usuario" />
 
         </androidx.cardview.widget.CardView>
 
@@ -61,7 +62,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="15dp"
-            android:text="v1.0"
             android:textColor="@color/colorAccent"
             android:fontFamily="@font/nunito"
             android:layout_below="@id/user_mail"/>
@@ -89,7 +89,7 @@
                 android:layout_marginRight="15dp"
                 android:layout_width="30dp"
                 android:layout_height="match_parent"
-                android:contentDescription="Conectar con SRecReceiver"
+                android:contentDescription="@string/conectar_con_srecreceiver"
                 android:src="@drawable/ic_computer_black_24dp">
             </ImageView>
 
@@ -98,7 +98,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Conectar con SRecReceiver"
+                android:text="@string/conectar_con_srecreceiver"
                 android:textSize="16sp"
                 android:fontFamily="@font/nunito"
                 android:textColor="@color/colorBodies"/>
@@ -119,7 +119,8 @@
                 android:layout_marginRight="15dp"
                 android:layout_width="30dp"
                 android:layout_height="match_parent"
-                android:contentDescription="Informar un error"
+                android:contentDescription="@string/informar_un_error"
+                android:rotation="180"
                 android:src="@drawable/ic_info_outline_black_24dp">
             </ImageView>
 
@@ -127,7 +128,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Informar un error"
+                android:text="@string/informar_un_error"
                 android:textSize="16sp"
                 android:fontFamily="@font/nunito"
                 android:textColor="@color/colorBodies"/>
@@ -151,7 +152,7 @@
             android:layout_marginLeft="15dp"
             android:layout_marginRight="15dp"
             android:layout_height="match_parent"
-            android:contentDescription="Cerrar sesión"
+            android:contentDescription="@string/cerrar_sesi_n"
             android:src="@drawable/ic_exit_24dp">
         </ImageView>
 
@@ -159,7 +160,7 @@
             android:textSize="16sp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Cerrar Sesión"
+            android:text="@string/cerrar_sesi_n"
             android:fontFamily="@font/nunito"
             android:textColor="@color/colorAccent"/>
 
