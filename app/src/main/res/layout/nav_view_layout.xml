@@ -14,13 +14,8 @@
             android:id="@+id/toprl"
             android:layout_width="match_parent"
             android:layout_height="150dp"
+            android:background="@drawable/ic_launcher_background"
             >
-
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:src="@drawable/login_pic"
-                android:scaleType="centerCrop"/>
 
         </RelativeLayout>
 
@@ -103,7 +98,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Conectar con SRec"
+                android:text="Conectar con SRecReceiver"
                 android:textSize="16sp"
                 android:fontFamily="@font/nunito"
                 android:textColor="@color/colorBodies"/>

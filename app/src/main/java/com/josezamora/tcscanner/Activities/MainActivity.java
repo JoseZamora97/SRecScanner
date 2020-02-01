@@ -112,7 +112,7 @@ public class MainActivity extends AppCompatActivity
 
         firebaseController = new FirebaseController();
         preferencesController = new PreferencesController(this);
-        sRecController = new SRecController(this);
+        sRecController = new SRecController();
 
         preferencesController.clearSRecConnection();
 
@@ -153,6 +153,9 @@ public class MainActivity extends AppCompatActivity
     protected void onStart() {
         super.onStart();
         drawerLayout.closeDrawer(GravityCompat.START, false);
+
+        updateTextConnectionToggle();
+
         cloudCompositionsAdapter.startListening();
     }
 
@@ -164,8 +167,6 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onItemClick(int position) {
-        preferencesController.connectedToSRec(sRecController.getIp(), sRecController.getPort());
-
         final CloudComposition composition = (CloudComposition) cloudCompositionsAdapter
                 .getItem(position);
 
@@ -230,7 +231,20 @@ public class MainActivity extends AppCompatActivity
 
     private void handleQRResult(String result) {
         String[] ip_port = result.split(":");
+
         sRecController.startConnection(ip_port[1], ip_port[2]);
+        preferencesController.connectedToSRec(sRecController.getIp(), sRecController.getPort());
+
+        updateTextConnectionToggle();
+    }
+
+    private void updateTextConnectionToggle() {
+        String[] ip_port = preferencesController.getConnectionDetailsSRec();
+
+        if(ip_port[0] == null || ip_port[0].equals(SRecController.NONE))
+            textViewSRec.setText("Conectar con SRecReceiver");
+        else
+            textViewSRec.setText("Desconectar de SRecReceiver");
     }
 
     private FirestoreRecyclerAdapter getCloudRecyclerAdapter() {
@@ -411,7 +425,8 @@ public class MainActivity extends AppCompatActivity
                     .addActionIcon(R.drawable.ic_delete_sweep_30dp)
                     .addSwipeLeftLabel("Eliminar")
                     .setSwipeLeftLabelTextSize(COMPLEX_UNIT_SP, 16)
-                    .setSwipeLeftLabelTypeface(ResourcesCompat.getFont(getApplicationContext(), R.font.nunito))
+                    .setSwipeLeftLabelTypeface(ResourcesCompat
+                            .getFont(getApplicationContext(), R.font.nunito))
                     .setSwipeLeftLabelColor(getResources().getColor(R.color.colorPrimary))
                     .create()
                     .decorate();

@@ -74,7 +74,7 @@ public interface AppGlobals {
     /**
      * VERSION
      */
-    String VERSION = "v0.9.01";
+    String VERSION = "v0.9.11";
 
 
     String ID_CLIENT_OAUTH_TOKEN = "370776486718-a7765hv30k559a7eg7s26bver5275" +

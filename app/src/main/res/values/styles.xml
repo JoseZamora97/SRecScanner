@@ -32,12 +32,12 @@
         <item name="android:background">?attr/selectableItemBackground</item>
     </style>
 
-    <style name="AppTheme.SplashScreen" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="SplashScreen" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:windowDisablePreview">true</item>
+        <item name="android:windowBackground">@drawable/splash_background</item>
     </style>
-
 
     <style name="LoginTheme" parent="AppTheme">
         <item name="colorPrimary">@color/colorTitles</item>

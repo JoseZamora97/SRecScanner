@@ -26,12 +26,9 @@ public class SRecController {
 
     private String ip, port;
 
-    private Activity context;
-
-    public SRecController(Activity context) {
+    public SRecController() {
         this.connected = false;
         this.client = null;
-        this.context = context;
         this.ip = this.port = NONE;
     }
 
@@ -53,15 +50,12 @@ public class SRecController {
             this.port = port;
 
             new StartConnectionTask().execute();
-            ((TextView) this.context.findViewById(R.id.conectar_srec)).setText("Desconectar " +
-                    "de SRecReceiver");
         }
     }
 
     public void stopConnection() {
         new StopConnectionTask().execute();
         connected = false;
-        ((TextView) context.findViewById(R.id.conectar_srec)).setText("Conectar con SRecReceiver");
     }
 
     public void sendFile(File file) {

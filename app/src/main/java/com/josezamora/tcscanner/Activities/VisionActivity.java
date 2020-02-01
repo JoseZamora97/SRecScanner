@@ -122,16 +122,54 @@ public class VisionActivity extends AppCompatActivity {
         spinner.setSelection(0, true);
 
         preferencesController = new PreferencesController(this);
-        sRecController = new SRecController(this);
+        sRecController = new SRecController();
 
         btnExport = findViewById(R.id.fabExport);
         btnExportToSRec = findViewById(R.id.fabExportSrec);
         btnShare = findViewById(R.id.fabExportToShare);
 
+        initAnimations();
+    }
+
+    public void initAnimations() {
         fabOpen = AnimationUtils.loadAnimation(this, R.anim.fab_open);
         fabClose = AnimationUtils.loadAnimation(this, R.anim.fab_close);
+
         rotateForward =  AnimationUtils.loadAnimation(this, R.anim.rotation_forward);
+        rotateForward.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                /* Nothing */
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                btnExport.setImageDrawable(getResources().getDrawable(R.drawable.ic_add_white_24dp));
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+                /* Nothing */
+            }
+        });
+
         rotateBackward =  AnimationUtils.loadAnimation(this, R.anim.rotation_backward);
+        rotateBackward.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                /* Nothing */
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                btnExport.setImageDrawable(getResources().getDrawable(R.drawable.ic_export_24dp));
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+                /* Nothing */
+            }
+        });
     }
 
     public class SpinnerAdapter extends ArrayAdapter<LanguageProvider.Languages>
@@ -214,13 +252,17 @@ public class VisionActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
+
     public void addTab(View v) {
         codeEditor.insertTab();
     }
 
     public void export(View v){
         if(isOpen){
-            btnExport.setImageDrawable(getResources().getDrawable(R.drawable.ic_export_24dp));
             btnExport.startAnimation(rotateBackward);
 
             btnShare.startAnimation(fabClose);
@@ -231,7 +273,6 @@ public class VisionActivity extends AppCompatActivity {
             isOpen = false;
         }
         else {
-            btnExport.setImageDrawable(getResources().getDrawable(R.drawable.ic_add_white_24dp));
             btnExport.startAnimation(rotateForward);
 
             btnShare.startAnimation(fabOpen);
@@ -244,23 +285,16 @@ public class VisionActivity extends AppCompatActivity {
     }
 
     public void exportToSRec(View v) {
-        if(!spinner.getSelectedItem().equals(LanguageProvider.Languages.JAVA)){
-            Toast.makeText(this, "Lo sentimos, SRec solo soporta código Java"
-                    , Toast.LENGTH_SHORT).show();
+        temp = editTextToFile();
+        String[] ip_port = preferencesController.getConnectionDetailsSRec();
+
+        if(ip_port[0] == null || ip_port[0].equals(SRecController.NONE)) {
+            Intent connectToSRec = new Intent(this, QRActivity.class);
+            startActivityForResult(connectToSRec, AppGlobals.REQUEST_CODE_QR);
         }
-        else {
+        else
+            sRecController.connectAndSendFile(ip_port[0], ip_port[1], temp);
 
-            temp = editTextToFile();
-
-            String[] ip_port = preferencesController.getConnectionDetailsSRec();
-            if(ip_port[0].equals(SRecController.NONE)) {
-                Intent connectToSRec = new Intent(this, QRActivity.class);
-                startActivityForResult(connectToSRec, AppGlobals.REQUEST_CODE_QR);
-            }
-            else
-                sRecController.connectAndSendFile(ip_port[0], ip_port[1], temp);
-
-        }
     }
 
     private File editTextToFile(){
@@ -293,8 +327,10 @@ public class VisionActivity extends AppCompatActivity {
 
     private void handleQRResult(String result) {
         String[] ip_port = result.split(":");
-        sRecController.startConnection(ip_port[0], ip_port[1]);
+        sRecController.startConnection(ip_port[1], ip_port[2]);
         sRecController.sendFile(temp);
+
+        preferencesController.connectedToSRec(sRecController.getIp(), sRecController.getPort());
     }
 
     public void exportToShare(View v){
