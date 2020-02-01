@@ -3,23 +3,33 @@ package com.josezamora.tcscanner.Firebase.Classes;
 
 import java.io.Serializable;
 
-public class CloudComposition implements Serializable {
+public class CloudNotebook implements Serializable {
 
     private String id;
     private String name;
     private String owner;
     private int numImages;
     private String language;
+    public static final String NUM_IMAGES_KEY = "numImages";
+    public static final String LANGUAGE_KEY = "language";
+    public static final String CONTENT_KEY = "content";
+    public static final String DIRTY_KEY = "dirty";
+    private String content;
+    private boolean dirty;
 
-    public CloudComposition(String id, String name, String owner) {
+    public CloudNotebook(String id, String name, String owner) {
         this.id = id;
         this.name = name;
         this.owner = owner;
         this.numImages = 0;
         this.language = "none";
+        this.content = "";
+        this.dirty = false;
     }
 
-    public CloudComposition() {}
+    @SuppressWarnings("unused")
+    public CloudNotebook() {
+    }
 
     public String getId() {
         return id;
@@ -45,7 +55,23 @@ public class CloudComposition implements Serializable {
         return language;
     }
 
+    public String getContent() {
+        return content;
+    }
+
     public void setLanguage(String language) {
         this.language = language;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public boolean isDirty() {
+        return dirty;
+    }
+
+    public void setDirty(boolean dirty) {
+        this.dirty = dirty;
     }
 }

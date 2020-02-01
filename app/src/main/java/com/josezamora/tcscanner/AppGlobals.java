@@ -2,9 +2,6 @@ package com.josezamora.tcscanner;
 
 import android.Manifest;
 
-import java.util.Collections;
-import java.util.List;
-
 public interface AppGlobals {
 
     String APP_SIGNATURE = "com.josezamora.tcscanner";
@@ -42,20 +39,15 @@ public interface AppGlobals {
      */
     int REQUEST_CODE_SIGN_IN = 3;
 
-    /**
-     * The constant REQUEST_CODE_CROP.
-     */
-    int REQUEST_CODE_CROP = 4;
-
     /*
-     * The constant MAX_PHOTOS_PER_COMPOSITION.
+     * The constant MAX_PHOTOS_PER_NOTEBOOK.
      */
-    int MAX_PHOTOS_PER_COMPOSITION = 5;
+    int MAX_PHOTOS_PER_NOTEBOOK = 5;
 
     /**
-     * The constant COMPOSITION_KEY
+     * The constant NOTEBOOK_KEY
      */
-    String COMPOSITION_KEY = "KEY_COMPOSITION";
+    String NOTEBOOK_KEY = "KEY_NOTEBOOK";
 
     /**
      * The constant KEY_IMAGES
@@ -74,7 +66,7 @@ public interface AppGlobals {
     /**
      * VERSION
      */
-    String VERSION = "v0.9.11";
+    String VERSION = "v0.9.8";
 
 
     String ID_CLIENT_OAUTH_TOKEN = "370776486718-a7765hv30k559a7eg7s26bver5275" +

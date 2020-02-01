@@ -21,7 +21,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -39,6 +38,8 @@ import com.josezamora.tcscanner.AppGlobals;
 import com.josezamora.tcscanner.Editor.CodeEditor;
 import com.josezamora.tcscanner.Editor.LanguageProvider;
 import com.josezamora.tcscanner.Firebase.Classes.CloudImage;
+import com.josezamora.tcscanner.Firebase.Classes.CloudNotebook;
+import com.josezamora.tcscanner.Firebase.Controllers.FirebaseController;
 import com.josezamora.tcscanner.Firebase.GlideApp;
 import com.josezamora.tcscanner.Firebase.Vision.VisualAnalyzer;
 import com.josezamora.tcscanner.Preferences.PreferencesController;
@@ -71,6 +72,7 @@ public class VisionActivity extends AppCompatActivity {
 
     GlideTaskMaker glideDownloader;
     List<CloudImage> images;
+    CloudNotebook notebook;
 
     CodeEditor codeEditor;
 
@@ -78,6 +80,7 @@ public class VisionActivity extends AppCompatActivity {
 
     PreferencesController preferencesController;
     SRecController sRecController;
+    FirebaseController firebaseController;
 
     boolean isOpen = false;
     Animation fabOpen, fabClose, rotateForward, rotateBackward;
@@ -94,11 +97,13 @@ public class VisionActivity extends AppCompatActivity {
         progressCard.setVisibility(View.VISIBLE);
 
         images = (List<CloudImage>) getIntent().getSerializableExtra(AppGlobals.IMAGES_KEY);
+        notebook = (CloudNotebook) getIntent().getSerializableExtra(AppGlobals.NOTEBOOK_KEY);
 
         assert images != null;
 
         glideDownloader = new GlideTaskMaker(new CountDownLatch(images.size()), this);
-        glideDownloader.download(images);
+
+        if (notebook.isDirty()) glideDownloader.download(images);
 
         toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle("Previsualización del Código");
@@ -121,6 +126,7 @@ public class VisionActivity extends AppCompatActivity {
 
         spinner.setSelection(0, true);
 
+        firebaseController = new FirebaseController();
         preferencesController = new PreferencesController(this);
         sRecController = new SRecController();
 
@@ -213,10 +219,40 @@ public class VisionActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        glideDownloader = null;
-        images.clear();
-        image = null;
-        super.onBackPressed();
+        if (codeEditor.isModified()) {
+            AlertDialog.Builder builderConfig = new AlertDialog.Builder(this);
+
+            builderConfig.setCancelable(false);
+            builderConfig.setTitle("Ups!!");
+            builderConfig.setMessage("Estás a punto de salir y hay cambios que no " +
+                    "se han guardado.¿Desea guardar cambios y volver?");
+
+            builderConfig.setPositiveButton("Guardar", (dialogInterface, i) -> {
+                saveChanges();
+                onBackPressed();
+            });
+
+            builderConfig.setNegativeButton("Descartar", (dialogInterface, i) -> {
+                dialogInterface.dismiss();
+                finish();
+            });
+
+            AlertDialog alertDialog = builderConfig.create();
+            alertDialog.show();
+        } else
+            super.onBackPressed();
+    }
+
+    private void saveChanges() {
+        notebook.setContent(Objects.requireNonNull(codeEditor.getText()).toString());
+        notebook.setLanguage(textViewExt.getText().toString());
+        notebook.setDirty(false);
+
+        firebaseController.update(notebook, CloudNotebook.DIRTY_KEY);
+        firebaseController.update(notebook, CloudNotebook.LANGUAGE_KEY);
+        firebaseController.update(notebook, CloudNotebook.CONTENT_KEY);
+
+        codeEditor.setModified(false);
     }
 
     @Override
@@ -232,29 +268,44 @@ public class VisionActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        glideDownloader.await();
-        progressCard.setVisibility(View.GONE);
+        if (notebook.isDirty()) {
+            glideDownloader.await();
+            progressCard.setVisibility(View.GONE);
 
-        List<Bitmap> bitmaps = new ArrayList<>();
-        for(GlideImageDownload download : glideDownloader.tasksResults)
-            bitmaps.add(download.result);
+            List<Bitmap> bitmaps = new ArrayList<>();
+            for (GlideImageDownload download : glideDownloader.tasksResults)
+                bitmaps.add(download.result);
 
-        image = combineBitmaps(bitmaps);
+            image = combineBitmaps(bitmaps);
 
-        VisualAnalyzer visualAnalyzer = new VisualAnalyzer(image, codeEditor);
-        Thread analyzerTask = new Thread(visualAnalyzer);
-        analyzerTask.start();
+            VisualAnalyzer visualAnalyzer = new VisualAnalyzer(image, codeEditor);
+            Thread analyzerTask = new Thread(visualAnalyzer);
+            analyzerTask.start();
 
-        try {
-            analyzerTask.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            try {
+                analyzerTask.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        } else {
+            codeEditor.setText(notebook.getContent());
+            progressCard.setVisibility(View.GONE);
         }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == RESULT_OK && requestCode == AppGlobals.REQUEST_CODE_QR)
+            if (data != null)
+                handleQRResult(Objects.requireNonNull(data.getStringExtra("result")));
+
     }
 
     public void addTab(View v) {
@@ -315,16 +366,6 @@ public class VisionActivity extends AppCompatActivity {
         return file;
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (resultCode == RESULT_OK && requestCode == AppGlobals.REQUEST_CODE_QR)
-            if (data != null)
-                handleQRResult(Objects.requireNonNull(data.getStringExtra("result")));
-
-    }
-
     private void handleQRResult(String result) {
         String[] ip_port = result.split(":");
         sRecController.startConnection(ip_port[1], ip_port[2]);
@@ -357,7 +398,7 @@ public class VisionActivity extends AppCompatActivity {
         AlertDialog.Builder builderConfig = new AlertDialog.Builder(this);
 
         @SuppressLint("InflateParams")
-        View view = li.inflate(R.layout.dialog_name_composition, null);
+        View view = li.inflate(R.layout.dialog_name, null);
 
         Typeface font = ResourcesCompat.getFont(this, R.font.nunito_bold);
 

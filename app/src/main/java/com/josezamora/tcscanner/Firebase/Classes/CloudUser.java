@@ -3,8 +3,6 @@ package com.josezamora.tcscanner.Firebase.Classes;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 
 public class CloudUser implements Serializable {
@@ -16,6 +14,7 @@ public class CloudUser implements Serializable {
 
     private String photoUrl;
 
+    @SuppressWarnings("unused")
     public CloudUser () {}
 
     public CloudUser(String uId, String name, String email, String phoneNumber, String photoUrl) {

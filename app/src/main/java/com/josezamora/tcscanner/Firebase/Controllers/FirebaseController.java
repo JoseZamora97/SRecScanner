@@ -1,23 +1,15 @@
 package com.josezamora.tcscanner.Firebase.Controllers;
 
-import android.net.Uri;
-
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.google.android.gms.tasks.Continuation;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.josezamora.tcscanner.Firebase.Classes.CloudComposition;
 import com.josezamora.tcscanner.Firebase.Classes.CloudImage;
+import com.josezamora.tcscanner.Firebase.Classes.CloudNotebook;
 import com.josezamora.tcscanner.Firebase.Classes.CloudUser;
 import com.josezamora.tcscanner.Firebase.Classes.Report;
 
 import java.io.InputStream;
 import java.util.Objects;
-
-import androidx.annotation.NonNull;
 
 @SuppressWarnings("SpellCheckingInspection")
 public class FirebaseController {
@@ -34,59 +26,50 @@ public class FirebaseController {
         databaseController.createUser(user);
     }
 
-    public FirestoreRecyclerOptions<CloudComposition>  getRecyclerOptions(CloudUser user) {
+    public FirestoreRecyclerOptions<CloudNotebook> getRecyclerOptions(CloudUser user) {
         return databaseController.createRecyclerOptions(user);
     }
 
-    public FirestoreRecyclerOptions<CloudComposition> getRecyclerOptions(CloudUser user, String newText) {
+    public FirestoreRecyclerOptions<CloudNotebook> getRecyclerOptions(CloudUser user, String newText) {
         return databaseController.createFilterOptions(user, newText);
     }
 
-    public FirestoreRecyclerOptions<CloudImage> getRecyclerOptions(CloudUser user, CloudComposition composition) {
-        return databaseController.createRecyclerOptions(user, composition);
+    public FirestoreRecyclerOptions<CloudImage> getRecyclerOptions(CloudUser user, CloudNotebook notebook) {
+        return databaseController.createRecyclerOptions(user, notebook);
     }
 
-    public void addComposition(CloudComposition composition) {
-        this.databaseController.addComposition(composition);
+    public void addNotebook(CloudNotebook notebook) {
+        this.databaseController.addNotebook(notebook);
     }
 
-    public void deleteComposition(CloudComposition composition, boolean definitive) {
-        if(!definitive) databaseController.deleteComposition(composition);
+    public void deleteNotebook(CloudNotebook notebook, boolean definitive) {
+        if (!definitive) databaseController.deleteNotebook(notebook);
         else
-            databaseController.deleteCompositionDefinitive(composition);
+            databaseController.deleteNotebookDefinitive(notebook);
             // TODO: clean storage too.
     }
 
-    public StorageReference getReference(CloudImage image) {
-        return storageController.getReference(image);
-    }
+    public UploadTask uploadImage(final CloudUser user, final CloudNotebook notebook, InputStream stream) {
 
-    public UploadTask uploadImage(final CloudUser user, final CloudComposition composition, InputStream stream) {
         final String imageId = String.valueOf(System.currentTimeMillis());
 
-        final StorageReference imgRef = storageController.getStorage().getReference()
-                .child(user.getuId())
-                .child(composition.getId())
-                .child(imageId)
-                .child(imageId + ".jpg");
+        UploadTask uploadTask = storageController.upload(imageId, notebook, stream);
+        StorageReference imgRef = storageController.getReference(imageId, notebook);
 
-        UploadTask uploadTask = imgRef.putStream(stream);
-        uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
-                    @Override
-                    public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
-                        return imgRef.getDownloadUrl();
-                    }
-                })
-                .addOnCompleteListener(new OnCompleteListener<Uri>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Uri> task) {
-                        if(task.isSuccessful()) {
-                            composition.setNumImages(composition.getNumImages() + 1);
-                            CloudImage image = new CloudImage(imageId, user.getuId(), composition.getId(),
-                                    imgRef.getPath(), Objects.requireNonNull(task.getResult()).toString(), composition.getNumImages());
-                            databaseController.addImage(image);
-                            databaseController.updateComposition(composition);
-                        }
+        uploadTask.continueWithTask(task -> imgRef.getDownloadUrl())
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        notebook.setNumImages(notebook.getNumImages() + 1);
+                        CloudImage image = new CloudImage(
+                                imageId,
+                                user.getuId(),
+                                notebook.getId(),
+                                imgRef.getPath(),
+                                Objects.requireNonNull(task.getResult()).toString(),
+                                notebook.getNumImages());
+
+                        databaseController.addImage(image);
+                        databaseController.updateNotebook(notebook, CloudNotebook.NUM_IMAGES_KEY);
                     }
                 });
         return uploadTask;
@@ -105,8 +88,8 @@ public class FirebaseController {
         databaseController.updateImage(image);
     }
 
-    public void update(CloudComposition composition) {
-        databaseController.updateComposition(composition);
+    public void update(CloudNotebook notebook, String field) {
+        databaseController.updateNotebook(notebook, field);
     }
 
     public void sendReport(Report report) {

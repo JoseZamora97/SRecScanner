@@ -5,6 +5,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.GlideException;
@@ -15,7 +18,7 @@ import com.firebase.ui.common.ChangeEventType;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.josezamora.tcscanner.Activities.CompositionActivity;
+import com.josezamora.tcscanner.Activities.NotebookActivity;
 import com.josezamora.tcscanner.Firebase.Classes.CloudImage;
 import com.josezamora.tcscanner.Firebase.GlideApp;
 import com.josezamora.tcscanner.R;
@@ -24,12 +27,9 @@ import com.josezamora.tcscanner.ViewHolders.CloudImageViewHolder;
 import java.util.ArrayList;
 import java.util.List;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+public class CloudNotebookRecyclerAdapter extends FirestoreRecyclerAdapter<CloudImage, CloudImageViewHolder> {
 
-public class CloudCompositionRecyclerAdapter extends FirestoreRecyclerAdapter<CloudImage, CloudImageViewHolder> {
-
-    private CompositionActivity activity;
+    private NotebookActivity activity;
     private List<CloudImage> listImages = new ArrayList<>();
 
     /**
@@ -38,8 +38,8 @@ public class CloudCompositionRecyclerAdapter extends FirestoreRecyclerAdapter<Cl
      *
      * @param options options to create the adapter.
      */
-    public CloudCompositionRecyclerAdapter(@NonNull FirestoreRecyclerOptions<CloudImage> options,
-                                           CompositionActivity activity) {
+    public CloudNotebookRecyclerAdapter(@NonNull FirestoreRecyclerOptions<CloudImage> options,
+                                        NotebookActivity activity) {
         super(options);
         this.activity = activity;
     }

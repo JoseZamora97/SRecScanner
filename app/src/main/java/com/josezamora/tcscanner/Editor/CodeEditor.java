@@ -50,6 +50,10 @@ public class CodeEditor extends AppCompatEditText {
 
     LanguageProvider provider;
 
+    public void setModified(boolean b) {
+        dirty = b;
+    }
+
     public void setLanguage(LanguageProvider.Languages selectedItem) {
         provider = new LanguageProvider(selectedItem);
         init(selectedItem);
