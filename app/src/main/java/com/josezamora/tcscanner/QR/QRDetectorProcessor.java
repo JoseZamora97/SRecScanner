@@ -18,10 +18,9 @@ public class QRDetectorProcessor implements Detector.Processor<Barcode> {
     private Activity context;
 
     private static final String QR_PATTERN_FORMAT_IP_AND_PORT =
-            // xxx.xxx.xxx.xxx xx.xx.xx.xx x.x.x.x and combinations.
-            "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?" +
-            // 0 - 65535 Numbers preceded by a ":" separator char.
-            ":[0-9]{1,4}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$";
+            "^(SRecReceiver:)" +
+            "(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])" +
+            ":[0-9]+$";
 
     /**
      * Instantiates a new Qr detector processor.
@@ -43,6 +42,8 @@ public class QRDetectorProcessor implements Detector.Processor<Barcode> {
         SparseArray<Barcode> qrCodes = detections.getDetectedItems();
         Matcher matcher;
 
+        System.out.println("xXx" + qrCodes.toString());
+
         if (qrCodes.size() > 0) {
             matcher = ipPortPattern.matcher(qrCodes.valueAt(0).displayValue);
             if(matcher.matches())
@@ -52,7 +53,9 @@ public class QRDetectorProcessor implements Detector.Processor<Barcode> {
 
     private void activityResult(String token) {
         Intent returnActivity = new Intent();
+
         returnActivity.putExtra("result", token);
+
         this.context.setResult(Activity.RESULT_OK, returnActivity);
         this.context.finish();
     }

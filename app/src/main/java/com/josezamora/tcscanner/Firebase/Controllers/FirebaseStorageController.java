@@ -1,24 +1,12 @@
 package com.josezamora.tcscanner.Firebase.Controllers;
 
-import android.content.Context;
-import android.net.Uri;
-import android.view.View;
-import android.widget.ProgressBar;
-
-import com.google.android.gms.tasks.Continuation;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.josezamora.tcscanner.Firebase.Classes.CloudComposition;
 import com.josezamora.tcscanner.Firebase.Classes.CloudImage;
-import com.josezamora.tcscanner.Firebase.Classes.CloudUser;
+import com.josezamora.tcscanner.Firebase.Classes.CloudNotebook;
 
 import java.io.InputStream;
-
-import androidx.annotation.NonNull;
 
 @SuppressWarnings("SpellCheckingInspection")
 class FirebaseStorageController {
@@ -38,9 +26,21 @@ class FirebaseStorageController {
         return storageReference.child(image.getFirebaseStoragePath());
     }
 
-
     void delete(CloudImage image) {
         StorageReference storageReference = getReference(image);
         storageReference.delete();
+    }
+
+    StorageReference getReference(String imageId, CloudNotebook notebook) {
+        return getStorage().getReference()
+                .child(notebook.getOwner())
+                .child(notebook.getId())
+                .child(imageId)
+                .child(imageId + ".jpg");
+    }
+
+    UploadTask upload(String imageId, CloudNotebook notebook, InputStream stream) {
+        StorageReference imgRef = getReference(imageId, notebook);
+        return imgRef.putStream(stream);
     }
 }

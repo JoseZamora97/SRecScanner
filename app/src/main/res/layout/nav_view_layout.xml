@@ -14,7 +14,8 @@
             android:id="@+id/toprl"
             android:layout_width="match_parent"
             android:layout_height="150dp"
-            android:background="@color/colorPrimaryDark">
+            android:background="@drawable/ic_launcher_background"
+            >
 
         </RelativeLayout>
 
@@ -88,7 +89,7 @@
                 android:layout_marginRight="15dp"
                 android:layout_width="30dp"
                 android:layout_height="match_parent"
-                android:contentDescription="Conectar con SRec"
+                android:contentDescription="Conectar con SRecReceiver"
                 android:src="@drawable/ic_computer_black_24dp">
             </ImageView>
 
@@ -97,8 +98,8 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Conectar con SRec"
-                android:textSize="18sp"
+                android:text="Conectar con SRecReceiver"
+                android:textSize="16sp"
                 android:fontFamily="@font/nunito"
                 android:textColor="@color/colorBodies"/>
         </LinearLayout>
@@ -108,7 +109,6 @@
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="70dp"
-            android:layout_centerHorizontal="true"
             android:background="?selectableItemBackground"
             android:gravity="center"
             android:onClick="sendInform"
@@ -128,7 +128,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="Informar un error"
-                android:textSize="18sp"
+                android:textSize="16sp"
                 android:fontFamily="@font/nunito"
                 android:textColor="@color/colorBodies"/>
         </LinearLayout>
@@ -137,34 +137,32 @@
 
     <LinearLayout
         android:id="@+id/log_out"
+        android:layout_height="70dp"
         android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
         android:background="?selectableItemBackground"
-        android:padding="15dp"
         android:gravity="center"
         android:onClick="logOut"
         >
 
         <ImageView
-            android:padding="5dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="30dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:layout_height="match_parent"
             android:contentDescription="Cerrar sesión"
             android:src="@drawable/ic_exit_24dp">
         </ImageView>
 
         <TextView
+            android:textSize="16sp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Cerrar Sesión"
-            android:fontFamily="@font/nunito_bold"
+            android:fontFamily="@font/nunito"
             android:textColor="@color/colorAccent"/>
 
     </LinearLayout>
-
-
 
 </RelativeLayout>

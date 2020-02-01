@@ -1,22 +1,17 @@
 package com.josezamora.tcscanner.Firebase.Controllers;
 
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
-import com.josezamora.tcscanner.Firebase.Classes.CloudComposition;
 import com.josezamora.tcscanner.Firebase.Classes.CloudImage;
+import com.josezamora.tcscanner.Firebase.Classes.CloudNotebook;
 import com.josezamora.tcscanner.Firebase.Classes.CloudUser;
 import com.josezamora.tcscanner.Firebase.Classes.Report;
 
 import java.util.Objects;
-
-import androidx.annotation.NonNull;
 
 @SuppressWarnings("SpellCheckingInspection")
 class FirebaseDatabaseController {
@@ -24,7 +19,7 @@ class FirebaseDatabaseController {
     private FirebaseFirestore database;
 
     private static final String USERS = "users";
-    private static final String COMPOSITIONS = "compositions";
+    private static final String NOTEBOOKS = "notebooks";
     private static final String IMAGES = "photos";
     private static final String REPORTS = "reports";
 
@@ -38,25 +33,25 @@ class FirebaseDatabaseController {
         database.collection(USERS).document(user.getuId()).set(user);
     }
 
-    private DocumentReference getReference(CloudComposition composition) {
+    private DocumentReference getReference(CloudNotebook notebook) {
         return database.collection(USERS)
-                .document(composition.getOwner())
-                .collection(COMPOSITIONS)
-                .document(composition.getId());
+                .document(notebook.getOwner())
+                .collection(NOTEBOOKS)
+                .document(notebook.getId());
     }
 
     private DocumentReference getReference(CloudImage image) {
         return database.collection(USERS)
                 .document(image.getOwner())
-                .collection(COMPOSITIONS)
-                .document(image.getComposition())
+                .collection(NOTEBOOKS)
+                .document(image.getNotebook())
                 .collection(IMAGES)
                 .document(image.getId());
     }
 
-    void addComposition(CloudComposition composition) {
-        DocumentReference docRef = getReference(composition);
-        docRef.set(composition);
+    void addNotebook(CloudNotebook notebook) {
+        DocumentReference docRef = getReference(notebook);
+        docRef.set(notebook);
     }
 
     void addImage(CloudImage image) {
@@ -64,23 +59,19 @@ class FirebaseDatabaseController {
         docRef.set(image);
     }
 
-    void deleteComposition(CloudComposition composition) {
-        DocumentReference docRef = getReference(composition);
+    void deleteNotebook(CloudNotebook notebook) {
+        DocumentReference docRef = getReference(notebook);
         docRef.delete();
     }
 
-    void deleteCompositionDefinitive(CloudComposition composition) {
-        DocumentReference docRef = getReference(composition);
+    void deleteNotebookDefinitive(CloudNotebook notebook) {
+        DocumentReference docRef = getReference(notebook);
         final CollectionReference colRef = docRef.collection(IMAGES);
 
-        colRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                for(QueryDocumentSnapshot documentSnapshot :
-                        Objects.requireNonNull(task.getResult())) {
-                    colRef.document(documentSnapshot.getId()).delete();
-                }
-            }
+        colRef.get().addOnCompleteListener(task -> {
+            for (QueryDocumentSnapshot documentSnapshot :
+                    Objects.requireNonNull(task.getResult()))
+                colRef.document(documentSnapshot.getId()).delete();
         });
 
         docRef.delete();
@@ -91,39 +82,39 @@ class FirebaseDatabaseController {
         docRef.delete();
     }
 
-    FirestoreRecyclerOptions<CloudComposition> createFilterOptions(CloudUser user, String newText) {
+    FirestoreRecyclerOptions<CloudNotebook> createFilterOptions(CloudUser user, String newText) {
         Query query = FirebaseFirestore.getInstance()
                 .collection(USERS)
                 .document(user.getuId())
-                .collection(COMPOSITIONS)
+                .collection(NOTEBOOKS)
                 .whereGreaterThanOrEqualTo(FIELD_NAME, newText)
                 .whereLessThanOrEqualTo(FIELD_NAME, newText+"z");
 
         return setQuery(query);
     }
 
-    FirestoreRecyclerOptions<CloudComposition> createRecyclerOptions(CloudUser user) {
+    FirestoreRecyclerOptions<CloudNotebook> createRecyclerOptions(CloudUser user) {
         Query query = FirebaseFirestore.getInstance()
                 .collection(USERS)
                 .document(user.getuId())
-                .collection(COMPOSITIONS);
+                .collection(NOTEBOOKS);
 
         return setQuery(query);
     }
 
-    private FirestoreRecyclerOptions<CloudComposition> setQuery(Query query) {
-        return new FirestoreRecyclerOptions.Builder<CloudComposition>()
-                .setQuery(query, CloudComposition.class)
+    private FirestoreRecyclerOptions<CloudNotebook> setQuery(Query query) {
+        return new FirestoreRecyclerOptions.Builder<CloudNotebook>()
+                .setQuery(query, CloudNotebook.class)
                 .build();
     }
 
     FirestoreRecyclerOptions<CloudImage> createRecyclerOptions(CloudUser user,
-                                                               CloudComposition composition) {
+                                                               CloudNotebook notebook) {
         Query query = FirebaseFirestore.getInstance()
                 .collection(USERS)
                 .document(user.getuId())
-                .collection(COMPOSITIONS)
-                .document(composition.getId())
+                .collection(NOTEBOOKS)
+                .document(notebook.getId())
                 .collection(IMAGES).orderBy("order");
 
         return new FirestoreRecyclerOptions.Builder<CloudImage>()
@@ -131,9 +122,22 @@ class FirebaseDatabaseController {
                 .build();
     }
 
-    void updateComposition(CloudComposition composition) {
-        DocumentReference docRef = getReference(composition);
-        docRef.update("numImages", composition.getNumImages());
+    void updateNotebook(CloudNotebook notebook, String field) {
+        DocumentReference docRef = getReference(notebook);
+        switch (field) {
+            case CloudNotebook.NUM_IMAGES_KEY:
+                docRef.update(field, notebook.getNumImages());
+                break;
+            case CloudNotebook.LANGUAGE_KEY:
+                docRef.update(field, notebook.getLanguage());
+                break;
+            case CloudNotebook.CONTENT_KEY:
+                docRef.update(field, notebook.getContent());
+                break;
+            case CloudNotebook.DIRTY_KEY:
+                docRef.update(field, notebook.isDirty());
+                break;
+        }
     }
 
     void updateImage(CloudImage image) {

@@ -16,7 +16,7 @@ public abstract class Lang {
     String SYMBOLS_KEY = "sym";
 
     /** COLORS FOR PATTERNS **/
-    private static final String COLOR_NUMS = "#44B38B";
+    private static final String COLOR_NUMS = "#8BE2E8";
     private static final String COLOR_KEYS = "#CE00FF";
     private static final String COLOR_SYMS = "#44B38B";
 

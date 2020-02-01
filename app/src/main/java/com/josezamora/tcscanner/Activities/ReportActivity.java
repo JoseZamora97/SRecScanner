@@ -3,13 +3,15 @@ package com.josezamora.tcscanner.Activities;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.josezamora.tcscanner.AppGlobals;
 import com.josezamora.tcscanner.Firebase.Classes.CloudUser;
@@ -18,9 +20,6 @@ import com.josezamora.tcscanner.Firebase.Controllers.FirebaseController;
 import com.josezamora.tcscanner.R;
 
 import java.util.Objects;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 
 public class ReportActivity extends AppCompatActivity {
 
@@ -74,7 +73,6 @@ public class ReportActivity extends AppCompatActivity {
                 Build.MODEL,
                 Build.BOARD,
                 Build.HARDWARE,
-                Build.SERIAL,
                 densityDpi + " dpi",
                 Build.BOOTLOADER,
                 Build.USER,
@@ -92,6 +90,7 @@ public class ReportActivity extends AppCompatActivity {
         Toast.makeText(this, "Informe enviado, trabajaremos para solucionar el problema."
                 , Toast.LENGTH_SHORT).show();
 
+        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
         onBackPressed();
     }
 

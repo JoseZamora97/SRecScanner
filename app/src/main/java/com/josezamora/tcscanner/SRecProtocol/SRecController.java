@@ -15,6 +15,7 @@ import SRecProtocol.Client.Client;
 import SRecProtocol.Client.SRecClient;
 import SRecProtocol.Messages.SRecMessageRequest;
 
+
 @SuppressLint("StaticFieldLeak")
 public class SRecController {
 
@@ -25,12 +26,9 @@ public class SRecController {
 
     private String ip, port;
 
-    private Activity context;
-
-    public SRecController(Activity context) {
+    public SRecController() {
         this.connected = false;
         this.client = null;
-        this.context = context;
         this.ip = this.port = NONE;
     }
 
@@ -52,14 +50,12 @@ public class SRecController {
             this.port = port;
 
             new StartConnectionTask().execute();
-            ((TextView) this.context.findViewById(R.id.conectar_srec)).setText("Desconectar de SRec");
         }
     }
 
-
     public void stopConnection() {
         new StopConnectionTask().execute();
-        ((TextView) context.findViewById(R.id.conectar_srec)).setText("Conectar con SRec");
+        connected = false;
     }
 
     public void sendFile(File file) {
@@ -118,7 +114,6 @@ public class SRecController {
             client.send(request);
 
             ip = port = NONE;
-            connected = false;
 
             return null;
         }

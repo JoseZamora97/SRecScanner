@@ -9,7 +9,7 @@ public class JavaLang extends Lang {
             + "|enum|num|void|case|char|default|double|float|int|long|short"
             + "abstract|assert|boolean|byte|extends|final|finally|implements|import|"
             + "instanceof|interface|null|native|package|strictfp|super|synchronized|"
-            + "throws|transient|static)\\b";
+            + "throws|transient|static|private|public|protected)\\b";
     private static final String SYMBOLS = "[-!%&*()+|=<>{}\\[\\]:]";
 
     public JavaLang() {

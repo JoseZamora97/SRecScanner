@@ -2,7 +2,6 @@ package com.josezamora.tcscanner.Activities;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -22,17 +21,27 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
+import androidx.core.content.FileProvider;
+import androidx.core.content.res.ResourcesCompat;
 
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.FutureTarget;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.josezamora.tcscanner.AppGlobals;
 import com.josezamora.tcscanner.Editor.CodeEditor;
 import com.josezamora.tcscanner.Editor.LanguageProvider;
 import com.josezamora.tcscanner.Firebase.Classes.CloudImage;
+import com.josezamora.tcscanner.Firebase.Classes.CloudNotebook;
+import com.josezamora.tcscanner.Firebase.Controllers.FirebaseController;
 import com.josezamora.tcscanner.Firebase.GlideApp;
 import com.josezamora.tcscanner.Firebase.Vision.VisualAnalyzer;
-import com.josezamora.tcscanner.AppGlobals;
 import com.josezamora.tcscanner.Preferences.PreferencesController;
 import com.josezamora.tcscanner.R;
 import com.josezamora.tcscanner.SRecProtocol.SRecController;
@@ -46,15 +55,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.cardview.widget.CardView;
-import androidx.core.content.FileProvider;
-import androidx.core.content.res.ResourcesCompat;
 
 
 @SuppressWarnings("unchecked")
@@ -72,6 +72,7 @@ public class VisionActivity extends AppCompatActivity {
 
     GlideTaskMaker glideDownloader;
     List<CloudImage> images;
+    CloudNotebook notebook;
 
     CodeEditor codeEditor;
 
@@ -79,6 +80,7 @@ public class VisionActivity extends AppCompatActivity {
 
     PreferencesController preferencesController;
     SRecController sRecController;
+    FirebaseController firebaseController;
 
     boolean isOpen = false;
     Animation fabOpen, fabClose, rotateForward, rotateBackward;
@@ -95,8 +97,13 @@ public class VisionActivity extends AppCompatActivity {
         progressCard.setVisibility(View.VISIBLE);
 
         images = (List<CloudImage>) getIntent().getSerializableExtra(AppGlobals.IMAGES_KEY);
+        notebook = (CloudNotebook) getIntent().getSerializableExtra(AppGlobals.NOTEBOOK_KEY);
+
+        assert images != null;
+
         glideDownloader = new GlideTaskMaker(new CountDownLatch(images.size()), this);
-        glideDownloader.download(images);
+
+        if (notebook.isDirty()) glideDownloader.download(images);
 
         toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle("Previsualización del Código");
@@ -119,17 +126,56 @@ public class VisionActivity extends AppCompatActivity {
 
         spinner.setSelection(0, true);
 
+        firebaseController = new FirebaseController();
         preferencesController = new PreferencesController(this);
-        sRecController = new SRecController(this);
+        sRecController = new SRecController();
 
         btnExport = findViewById(R.id.fabExport);
         btnExportToSRec = findViewById(R.id.fabExportSrec);
         btnShare = findViewById(R.id.fabExportToShare);
 
+        initAnimations();
+    }
+
+    public void initAnimations() {
         fabOpen = AnimationUtils.loadAnimation(this, R.anim.fab_open);
         fabClose = AnimationUtils.loadAnimation(this, R.anim.fab_close);
+
         rotateForward =  AnimationUtils.loadAnimation(this, R.anim.rotation_forward);
+        rotateForward.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                /* Nothing */
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                btnExport.setImageResource(R.drawable.ic_add_white_24dp);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+                /* Nothing */
+            }
+        });
+
         rotateBackward =  AnimationUtils.loadAnimation(this, R.anim.rotation_backward);
+        rotateBackward.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                /* Nothing */
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                btnExport.setImageResource(R.drawable.ic_export_24dp);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+                /* Nothing */
+            }
+        });
     }
 
     public class SpinnerAdapter extends ArrayAdapter<LanguageProvider.Languages>
@@ -173,10 +219,40 @@ public class VisionActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        glideDownloader = null;
-        images.clear();
-        image = null;
-        super.onBackPressed();
+        if (codeEditor.isModified()) {
+            AlertDialog.Builder builderConfig = new AlertDialog.Builder(this);
+
+            builderConfig.setCancelable(false);
+            builderConfig.setTitle("Ups!!");
+            builderConfig.setMessage("Estás a punto de salir y hay cambios que no " +
+                    "se han guardado.¿Desea guardar cambios y volver?");
+
+            builderConfig.setPositiveButton("Guardar", (dialogInterface, i) -> {
+                saveChanges();
+                onBackPressed();
+            });
+
+            builderConfig.setNegativeButton("Descartar", (dialogInterface, i) -> {
+                dialogInterface.dismiss();
+                finish();
+            });
+
+            AlertDialog alertDialog = builderConfig.create();
+            alertDialog.show();
+        } else
+            super.onBackPressed();
+    }
+
+    private void saveChanges() {
+        notebook.setContent(Objects.requireNonNull(codeEditor.getText()).toString());
+        notebook.setLanguage(textViewExt.getText().toString());
+        notebook.setDirty(false);
+
+        firebaseController.update(notebook, CloudNotebook.DIRTY_KEY);
+        firebaseController.update(notebook, CloudNotebook.LANGUAGE_KEY);
+        firebaseController.update(notebook, CloudNotebook.CONTENT_KEY);
+
+        codeEditor.setModified(false);
     }
 
     @Override
@@ -192,24 +268,44 @@ public class VisionActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        glideDownloader.await();
-        progressCard.setVisibility(View.GONE);
+        if (notebook.isDirty()) {
+            glideDownloader.await();
+            progressCard.setVisibility(View.GONE);
 
-        List<Bitmap> bitmaps = new ArrayList<>();
-        for(GlideImageDownload download : glideDownloader.tasksResults)
-            bitmaps.add(download.result);
+            List<Bitmap> bitmaps = new ArrayList<>();
+            for (GlideImageDownload download : glideDownloader.tasksResults)
+                bitmaps.add(download.result);
 
-        image = combineBitmaps(bitmaps);
+            image = combineBitmaps(bitmaps);
 
-        VisualAnalyzer visualAnalyzer = new VisualAnalyzer(image, codeEditor);
-        Thread analyzerTask = new Thread(visualAnalyzer);
-        analyzerTask.start();
+            VisualAnalyzer visualAnalyzer = new VisualAnalyzer(image, codeEditor);
+            Thread analyzerTask = new Thread(visualAnalyzer);
+            analyzerTask.start();
 
-        try {
-            analyzerTask.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            try {
+                analyzerTask.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        } else {
+            codeEditor.setText(notebook.getContent());
+            progressCard.setVisibility(View.GONE);
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == RESULT_OK && requestCode == AppGlobals.REQUEST_CODE_QR)
+            if (data != null)
+                handleQRResult(Objects.requireNonNull(data.getStringExtra("result")));
+
     }
 
     public void addTab(View v) {
@@ -218,7 +314,6 @@ public class VisionActivity extends AppCompatActivity {
 
     public void export(View v){
         if(isOpen){
-            btnExport.setImageDrawable(getResources().getDrawable(R.drawable.ic_export_24dp));
             btnExport.startAnimation(rotateBackward);
 
             btnShare.startAnimation(fabClose);
@@ -229,7 +324,6 @@ public class VisionActivity extends AppCompatActivity {
             isOpen = false;
         }
         else {
-            btnExport.setImageDrawable(getResources().getDrawable(R.drawable.ic_add_white_24dp));
             btnExport.startAnimation(rotateForward);
 
             btnShare.startAnimation(fabOpen);
@@ -242,23 +336,16 @@ public class VisionActivity extends AppCompatActivity {
     }
 
     public void exportToSRec(View v) {
-        if(!spinner.getSelectedItem().equals(LanguageProvider.Languages.JAVA)){
-            Toast.makeText(this, "Lo sentimos, SRec solo soporta código Java"
-                    , Toast.LENGTH_SHORT).show();
+        temp = editTextToFile();
+        String[] ip_port = preferencesController.getConnectionDetailsSRec();
+
+        if(ip_port[0] == null || ip_port[0].equals(SRecController.NONE)) {
+            Intent connectToSRec = new Intent(this, QRActivity.class);
+            startActivityForResult(connectToSRec, AppGlobals.REQUEST_CODE_QR);
         }
-        else {
+        else
+            sRecController.connectAndSendFile(ip_port[0], ip_port[1], temp);
 
-            temp = editTextToFile();
-
-            String[] ip_port = preferencesController.getConnectionDetailsSRec();
-            if(ip_port[0].equals(SRecController.NONE)) {
-                Intent connectToSRec = new Intent(this, QRActivity.class);
-                startActivityForResult(connectToSRec, AppGlobals.REQUEST_CODE_QR);
-            }
-            else
-                sRecController.connectAndSendFile(ip_port[0], ip_port[1], temp);
-
-        }
     }
 
     private File editTextToFile(){
@@ -279,20 +366,12 @@ public class VisionActivity extends AppCompatActivity {
         return file;
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (resultCode == RESULT_OK && requestCode == AppGlobals.REQUEST_CODE_QR)
-            if (data != null)
-                handleQRResult(Objects.requireNonNull(data.getStringExtra("result")));
-
-    }
-
     private void handleQRResult(String result) {
         String[] ip_port = result.split(":");
-        sRecController.startConnection(ip_port[0], ip_port[1]);
+        sRecController.startConnection(ip_port[1], ip_port[2]);
         sRecController.sendFile(temp);
+
+        preferencesController.connectedToSRec(sRecController.getIp(), sRecController.getPort());
     }
 
     public void exportToShare(View v){
@@ -319,7 +398,7 @@ public class VisionActivity extends AppCompatActivity {
         AlertDialog.Builder builderConfig = new AlertDialog.Builder(this);
 
         @SuppressLint("InflateParams")
-        View view = li.inflate(R.layout.dialog_name_composition, null);
+        View view = li.inflate(R.layout.dialog_name, null);
 
         Typeface font = ResourcesCompat.getFont(this, R.font.nunito_bold);
 
@@ -329,19 +408,11 @@ public class VisionActivity extends AppCompatActivity {
 
         final EditText editText = view.findViewById(R.id.editTextName);
 
-        builderConfig.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                textName.setText(editText.getText().toString());
-            }
-        });
+        builderConfig.setPositiveButton("Aceptar",
+                (dialogInterface, i) -> textName.setText(editText.getText().toString()));
 
-        builderConfig.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                dialogInterface.dismiss();
-            }
-        });
+        builderConfig.setNegativeButton("Cancelar",
+                (dialogInterface, i) -> dialogInterface.dismiss());
 
         AlertDialog alertDialog = builderConfig.create();
         alertDialog.show();

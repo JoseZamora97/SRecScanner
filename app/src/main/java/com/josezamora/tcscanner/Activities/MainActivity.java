@@ -1,7 +1,6 @@
 package com.josezamora.tcscanner.Activities;
 
 import android.annotation.SuppressLint;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Typeface;
@@ -15,22 +14,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
-import com.google.android.material.snackbar.BaseTransientBottomBar;
-import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.auth.FirebaseAuth;
-import com.josezamora.tcscanner.AppGlobals;
-import com.josezamora.tcscanner.Firebase.Classes.CloudComposition;
-import com.josezamora.tcscanner.Firebase.Classes.CloudUser;
-import com.josezamora.tcscanner.Firebase.Controllers.FirebaseController;
-import com.josezamora.tcscanner.Firebase.GlideApp;
-import com.josezamora.tcscanner.Preferences.PreferencesController;
-import com.josezamora.tcscanner.R;
-import com.josezamora.tcscanner.SRecProtocol.SRecController;
-import com.josezamora.tcscanner.ViewHolders.CloudCompositionViewHolder;
-
-import java.util.Objects;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -49,6 +32,23 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
+import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.auth.FirebaseAuth;
+import com.josezamora.tcscanner.AppGlobals;
+import com.josezamora.tcscanner.Firebase.Classes.CloudNotebook;
+import com.josezamora.tcscanner.Firebase.Classes.CloudUser;
+import com.josezamora.tcscanner.Firebase.Controllers.FirebaseController;
+import com.josezamora.tcscanner.Firebase.GlideApp;
+import com.josezamora.tcscanner.Preferences.PreferencesController;
+import com.josezamora.tcscanner.R;
+import com.josezamora.tcscanner.SRecProtocol.SRecController;
+import com.josezamora.tcscanner.ViewHolders.CloudNotebookViewHolder;
+
+import java.util.Objects;
+
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 
 import static android.util.TypedValue.COMPLEX_UNIT_SP;
@@ -69,14 +69,14 @@ public class MainActivity extends AppCompatActivity
     TextView userName;
     TextView userEmail;
 
-    public static final int LIST_ITEM = R.layout.list_composition_item;
-    public static final int GRID_ITEM = R.layout.grid_composition_item;
+    public static final int LIST_ITEM = R.layout.list_notebook_item;
+    public static final int GRID_ITEM = R.layout.grid_notebook_item;
     private int viewMode = LIST_ITEM;
 
     CloudUser user;
 
     FirebaseController firebaseController;
-    FirestoreRecyclerAdapter cloudCompositionsAdapter;
+    FirestoreRecyclerAdapter cloudNotebookAdapter;
 
     DividerItemDecoration itemDecorHorizontal;
     DividerItemDecoration itemDecorVertical;
@@ -85,6 +85,67 @@ public class MainActivity extends AppCompatActivity
     TextView textViewSRec;
 
     PreferencesController preferencesController;
+    ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0,
+            ItemTouchHelper.LEFT) {
+
+        @Override
+        public boolean onMove(@NonNull RecyclerView recyclerView,
+                              @NonNull RecyclerView.ViewHolder viewHolder,
+                              @NonNull RecyclerView.ViewHolder target) {
+            return false;
+        }
+
+        boolean undo;
+
+        @Override
+        public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+            if (direction == ItemTouchHelper.LEFT) {
+                final int position = viewHolder.getAdapterPosition();
+                final CloudNotebook notebook = (CloudNotebook) cloudNotebookAdapter
+                        .getItem(position);
+
+                firebaseController.deleteNotebook(notebook, false);
+
+                Snackbar.make(recyclerView, notebook.getName() + " ha sido eliminado"
+                        , Snackbar.LENGTH_INDEFINITE)
+                        .setDuration(3000)
+                        .addCallback(new Snackbar.Callback() {
+                            @Override
+                            public void onDismissed(Snackbar snackbar, int event) {
+                                undo = event == BaseTransientBottomBar
+                                        .BaseCallback.DISMISS_EVENT_ACTION;
+
+                                if (undo) firebaseController.addNotebook(notebook);
+                                else firebaseController
+                                        .deleteNotebook(notebook, true);
+                            }
+                        })
+                        .setAction("Deshacer", v -> {
+                        })
+                        .show();
+            }
+        }
+
+        @Override
+        public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView,
+                                @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY,
+                                int actionState, boolean isCurrentlyActive) {
+
+            new RecyclerViewSwipeDecorator.Builder(c, recyclerView, viewHolder, dX, dY, actionState
+                    , isCurrentlyActive)
+                    .addBackgroundColor(getResources().getColor(R.color.colorAccent))
+                    .addActionIcon(R.drawable.ic_delete_sweep_30dp)
+                    .addSwipeLeftLabel("Eliminar")
+                    .setSwipeLeftLabelTextSize(COMPLEX_UNIT_SP, 16)
+                    .setSwipeLeftLabelTypeface(ResourcesCompat
+                            .getFont(getApplicationContext(), R.font.nunito))
+                    .setSwipeLeftLabelColor(getResources().getColor(R.color.colorPrimary))
+                    .create()
+                    .decorate();
+
+            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,7 +173,7 @@ public class MainActivity extends AppCompatActivity
 
         firebaseController = new FirebaseController();
         preferencesController = new PreferencesController(this);
-        sRecController = new SRecController(this);
+        sRecController = new SRecController();
 
         preferencesController.clearSRecConnection();
 
@@ -122,7 +183,7 @@ public class MainActivity extends AppCompatActivity
         firebaseController.createUser(user);
 
         btnSwitchViewMode = findViewById(R.id.imageViewMode);
-        recyclerView = findViewById(R.id.rv_compositions);
+        recyclerView = findViewById(R.id.rv_notebooks);
 
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
         swipeRefreshLayout.setOnRefreshListener(this);
@@ -153,34 +214,29 @@ public class MainActivity extends AppCompatActivity
     protected void onStart() {
         super.onStart();
         drawerLayout.closeDrawer(GravityCompat.START, false);
-        cloudCompositionsAdapter.startListening();
+
+        updateTextConnectionToggle();
+
+        cloudNotebookAdapter.startListening();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        cloudCompositionsAdapter.stopListening();
-    }
-
-    @Override
-    public void onItemClick(int position) {
-        preferencesController.connectedToSRec(sRecController.getIp(), sRecController.getPort());
-
-        final CloudComposition composition = (CloudComposition) cloudCompositionsAdapter
-                .getItem(position);
-
-        Intent toCompositionActivity = new Intent(this, CompositionActivity.class);
-        toCompositionActivity.putExtra(AppGlobals.COMPOSITION_KEY, composition);
-        startActivity(toCompositionActivity);
+        cloudNotebookAdapter.stopListening();
     }
 
     @Override
     public void onLongItemClick(int position) { /* Nothing */ }
 
     @Override
-    public void onRefresh() {
-        cloudCompositionsAdapter.notifyDataSetChanged();
-        swipeRefreshLayout.setRefreshing(false);
+    public void onItemClick(int position) {
+        final CloudNotebook notebook = (CloudNotebook) cloudNotebookAdapter
+                .getItem(position);
+
+        Intent toNotebookActivity = new Intent(this, NotebookActivity.class);
+        toNotebookActivity.putExtra(AppGlobals.NOTEBOOK_KEY, notebook);
+        startActivity(toNotebookActivity);
     }
 
     @Override
@@ -190,6 +246,39 @@ public class MainActivity extends AppCompatActivity
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onRefresh() {
+        cloudNotebookAdapter.notifyDataSetChanged();
+        swipeRefreshLayout.setRefreshing(false);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == RESULT_OK && requestCode == AppGlobals.REQUEST_CODE_QR)
+            if (data != null)
+                handleQRResult(Objects.requireNonNull(data.getStringExtra("result")));
+    }
+
+    private void handleQRResult(String result) {
+        String[] ip_port = result.split(":");
+
+        sRecController.startConnection(ip_port[1], ip_port[2]);
+        preferencesController.connectedToSRec(sRecController.getIp(), sRecController.getPort());
+
+        updateTextConnectionToggle();
+    }
+
+    private void updateTextConnectionToggle() {
+        String[] ip_port = preferencesController.getConnectionDetailsSRec();
+
+        if (ip_port[0] == null || ip_port[0].equals(SRecController.NONE))
+            textViewSRec.setText("Conectar con SRecReceiver");
+        else
+            textViewSRec.setText("Desconectar de SRecReceiver");
     }
 
     @Override
@@ -207,11 +296,11 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                if(newText.equals("")) cloudCompositionsAdapter
+                if (newText.equals("")) cloudNotebookAdapter
                         .updateOptions(firebaseController.getRecyclerOptions(user));
-                else cloudCompositionsAdapter
+                else cloudNotebookAdapter
                         .updateOptions(firebaseController.getRecyclerOptions(user, newText));
-                cloudCompositionsAdapter.startListening();
+                cloudNotebookAdapter.startListening();
                 return false;
             }
         });
@@ -219,37 +308,29 @@ public class MainActivity extends AppCompatActivity
         return super.onCreateOptionsMenu(menu);
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (resultCode == RESULT_OK && requestCode == AppGlobals.REQUEST_CODE_QR)
-            if (data != null)
-                handleQRResult(Objects.requireNonNull(data.getStringExtra("result")));
-    }
-
-    private void handleQRResult(String result) {
-        String[] ip_port = result.split(":");
-        sRecController.startConnection(ip_port[0], ip_port[1]);
+    public void sendInform(View v) {
+        Intent toReportActivity = new Intent(this, ReportActivity.class);
+        toReportActivity.putExtra(AppGlobals.USER_KEY, user);
+        startActivity(toReportActivity);
     }
 
     private FirestoreRecyclerAdapter getCloudRecyclerAdapter() {
 
         final RecyclerViewOnClickInterface rvOnClick = this;
-        return new FirestoreRecyclerAdapter<CloudComposition, CloudCompositionViewHolder>(
+        return new FirestoreRecyclerAdapter<CloudNotebook, CloudNotebookViewHolder>(
                 firebaseController.getRecyclerOptions(user)) {
 
             @NonNull
             @Override
-            public CloudCompositionViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            public CloudNotebookViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                 View view = LayoutInflater.from(parent.getContext())
                         .inflate(viewMode, parent, false);
-                return new CloudCompositionViewHolder(view, rvOnClick);
+                return new CloudNotebookViewHolder(view, rvOnClick);
             }
 
             @Override
-            protected void onBindViewHolder(@NonNull CloudCompositionViewHolder holder, int position,
-                                            @NonNull CloudComposition model) {
+            protected void onBindViewHolder(@NonNull CloudNotebookViewHolder holder, int position,
+                                            @NonNull CloudNotebook model) {
                 String name = model.getName();
                 if (viewMode != LIST_ITEM) {
                     if (name.length() >= 10) {
@@ -259,36 +340,12 @@ public class MainActivity extends AppCompatActivity
                 }
 
                 String numImagesText = getString(R.string.imagenes) + " " + model.getNumImages()
-                        + "/" + AppGlobals.MAX_PHOTOS_PER_COMPOSITION;
+                        + "/" + AppGlobals.MAX_PHOTOS_PER_NOTEBOOK;
 
-                holder.getTxtNameComposition().setText(name);
+                holder.getTxtNameNotebook().setText(name);
                 holder.getTxtNumImages().setText(numImagesText);
             }
         };
-    }
-
-    public void sendInform(View v) {
-        Intent toReportActivity = new Intent(this, ReportActivity.class);
-        toReportActivity.putExtra(AppGlobals.USER_KEY, user);
-        startActivity(toReportActivity);
-    }
-
-    public void updateViewMode() {
-        cloudCompositionsAdapter = getCloudRecyclerAdapter();
-
-        if (viewMode == LIST_ITEM) {
-            recyclerView.removeItemDecoration(itemDecorVertical);
-            btnSwitchViewMode.setImageResource(R.drawable.ic_grid_24dp);
-            recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        }
-        else {
-            recyclerView.addItemDecoration(itemDecorVertical);
-            btnSwitchViewMode.setImageResource(R.drawable.ic_list_24dp);
-            recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
-        }
-
-        recyclerView.setAdapter(cloudCompositionsAdapter);
-        cloudCompositionsAdapter.startListening();
     }
 
     public void swapViewMode(View v) {
@@ -309,39 +366,60 @@ public class MainActivity extends AppCompatActivity
         finish();
     }
 
-    public void addNewComposition(View v) {
+    public void updateViewMode() {
+        cloudNotebookAdapter = getCloudRecyclerAdapter();
+
+        if (viewMode == LIST_ITEM) {
+            recyclerView.removeItemDecoration(itemDecorVertical);
+            btnSwitchViewMode.setImageResource(R.drawable.ic_grid_24dp);
+            recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        } else {
+            recyclerView.addItemDecoration(itemDecorVertical);
+            btnSwitchViewMode.setImageResource(R.drawable.ic_list_24dp);
+            recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
+        }
+
+        recyclerView.setAdapter(cloudNotebookAdapter);
+        cloudNotebookAdapter.startListening();
+    }
+
+    public void qrReaderOpen(View v) {
+        if (!sRecController.isConnected()) {
+            Intent qrActivity = new Intent(this, QRActivity.class);
+            startActivityForResult(qrActivity, AppGlobals.REQUEST_CODE_QR);
+        } else {
+            sRecController.stopConnection();
+            preferencesController.clearSRecConnection();
+            drawerLayout.closeDrawer(GravityCompat.START);
+        }
+    }
+
+    public void addNewNotebook(View v) {
         LayoutInflater li = LayoutInflater.from(MainActivity.this);
         AlertDialog.Builder builderConfig = new AlertDialog.Builder(this);
 
         @SuppressLint("InflateParams")
-        View view = li.inflate(R.layout.dialog_name_composition, null);
+        View view = li.inflate(R.layout.dialog_name, null);
 
         Typeface font = ResourcesCompat.getFont(this, R.font.nunito_bold);
 
-        builderConfig.setTitle("Renombrar fichero");
+        builderConfig.setTitle("Nuevo cuaderno");
         builderConfig.setView(view);
         builderConfig.setCancelable(false);
 
         final EditText editTextName = view.findViewById(R.id.editTextName);
 
-        builderConfig.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                if(!editTextName.getText().toString().equals("")) {
-                    String compositionId = String.valueOf(System.currentTimeMillis());
-                    CloudComposition composition = new CloudComposition(
-                            compositionId, editTextName.getText().toString(), user.getuId());
-                    firebaseController.addComposition(composition);
-                }
+        builderConfig.setPositiveButton("Aceptar", (dialogInterface, i) -> {
+            if(!editTextName.getText().toString().equals("")) {
+                String notebookId = String.valueOf(System.currentTimeMillis());
+                CloudNotebook cloudNotebook = new CloudNotebook(
+                        notebookId, editTextName.getText().toString(), user.getuId());
+                firebaseController.addNotebook(cloudNotebook);
             }
         });
 
-        builderConfig.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                dialogInterface.dismiss();
-            }
-        });
+        builderConfig.setNegativeButton("Cancelar",
+                (dialogInterface, i) -> dialogInterface.dismiss());
 
         AlertDialog alertDialog = builderConfig.create();
         alertDialog.show();
@@ -354,79 +432,4 @@ public class MainActivity extends AppCompatActivity
         assert btn2 != null;
         btn2.setTypeface(font);
     }
-
-    public void qrReaderOpen(View v) {
-        if(!sRecController.isConnected()) {
-            Intent qrActivity = new Intent(this, QRActivity.class);
-            startActivityForResult(qrActivity, AppGlobals.REQUEST_CODE_QR);
-        }
-        else {
-            sRecController.stopConnection();
-            preferencesController.clearSRecConnection();
-        }
-
-    }
-
-    ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0,
-            ItemTouchHelper.LEFT ) {
-
-        @Override
-        public boolean onMove(@NonNull RecyclerView recyclerView,
-                              @NonNull RecyclerView.ViewHolder viewHolder,
-                              @NonNull RecyclerView.ViewHolder target) {
-            return false;
-        }
-
-        boolean undo;
-
-        @Override
-        public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-            if(direction == ItemTouchHelper.LEFT) {
-                final int position = viewHolder.getAdapterPosition();
-                final CloudComposition composition = (CloudComposition) cloudCompositionsAdapter
-                        .getItem(position);
-
-                firebaseController.deleteComposition(composition, false);
-
-                Snackbar.make(recyclerView, composition.getName() + " ha sido eliminado"
-                                , Snackbar.LENGTH_INDEFINITE)
-                        .setDuration(3000)
-                        .addCallback(new Snackbar.Callback(){
-                            @Override
-                            public void onDismissed(Snackbar snackbar, int event) {
-                                undo = event == BaseTransientBottomBar
-                                        .BaseCallback.DISMISS_EVENT_ACTION;
-
-                                if(undo) firebaseController.addComposition(composition);
-                                else firebaseController
-                                        .deleteComposition(composition, true);
-                            }
-                        })
-                        .setAction("Deshacer", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {}
-                        })
-                        .show();
-            }
-        }
-
-        @Override
-        public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView,
-                                @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY,
-                                int actionState, boolean isCurrentlyActive) {
-
-            new RecyclerViewSwipeDecorator.Builder(c, recyclerView, viewHolder, dX, dY, actionState
-                    , isCurrentlyActive)
-                    .addBackgroundColor(getResources().getColor(R.color.colorAccent))
-                    .addActionIcon(R.drawable.ic_delete_sweep_30dp)
-                    .addSwipeLeftLabel("Eliminar")
-                    .setSwipeLeftLabelTextSize(COMPLEX_UNIT_SP, 16)
-                    .setSwipeLeftLabelTypeface(ResourcesCompat.getFont(getApplicationContext(), R.font.nunito))
-                    .setSwipeLeftLabelColor(getResources().getColor(R.color.colorPrimary))
-                    .create()
-                    .decorate();
-
-            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
-        }
-    };
 }

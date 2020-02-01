@@ -18,8 +18,8 @@
             android:id="@+id/imagePreview"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:scaleType="centerCrop"
-            android:contentDescription="@string/imagen_de_la_nube" />
+            android:contentDescription="@string/imagen_de_la_nube"
+            android:scaleType="centerCrop" />
 
         <ProgressBar
             android:id="@+id/progress_bar"
@@ -28,6 +28,15 @@
             android:layout_height="30dp"
             android:indeterminateOnly="true"
             android:layout_centerInParent="true"/>
+
+        <ImageView
+            android:id="@+id/full_screen"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_centerInParent="true"
+            android:background="?selectableItemBackgroundBorderless"
+            android:contentDescription="Boton full screen."
+            android:src="@drawable/ic_fullscreen" />
 
         <RelativeLayout
             android:id="@+id/relative_tint"

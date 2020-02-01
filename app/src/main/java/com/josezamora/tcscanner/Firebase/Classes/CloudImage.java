@@ -6,18 +6,19 @@ public class CloudImage implements Serializable {
 
     private String id;
     private String owner;
-    private String composition;
+    private String notebook;
     private String firebaseStoragePath;
     private String downloadLink;
     private int order;
 
+    @SuppressWarnings("unused")
     public CloudImage() {}
 
-    public CloudImage(String id, String owner, String composition, String firebaseStoragePath,
+    public CloudImage(String id, String owner, String notebook, String firebaseStoragePath,
                       String downloadLink, int order ){
         this.id = id;
         this.owner = owner;
-        this.composition = composition;
+        this.notebook = notebook;
         this.firebaseStoragePath = firebaseStoragePath;
         this.downloadLink = downloadLink;
         this.order = order;
@@ -31,8 +32,8 @@ public class CloudImage implements Serializable {
         return owner;
     }
 
-    public String getComposition() {
-        return composition;
+    public String getNotebook() {
+        return notebook;
     }
 
     public String getFirebaseStoragePath() {

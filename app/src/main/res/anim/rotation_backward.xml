@@ -9,4 +9,15 @@
         android:duration="300"
         android:interpolator="@android:anim/linear_interpolator"
         />
+
+    <scale
+        android:fromXScale="1.1"
+        android:fromYScale="1.1"
+        android:toXScale="1"
+        android:toYScale="1"
+        android:pivotY="50%"
+        android:pivotX="50%"
+        android:duration="300"
+        android:interpolator="@android:anim/linear_interpolator"
+        />
 </set>

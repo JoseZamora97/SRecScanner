@@ -7,12 +7,12 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.josezamora.tcscanner.Activities.RecyclerViewOnClickInterface;
-import com.josezamora.tcscanner.R;
-
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.josezamora.tcscanner.Activities.NotebookActivity;
+import com.josezamora.tcscanner.R;
 
 
 public class CloudImageViewHolder extends RecyclerView.ViewHolder {
@@ -21,6 +21,7 @@ public class CloudImageViewHolder extends RecyclerView.ViewHolder {
     private ProgressBar progressBar;
     private CardView cardView;
     private TextView textView;
+    private ImageView btnfullScreen;
 
     private boolean expanded;
 
@@ -32,13 +33,16 @@ public class CloudImageViewHolder extends RecyclerView.ViewHolder {
     private static int ANIM_SPEED = 250;
 
     public CloudImageViewHolder(@NonNull final View itemView,
-                                final RecyclerViewOnClickInterface recyclerViewOnClickInterface) {
+                                final NotebookActivity recyclerViewOnClickInterface) {
         super(itemView);
 
         imageView = itemView.findViewById(R.id.imagePreview);
         progressBar = itemView.findViewById(R.id.progress_bar);
         cardView = itemView.findViewById(R.id.cardview_imagen_item);
         textView = itemView.findViewById(R.id.text_image);
+        btnfullScreen = itemView.findViewById(R.id.full_screen);
+
+        btnfullScreen.setVisibility(View.GONE);
 
         ViewTreeObserver viewTreeObserver = cardView.getViewTreeObserver();
 
@@ -50,26 +54,18 @@ public class CloudImageViewHolder extends RecyclerView.ViewHolder {
 
                 animExpand = ValueAnimator.ofInt(height, height * 2);
                 animExpand.setDuration(ANIM_SPEED);
-                animExpand.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                    @Override
-                    public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                        int val = (Integer) valueAnimator.getAnimatedValue();
-                        RecyclerView.LayoutParams cardLayoutParams = (RecyclerView.LayoutParams) cardView.getLayoutParams();
-                        cardLayoutParams.height = val;
-                        cardView.setLayoutParams(cardLayoutParams);
-                    }
+                animExpand.addUpdateListener(valueAnimator -> {
+                    RecyclerView.LayoutParams cardLayoutParams = (RecyclerView.LayoutParams) cardView.getLayoutParams();
+                    cardLayoutParams.height = (Integer) valueAnimator.getAnimatedValue();
+                    cardView.setLayoutParams(cardLayoutParams);
                 });
 
                 animCollapse = ValueAnimator.ofInt(height * 2, height);
                 animCollapse.setDuration(ANIM_SPEED);
-                animCollapse.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                    @Override
-                    public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                        int val = (Integer) valueAnimator.getAnimatedValue();
-                        RecyclerView.LayoutParams cardLayoutParams = (RecyclerView.LayoutParams) cardView.getLayoutParams();
-                        cardLayoutParams.height = val;
-                        cardView.setLayoutParams(cardLayoutParams);
-                    }
+                animCollapse.addUpdateListener(valueAnimator -> {
+                    RecyclerView.LayoutParams cardLayoutParams = (RecyclerView.LayoutParams) cardView.getLayoutParams();
+                    cardLayoutParams.height = (Integer) valueAnimator.getAnimatedValue();
+                    cardView.setLayoutParams(cardLayoutParams);
                 });
 
                 cardView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
@@ -78,27 +74,31 @@ public class CloudImageViewHolder extends RecyclerView.ViewHolder {
 
         viewTreeObserver.addOnGlobalLayoutListener(viewTreeListener);
 
-        itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                recyclerViewOnClickInterface.onItemClick(getAdapterPosition());
-            }
+        itemView.setOnClickListener(view -> recyclerViewOnClickInterface.onItemClick(getAdapterPosition()));
+
+        itemView.setOnLongClickListener(view -> {
+            recyclerViewOnClickInterface.onLongItemClick(getAdapterPosition());
+            return false;
         });
 
-        itemView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                recyclerViewOnClickInterface.onLongItemClick(getAdapterPosition());
-                return false;
-            }
+        btnfullScreen.setOnClickListener(v -> {
+            recyclerViewOnClickInterface.toImageFullscreen(getAdapterPosition());
         });
     }
 
     public void update() {
-        if(!expanded)
+        if (!expanded) {
             animExpand.start();
-        else
+
+            btnfullScreen.setVisibility(View.VISIBLE);
+            btnfullScreen.setEnabled(true);
+        } else {
             animCollapse.start();
+
+            btnfullScreen.setVisibility(View.GONE);
+            btnfullScreen.setEnabled(false);
+        }
+
         expanded = !expanded;
     }
 
