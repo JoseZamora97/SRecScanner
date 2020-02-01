@@ -144,7 +144,7 @@ public class VisionActivity extends AppCompatActivity {
 
             @Override
             public void onAnimationEnd(Animation animation) {
-                btnExport.setImageDrawable(getResources().getDrawable(R.drawable.ic_add_white_24dp));
+                btnExport.setImageResource(R.drawable.ic_add_white_24dp);
             }
 
             @Override
@@ -162,7 +162,7 @@ public class VisionActivity extends AppCompatActivity {
 
             @Override
             public void onAnimationEnd(Animation animation) {
-                btnExport.setImageDrawable(getResources().getDrawable(R.drawable.ic_export_24dp));
+                btnExport.setImageResource(R.drawable.ic_export_24dp);
             }
 
             @Override
