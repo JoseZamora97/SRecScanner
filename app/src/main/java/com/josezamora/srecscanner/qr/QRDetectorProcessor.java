@@ -11,6 +11,9 @@ import com.google.android.gms.vision.barcode.Barcode;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * The type Qr detector processor.
+ */
 public class QRDetectorProcessor implements Detector.Processor<Barcode> {
 
     private Pattern ipPortPattern;
@@ -18,8 +21,8 @@ public class QRDetectorProcessor implements Detector.Processor<Barcode> {
 
     private static final String QR_PATTERN_FORMAT_IP_AND_PORT =
             "^(SRecReceiver:)" +
-            "(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])" +
-            ":[0-9]+$";
+                    "(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])" +
+                    ":[0-9]+$";
 
     /**
      * Instantiates a new Qr detector processor.

@@ -10,12 +10,21 @@ import com.josezamora.srecscanner.editor.CodeEditor;
 
 import java.util.List;
 
+/**
+ * The type Visual analyzer.
+ */
 public class VisualAnalyzer implements Runnable {
 
     private StringBuilder scanResult;
     private Bitmap bitmap;
     private CodeEditor codeView;
 
+    /**
+     * Instantiates a new Visual analyzer.
+     *
+     * @param bitmap   the bitmap
+     * @param codeView the code view
+     */
     public VisualAnalyzer(Bitmap bitmap, CodeEditor codeView) {
         this.bitmap = bitmap;
         this.codeView = codeView;

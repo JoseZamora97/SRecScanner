@@ -15,13 +15,16 @@ import com.josezamora.srecscanner.R;
 import com.josezamora.srecscanner.activities.NotebookActivity;
 
 
+/**
+ * The type Cloud image view holder.
+ */
 public class CloudImageViewHolder extends RecyclerView.ViewHolder {
 
     private ImageView imageView;
     private ProgressBar progressBar;
     private CardView cardView;
     private TextView textView;
-    private ImageView btnfullScreen;
+    private static int ANIM_SPEED = 300;
 
     private boolean expanded;
 
@@ -29,20 +32,25 @@ public class CloudImageViewHolder extends RecyclerView.ViewHolder {
     private ValueAnimator animCollapse;
 
     private int height;
+    private ImageView btnFullScreen;
 
-    private static int ANIM_SPEED = 250;
-
+    /**
+     * Instantiates a new Cloud image view holder.
+     *
+     * @param itemView         the item view
+     * @param notebookActivity the notebook activity
+     */
     public CloudImageViewHolder(@NonNull final View itemView,
-                                final NotebookActivity recyclerViewOnClickInterface) {
+                                final NotebookActivity notebookActivity) {
         super(itemView);
 
         imageView = itemView.findViewById(R.id.imagePreview);
         progressBar = itemView.findViewById(R.id.progress_bar);
         cardView = itemView.findViewById(R.id.cardview_imagen_item);
         textView = itemView.findViewById(R.id.text_image);
-        btnfullScreen = itemView.findViewById(R.id.full_screen);
+        btnFullScreen = itemView.findViewById(R.id.full_screen);
 
-        btnfullScreen.setVisibility(View.GONE);
+        btnFullScreen.setVisibility(View.GONE);
 
         ViewTreeObserver viewTreeObserver = cardView.getViewTreeObserver();
 
@@ -74,46 +82,69 @@ public class CloudImageViewHolder extends RecyclerView.ViewHolder {
 
         viewTreeObserver.addOnGlobalLayoutListener(viewTreeListener);
 
-        itemView.setOnClickListener(view -> recyclerViewOnClickInterface
+        itemView.setOnClickListener(view -> notebookActivity
                 .onItemClick(getAdapterPosition()));
 
         itemView.setOnLongClickListener(view -> {
-            recyclerViewOnClickInterface.onLongItemClick(getAdapterPosition());
+            notebookActivity.onLongItemClick(getAdapterPosition());
             return false;
         });
 
-        btnfullScreen.setOnClickListener(v -> recyclerViewOnClickInterface
+        btnFullScreen.setOnClickListener(v -> notebookActivity
                 .toImageFullscreen(getAdapterPosition()));
     }
 
+    /**
+     * Update.
+     */
     public void update() {
         if (!expanded) {
             animExpand.start();
 
-            btnfullScreen.setVisibility(View.VISIBLE);
-            btnfullScreen.setEnabled(true);
+            btnFullScreen.setVisibility(View.VISIBLE);
+            btnFullScreen.setEnabled(true);
         } else {
             animCollapse.start();
 
-            btnfullScreen.setVisibility(View.GONE);
-            btnfullScreen.setEnabled(false);
+            btnFullScreen.setVisibility(View.GONE);
+            btnFullScreen.setEnabled(false);
         }
 
         expanded = !expanded;
     }
 
+    /**
+     * Is expanded boolean.
+     *
+     * @return the boolean
+     */
     public boolean isExpanded() {
         return expanded;
     }
 
+    /**
+     * Gets image view.
+     *
+     * @return the image view
+     */
     public ImageView getImageView() {
         return imageView;
     }
 
+    /**
+     * Gets progress bar.
+     *
+     * @return the progress bar
+     */
     public ProgressBar getProgressBar() {
         return progressBar;
     }
 
+    /**
+     * Gets text view.
+     *
+     * @return the text view
+     */
     public TextView getTextView() {
         return textView;
     }

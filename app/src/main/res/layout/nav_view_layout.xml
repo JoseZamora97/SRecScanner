@@ -115,14 +115,13 @@
             >
 
             <ImageView
-                android:layout_marginLeft="15dp"
-                android:layout_marginRight="15dp"
                 android:layout_width="30dp"
                 android:layout_height="match_parent"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
                 android:contentDescription="@string/informar_un_error"
                 android:rotation="180"
-                android:src="@drawable/ic_info_outline_black_24dp">
-            </ImageView>
+                android:src="@drawable/ic_info_outline_black_24dp"></ImageView>
 
             <TextView
                 android:layout_weight="1"

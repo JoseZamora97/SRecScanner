@@ -13,6 +13,9 @@ import com.josezamora.srecscanner.firebase.Classes.Report;
 
 import java.util.Objects;
 
+/**
+ * The type Firebase database controller.
+ */
 class FirebaseDatabaseController {
 
     private FirebaseFirestore database;
@@ -24,10 +27,18 @@ class FirebaseDatabaseController {
 
     private static final String FIELD_NAME = "name";
 
+    /**
+     * Instantiates a new Firebase database controller.
+     */
     FirebaseDatabaseController() {
         database = FirebaseFirestore.getInstance();
     }
 
+    /**
+     * Create user.
+     *
+     * @param user the user
+     */
     void createUser(CloudUser user) {
         database.collection(USERS).document(user.getuId()).set(user);
     }
@@ -48,21 +59,41 @@ class FirebaseDatabaseController {
                 .document(image.getId());
     }
 
+    /**
+     * Add notebook.
+     *
+     * @param notebook the notebook
+     */
     void addNotebook(CloudNotebook notebook) {
         DocumentReference docRef = getReference(notebook);
         docRef.set(notebook);
     }
 
+    /**
+     * Add image.
+     *
+     * @param image the image
+     */
     void addImage(CloudImage image) {
         DocumentReference docRef = getReference(image);
         docRef.set(image);
     }
 
+    /**
+     * Delete notebook.
+     *
+     * @param notebook the notebook
+     */
     void deleteNotebook(CloudNotebook notebook) {
         DocumentReference docRef = getReference(notebook);
         docRef.delete();
     }
 
+    /**
+     * Delete notebook definitive.
+     *
+     * @param notebook the notebook
+     */
     void deleteNotebookDefinitive(CloudNotebook notebook) {
         DocumentReference docRef = getReference(notebook);
         final CollectionReference colRef = docRef.collection(IMAGES);
@@ -76,11 +107,23 @@ class FirebaseDatabaseController {
         docRef.delete();
     }
 
+    /**
+     * Delete image.
+     *
+     * @param image the image
+     */
     void deleteImage(CloudImage image) {
         DocumentReference docRef = getReference(image);
         docRef.delete();
     }
 
+    /**
+     * Create filter options firestore recycler options.
+     *
+     * @param user    the user
+     * @param newText the new text
+     * @return the firestore recycler options
+     */
     FirestoreRecyclerOptions<CloudNotebook> createFilterOptions(CloudUser user, String newText) {
         Query query = FirebaseFirestore.getInstance()
                 .collection(USERS)
@@ -92,6 +135,12 @@ class FirebaseDatabaseController {
         return setQuery(query);
     }
 
+    /**
+     * Create recycler options firestore recycler options.
+     *
+     * @param user the user
+     * @return the firestore recycler options
+     */
     FirestoreRecyclerOptions<CloudNotebook> createRecyclerOptions(CloudUser user) {
         Query query = FirebaseFirestore.getInstance()
                 .collection(USERS)
@@ -107,6 +156,13 @@ class FirebaseDatabaseController {
                 .build();
     }
 
+    /**
+     * Create recycler options firestore recycler options.
+     *
+     * @param user     the user
+     * @param notebook the notebook
+     * @return the firestore recycler options
+     */
     FirestoreRecyclerOptions<CloudImage> createRecyclerOptions(CloudUser user,
                                                                CloudNotebook notebook) {
         Query query = FirebaseFirestore.getInstance()
@@ -121,6 +177,12 @@ class FirebaseDatabaseController {
                 .build();
     }
 
+    /**
+     * Update notebook.
+     *
+     * @param notebook the notebook
+     * @param field    the field
+     */
     void updateNotebook(CloudNotebook notebook, String field) {
         DocumentReference docRef = getReference(notebook);
         switch (field) {
@@ -139,11 +201,21 @@ class FirebaseDatabaseController {
         }
     }
 
+    /**
+     * Update image.
+     *
+     * @param image the image
+     */
     void updateImage(CloudImage image) {
         DocumentReference docRef = getReference(image);
         docRef.update("order", image.getOrder());
     }
 
+    /**
+     * Send report.
+     *
+     * @param report the report
+     */
     void sendReport(Report report) {
         database.collection(REPORTS).document(report.getId()).set(report);
     }

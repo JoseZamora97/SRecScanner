@@ -19,14 +19,24 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * The type Code editor.
+ */
 public class CodeEditor extends AppCompatEditText {
 
-    public void setOnTextChangedListener(OnTextChangedListener onTextChangedListener) {
-        this.onTextChangedListener = onTextChangedListener;
-    }
+    /**
+     * The Provider.
+     */
+    LanguageProvider provider;
 
-    public interface OnTextChangedListener {
-        void onTextChanged(String text);
+    /**
+     * Instantiates a new Code editor.
+     *
+     * @param context the context
+     */
+    public CodeEditor(Context context) {
+        super(context);
+        init(LanguageProvider.Languages.JAVA);
     }
 
     private final Handler updateHandler = new Handler();
@@ -51,41 +61,77 @@ public class CodeEditor extends AppCompatEditText {
     private boolean dirty = false;
     private boolean modified = true;
 
-    LanguageProvider provider;
-
-    public void setModified(boolean b) {
-        dirty = b;
+    /**
+     * Instantiates a new Code editor.
+     *
+     * @param context the context
+     * @param attrs   the attrs
+     */
+    public CodeEditor(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        init(LanguageProvider.Languages.JAVA);
     }
 
+    /**
+     * Remove non ascii string.
+     *
+     * @param text the text
+     * @return the string
+     */
+    public static String removeNonAscii(String text) {
+        return text.replaceAll("[^\\x0A\\x09\\x20-\\x7E]", "");
+    }
+
+    /**
+     * Sets on text changed listener.
+     *
+     * @param onTextChangedListener the on text changed listener
+     */
+    public void setOnTextChangedListener(OnTextChangedListener onTextChangedListener) {
+        this.onTextChangedListener = onTextChangedListener;
+    }
+
+    /**
+     * Sets language.
+     *
+     * @param selectedItem the selected item
+     */
     public void setLanguage(LanguageProvider.Languages selectedItem) {
         provider = new LanguageProvider(selectedItem);
         init(selectedItem);
         updateHighlighting();
     }
 
-    public static String removeNonAscii(String text) {
-        return text.replaceAll("[^\\x0A\\x09\\x20-\\x7E]", "");
-    }
-
-    public CodeEditor(Context context) {
-        super(context);
-        init(LanguageProvider.Languages.JAVA);
-    }
-
-    public CodeEditor(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init(LanguageProvider.Languages.JAVA);
-    }
-
+    /**
+     * Update highlighting.
+     */
     public void updateHighlighting() {
         highlightWithoutChange(getText());
     }
 
+    /**
+     * Is modified boolean.
+     *
+     * @return the boolean
+     */
     public boolean isModified() {
         return dirty;
     }
 
+    /**
+     * Sets modified.
+     *
+     * @param b the b
+     */
+    public void setModified(boolean b) {
+        dirty = b;
+    }
+
+    /**
+     * Insert tab.
+     */
     public void insertTab() {
+
         int start = getSelectionStart();
         int end = getSelectionEnd();
 
@@ -95,6 +141,21 @@ public class CodeEditor extends AppCompatEditText {
                 "\t",
                 0,
                 1);
+    }
+
+    private void convertTabs(Editable e, int start, int count) {
+        int tabWidth = 4;
+
+        String s = e.toString();
+
+        for (int stop = start + count;
+             (start = s.indexOf("\t", start)) > -1 && start < stop;
+             ++start) {
+            e.setSpan(new TabWidthSpan(tabWidth),
+                    start,
+                    start + 1,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
     }
 
     private void init(LanguageProvider.Languages lenguage) {
@@ -165,20 +226,16 @@ public class CodeEditor extends AppCompatEditText {
                         Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
 
-    private void convertTabs(Editable e, int start, int count) {
-        int tabWidth = 4;
-
-        String s = e.toString();
-
-        for (int stop = start + count;
-             (start = s.indexOf("\t", start)) > -1 && start < stop;
-             ++start) {
-            e.setSpan(
-                    new TabWidthSpan(tabWidth),
-                    start,
-                    start + 1,
-                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        }
+    /**
+     * The interface On text changed listener.
+     */
+    public interface OnTextChangedListener {
+        /**
+         * On text changed.
+         *
+         * @param text the text
+         */
+        void onTextChanged(String text);
     }
 
     private static class TabWidthSpan extends ReplacementSpan {

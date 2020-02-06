@@ -4,7 +4,7 @@ import android.Manifest;
 
 public interface AppGlobals {
 
-    String APP_SIGNATURE = "com.josezamora.tcscanner";
+    String APP_SIGNATURE = "com.josezamora.srecscanner";
 
     /**
      * The Required permissions.

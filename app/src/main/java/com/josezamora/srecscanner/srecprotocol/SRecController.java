@@ -12,34 +12,65 @@ import SRecProtocol.Client.SRecClient;
 import SRecProtocol.Messages.SRecMessageRequest;
 
 
+/**
+ * The type SRec controller.
+ */
 @SuppressLint("StaticFieldLeak")
 public class SRecController {
 
+    /**
+     * The constant NONE.
+     */
     public static final String NONE = "none";
 
     private boolean connected;
+
     private SRecClient client;
 
-    private String ip, port;
+    private volatile String ip, port;
 
+    /**
+     * Instantiates a new SRec Controller.
+     */
     public SRecController() {
         this.connected = false;
         this.client = null;
         this.ip = this.port = NONE;
     }
 
+    /**
+     * Gets ip.
+     *
+     * @return the ip
+     */
     public String getIp() {
         return ip;
     }
 
+    /**
+     * Gets port.
+     *
+     * @return the port
+     */
     public String getPort() {
         return port;
     }
 
+    /**
+     * Is connected boolean.
+     *
+     * @return the boolean
+     */
     public boolean isConnected() {
         return connected;
     }
 
+    /**
+     * Start connection.
+     *
+     * @param ip   the ip
+     * @param port the port
+     */
     public void startConnection(String ip, String port) {
         if(!connected) {
             this.ip = ip;
@@ -49,15 +80,30 @@ public class SRecController {
         }
     }
 
+    /**
+     * Stop connection.
+     */
     public void stopConnection() {
         new StopConnectionTask().execute();
         connected = false;
     }
 
+    /**
+     * Send file.
+     *
+     * @param file the file
+     */
     public void sendFile(File file) {
         new SendFileTask(file).execute();
     }
 
+    /**
+     * Connect and send file.
+     *
+     * @param ip   the ip
+     * @param port the port
+     * @param file the file
+     */
     public void connectAndSendFile(String ip, String port, File file) {
         if(!connected) {
             this.ip = ip;
@@ -67,10 +113,21 @@ public class SRecController {
         }
     }
 
+    /**
+     * The type Send file task.
+     */
     class SendFileTask extends AsyncTask<Void, Void, Void> {
 
+        /**
+         * The File to be sent.
+         */
         File file;
 
+        /**
+         * Instantiates a new Send file task.
+         *
+         * @param file the file to be sent.
+         */
         SendFileTask(File file) {
             this.file = file;
         }
@@ -87,7 +144,7 @@ public class SRecController {
                 e.printStackTrace();
             }
 
-            client.send(request);
+            if (request != null) client.send(request);
 
             return null;
         }
@@ -101,20 +158,22 @@ public class SRecController {
         return fileContent;
     }
 
+    /**
+     * The type Stop connection task.
+     */
     class StopConnectionTask extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... voids) {
             client = new SRecClient(ip, port);
-            SRecMessageRequest request = new SRecMessageRequest(Client.BYE,
-                    null,null);
-            client.send(request);
-
+            client.send(new SRecMessageRequest(Client.BYE, null, null));
             ip = port = NONE;
-
             return null;
         }
     }
 
+    /**
+     * The type Start connection task.
+     */
     class StartConnectionTask extends AsyncTask<Void, Void, Void>{
         @Override
         protected Void doInBackground(Void... voids) {

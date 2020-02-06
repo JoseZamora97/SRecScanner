@@ -27,7 +27,7 @@ public class QRActivity extends AppCompatActivity {
         setContentView(R.layout.activity_qr);
 
         toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitle("Conexión con SRecReceiver");
+        toolbar.setTitle(this.getString(R.string.con_srec));
         setSupportActionBar(toolbar);
 
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);

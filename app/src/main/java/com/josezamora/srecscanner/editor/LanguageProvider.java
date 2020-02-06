@@ -5,12 +5,16 @@ import com.josezamora.srecscanner.editor.Languajes.JavaLang;
 import com.josezamora.srecscanner.editor.Languajes.Lang;
 import com.josezamora.srecscanner.editor.Languajes.PythonLang;
 
+/**
+ * The type Language provider.
+ */
 public class LanguageProvider {
 
-    public enum Languages {JAVA, PYTHON, } // add more languages here!
-
-    private Lang language;
-
+    /**
+     * Instantiates a new Language provider.
+     *
+     * @param choice the choice
+     */
     LanguageProvider(Languages choice) {
         switch (choice) {
             case JAVA:
@@ -25,10 +29,14 @@ public class LanguageProvider {
         }
     }
 
-    Lang getLanguage() {
-        return language;
-    }
+    private Lang language;
 
+    /**
+     * Gets extension.
+     *
+     * @param language the language
+     * @return the extension
+     */
     public static String getExtension(Languages language) {
         switch (language){
             case JAVA:
@@ -39,4 +47,27 @@ public class LanguageProvider {
                 throw new RuntimeException("Unsupported lang");
         }
     }
+
+    /**
+     * Gets language.
+     *
+     * @return the language
+     */
+    Lang getLanguage() {
+        return language;
+    }
+
+    /**
+     * The enum Languages.
+     */
+    public enum Languages {
+        /**
+         * Java languages.
+         */
+        JAVA,
+        /**
+         * Python languages.
+         */
+        PYTHON,
+    } // add more languages here!
 }

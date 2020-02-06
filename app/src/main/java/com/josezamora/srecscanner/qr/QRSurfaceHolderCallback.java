@@ -7,6 +7,9 @@ import com.google.android.gms.vision.CameraSource;
 
 import java.io.IOException;
 
+/**
+ * The type Qr surface holder callback.
+ */
 public class QRSurfaceHolderCallback implements SurfaceHolder.Callback {
 
     private SurfaceView surfaceView;

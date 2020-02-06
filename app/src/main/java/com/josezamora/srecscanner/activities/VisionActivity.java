@@ -83,8 +83,13 @@ public class VisionActivity extends AppCompatActivity {
     FirebaseController firebaseController;
 
     boolean isOpen = false;
-    Animation fabOpen, fabClose, rotateForward, rotateBackward;
-    FloatingActionButton btnExport, btnExportToSRec, btnShare;
+    Animation fabOpen,
+            fabClose,
+            rotateForward,
+            rotateBackward;
+    FloatingActionButton btnExport,
+            btnExportToSRec,
+            btnShare;
 
     File temp;
 
@@ -106,7 +111,7 @@ public class VisionActivity extends AppCompatActivity {
         if (notebook.isDirty()) glideDownloader.download(images);
 
         toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitle("Previsualización del Código");
+        toolbar.setTitle(this.getString(R.string.previsualización));
         setSupportActionBar(toolbar);
 
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
@@ -223,19 +228,20 @@ public class VisionActivity extends AppCompatActivity {
             AlertDialog.Builder builderConfig = new AlertDialog.Builder(this);
 
             builderConfig.setCancelable(false);
-            builderConfig.setTitle("Ups!!");
-            builderConfig.setMessage("Estás a punto de salir y hay cambios que no " +
-                    "se han guardado.¿Desea guardar cambios y volver?");
+            builderConfig.setTitle("Oops!!");
+            builderConfig.setMessage(this.getString(R.string.salir_sin_guardar));
 
-            builderConfig.setPositiveButton("Guardar", (dialogInterface, i) -> {
-                saveChanges();
-                onBackPressed();
-            });
+            builderConfig.setPositiveButton(this.getString(R.string.guardar),
+                    (dialogInterface, i) -> {
+                        saveChanges();
+                        onBackPressed();
+                    });
 
-            builderConfig.setNegativeButton("Descartar", (dialogInterface, i) -> {
-                dialogInterface.dismiss();
-                finish();
-            });
+            builderConfig.setNegativeButton(this.getString(R.string.descartar),
+                    (dialogInterface, i) -> {
+                        dialogInterface.dismiss();
+                        finish();
+                    });
 
             AlertDialog alertDialog = builderConfig.create();
             alertDialog.show();
@@ -402,16 +408,16 @@ public class VisionActivity extends AppCompatActivity {
 
         Typeface font = ResourcesCompat.getFont(this, R.font.nunito_bold);
 
-        builderConfig.setTitle("Renombrar fichero");
+        builderConfig.setTitle(this.getString(R.string.rename));
         builderConfig.setView(view);
         builderConfig.setCancelable(false);
 
         final EditText editText = view.findViewById(R.id.editTextName);
 
-        builderConfig.setPositiveButton("Aceptar",
+        builderConfig.setPositiveButton(this.getString(R.string.aceptar),
                 (dialogInterface, i) -> textName.setText(editText.getText().toString()));
 
-        builderConfig.setNegativeButton("Cancelar",
+        builderConfig.setNegativeButton(this.getString(R.string.cancelar),
                 (dialogInterface, i) -> dialogInterface.dismiss());
 
         AlertDialog alertDialog = builderConfig.create();

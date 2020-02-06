@@ -9,12 +9,21 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.josezamora.srecscanner.R;
 import com.josezamora.srecscanner.activities.RecyclerViewOnClickInterface;
 
+/**
+ * The type Cloud notebook view holder.
+ */
 public class CloudNotebookViewHolder extends RecyclerView.ViewHolder {
 
     private ImageView imageLanguage;
     private TextView txtNameNotebook;
     private TextView txtNumImages;
 
+    /**
+     * Instantiates a new Cloud notebook view holder.
+     *
+     * @param itemView         the item view
+     * @param onClickInterface the on click interface
+     */
     public CloudNotebookViewHolder(View itemView, final RecyclerViewOnClickInterface onClickInterface) {
         super(itemView);
 
@@ -25,10 +34,20 @@ public class CloudNotebookViewHolder extends RecyclerView.ViewHolder {
         itemView.setOnClickListener(v -> onClickInterface.onItemClick(getAdapterPosition()));
     }
 
+    /**
+     * Gets txt name notebook.
+     *
+     * @return the txt name notebook
+     */
     public TextView getTxtNameNotebook() {
         return txtNameNotebook;
     }
 
+    /**
+     * Get txt num images text view.
+     *
+     * @return the text view
+     */
     public TextView getTxtNumImages(){
         return txtNumImages;
     }

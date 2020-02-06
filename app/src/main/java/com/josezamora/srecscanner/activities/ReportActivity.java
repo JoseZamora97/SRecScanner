@@ -87,7 +87,7 @@ public class ReportActivity extends AppCompatActivity {
         firebaseController.sendReport(report);
         editTextDetails.setText("");
 
-        Toast.makeText(this, "Informe enviado, trabajaremos para solucionar el problema."
+        Toast.makeText(this, this.getString(R.string.informe_enviado)
                 , Toast.LENGTH_SHORT).show();
 
         imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);

@@ -86,7 +86,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void showSnakBar(Exception exception) {
-        String messaje = "Fallo en la Autenticación: ";
+        String messaje = this.getString(R.string.fallo_auth);
         if(exception != null)
             messaje += exception.getMessage();
         Snackbar.make(findViewById(R.id.login_layout),

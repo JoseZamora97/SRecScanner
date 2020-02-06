@@ -7,6 +7,7 @@ import android.widget.ImageView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.josezamora.srecscanner.AppGlobals;
 import com.josezamora.srecscanner.R;
 import com.josezamora.srecscanner.firebase.Classes.CloudImage;
 import com.josezamora.srecscanner.firebase.GlideApp;
@@ -23,7 +24,7 @@ public class ImageActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image);
 
-        CloudImage image = (CloudImage) getIntent().getSerializableExtra("image");
+        CloudImage image = (CloudImage) getIntent().getSerializableExtra(AppGlobals.IMAGES_KEY);
 
         assert image != null;
 

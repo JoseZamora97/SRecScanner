@@ -38,5 +38,26 @@
     <string name="buscar">Buscar</string>
     <string name="conectar_con_srec">Conectar con SRecReceiver</string>
     <string name="desconectar_de_srec">Desconectar de SRecReceiver</string>
+    <string name="tienes_que_añadir_imagen">Tienes que añadir una imagen</string>
+    <string name="recortar">Recortar</string>
+    <string name="arrastra_y_suelta">Arrastra y suelta la foto en la posición que desees</string>
+    <string name="salir_sin_guardar">Estás a punto de salir y hay cambios que no se han guardado.¿Desea guardar cambios y volver?</string>
+    <string name="guardar">Guardar</string>
+    <string name="descartar">Descartar</string>
+    <string name="editor_de_cuaderno">Editor de cuaderno</string>
+    <string name="deshacer">Deshacer</string>
+    <string name="foto_eliminada">Foto eliminada</string>
+    <string name="sel_imagen">Selecciona una imagen</string>
+    <string name="no_añadir_mas">No puedes añadir más imágenes a este Cuaderno</string>
+    <string name="con_srec">Conexión con SRecReceiver</string>
+    <string name="fallo_auth">Fallo en la Autenticación:</string>
+    <string name="eliminar">Eliminar</string>
+    <string name="nuevo_cuaderno">Nuevo Cuaderno</string>
+    <string name="cancelar">Cancelar</string>
+    <string name="informe_enviado">Informe enviado, trabajaremos para solucionar el problema.</string>
+    <string name="previsualización">Previsualización del Código</string>
+    <string name="rename">Renombrar fichero</string>
+    <string name="aceptar">Aceptar</string>
+    <string name="eliminado">ha sido eliminado</string>
 
 </resources>

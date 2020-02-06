@@ -32,7 +32,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.josezamora.srecscanner.AppGlobals;
 import com.josezamora.srecscanner.R;
-import com.josezamora.srecscanner.firebase.Adapters.CloudNotebookRecyclerAdapter;
+import com.josezamora.srecscanner.firebase.Adapters.CloudImagesRecyclerAdapter;
 import com.josezamora.srecscanner.firebase.Classes.CloudImage;
 import com.josezamora.srecscanner.firebase.Classes.CloudNotebook;
 import com.josezamora.srecscanner.firebase.Classes.CloudUser;
@@ -50,6 +50,9 @@ import java.util.Objects;
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 
 import static android.util.TypedValue.COMPLEX_UNIT_SP;
+import static com.google.android.material.snackbar.Snackbar.Callback;
+import static com.google.android.material.snackbar.Snackbar.LENGTH_INDEFINITE;
+import static com.google.android.material.snackbar.Snackbar.make;
 
 
 public class NotebookActivity extends AppCompatActivity
@@ -63,19 +66,31 @@ public class NotebookActivity extends AppCompatActivity
     CardView cardViewProgressShow;
 
     RecyclerView recyclerView;
+
     ItemTouchHelper itemTouchHelper;
 
     FirebaseController firebaseController;
 
-    FloatingActionButton btnAdd, btnCamera, btnGallery;
-    Animation fabOpen, fabClose, rotateForward, rotateBackward;
+    FloatingActionButton btnAdd,
+            btnCamera,
+            btnGallery;
+
+    Animation fabOpen,
+
+    fabClose,
+
+    rotateForward,
+
+    rotateBackward;
 
     private boolean isOpen = false;
 
     private boolean newChanges = false;
 
     private Uri photoUri;
-    private CloudNotebookRecyclerAdapter cloudImagesAdapter;
+
+    private CloudImagesRecyclerAdapter cloudImagesAdapter;
+
     ItemTouchHelper.SimpleCallback simpleCallback =
             new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP
                     | ItemTouchHelper.DOWN
@@ -94,9 +109,11 @@ public class NotebookActivity extends AppCompatActivity
 
                     if (srcPosition != dstPosition) {
                         newChanges = true;
+
                         Collections.swap(cloudImagesAdapter.getCloudImages(), srcPosition, dstPosition);
                         cloudImagesAdapter.notifyItemMoved(srcPosition, dstPosition);
                         notebook.setDirty(true);
+
                         firebaseController.update(notebook, CloudNotebook.DIRTY_KEY);
                     }
 
@@ -114,9 +131,9 @@ public class NotebookActivity extends AppCompatActivity
                         saveChanges();
                         firebaseController.deleteImage(image, false);
 
-                        Snackbar.make(recyclerView, "Foto eliminada", Snackbar.LENGTH_INDEFINITE)
+                        make(recyclerView, getString(R.string.foto_eliminada), LENGTH_INDEFINITE)
                                 .setDuration(3000)
-                                .addCallback(new Snackbar.Callback() {
+                                .addCallback(new Callback() {
                                     @Override
                                     public void onDismissed(Snackbar snackbar, int event) {
                                         undo = event == BaseTransientBottomBar
@@ -125,7 +142,7 @@ public class NotebookActivity extends AppCompatActivity
                                         else firebaseController.addImage(image);
                                     }
                                 })
-                                .setAction("Deshacer", v -> {
+                                .setAction(getString(R.string.deshacer), v -> {
                                 })
                                 .show();
                     }
@@ -140,7 +157,7 @@ public class NotebookActivity extends AppCompatActivity
                             , isCurrentlyActive)
                             .addBackgroundColor(getResources().getColor(R.color.colorAccent))
                             .addActionIcon(R.drawable.ic_delete_sweep_30dp)
-                            .addSwipeLeftLabel("Eliminar")
+                            .addSwipeLeftLabel(getString(R.string.eliminar))
                             .setSwipeLeftLabelTextSize(COMPLEX_UNIT_SP, 16)
                             .setSwipeLeftLabelTypeface(ResourcesCompat.getFont(getApplicationContext(), R.font.nunito))
                             .setSwipeLeftLabelColor(getResources().getColor(R.color.colorPrimary))
@@ -175,7 +192,7 @@ public class NotebookActivity extends AppCompatActivity
         rotateBackward =  AnimationUtils.loadAnimation(this, R.anim.rotation_backward);
 
         toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitle("editor de composición");
+        toolbar.setTitle(this.getString(R.string.editor_de_cuaderno));
         setSupportActionBar(toolbar);
 
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
@@ -215,7 +232,7 @@ public class NotebookActivity extends AppCompatActivity
     protected void onStart() {
         super.onStart();
 
-        cloudImagesAdapter = new CloudNotebookRecyclerAdapter(
+        cloudImagesAdapter = new CloudImagesRecyclerAdapter(
                 firebaseController.getRecyclerOptions(user, notebook), this);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -234,19 +251,20 @@ public class NotebookActivity extends AppCompatActivity
             AlertDialog.Builder builderConfig = new AlertDialog.Builder(this);
 
             builderConfig.setCancelable(false);
-            builderConfig.setTitle("Ups!!");
-            builderConfig.setMessage("Estás a punto de salir y hay cambios que no " +
-                    "se han guardado.¿Desea guardar cambios y volver?");
+            builderConfig.setTitle("Oops!!");
+            builderConfig.setMessage(this.getString(R.string.salir_sin_guardar));
 
-            builderConfig.setPositiveButton("Guardar", (dialogInterface, i) -> {
-                saveChanges();
-                onBackPressed();
-            });
+            builderConfig.setPositiveButton(this.getString(R.string.guardar),
+                    (dialogInterface, i) -> {
+                        saveChanges();
+                        onBackPressed();
+                    });
 
-            builderConfig.setNegativeButton("Descartar", (dialogInterface, i) -> {
-                dialogInterface.dismiss();
-                onBackPressed();
-            });
+            builderConfig.setNegativeButton(this.getString(R.string.descartar),
+                    (dialogInterface, i) -> {
+                        dialogInterface.dismiss();
+                        onBackPressed();
+                    });
 
             AlertDialog alertDialog = builderConfig.create();
             alertDialog.show();
@@ -269,7 +287,7 @@ public class NotebookActivity extends AppCompatActivity
 
     @Override
     public void onLongItemClick(int position) {
-        Toast.makeText(this, "Arrastra y suelta la foto en la posición que desees",
+        Toast.makeText(this, getString(R.string.arrastra_y_suelta),
                 Toast.LENGTH_SHORT).show();
     }
 
@@ -305,14 +323,14 @@ public class NotebookActivity extends AppCompatActivity
     private void cropImage(Uri uri) {
         CropImage.activity(uri)
                 .setActivityMenuIconColor(getResources().getColor(R.color.colorBodies))
-                .setActivityTitle("Recortar")
+                .setActivityTitle(this.getString(R.string.recortar))
                 .start(this);
     }
 
     public void toImageFullscreen(int position) {
         CloudImage image = cloudImagesAdapter.getItem(position);
         Intent toFullscreen = new Intent(this, ImageActivity.class);
-        toFullscreen.putExtra("image", image);
+        toFullscreen.putExtra(AppGlobals.IMAGES_KEY, image);
         startActivity(toFullscreen);
     }
 
@@ -330,7 +348,7 @@ public class NotebookActivity extends AppCompatActivity
             toVisionActivity();
         }
         else
-            Toast.makeText(this, "Tienes que añadir una imagen", Toast.LENGTH_SHORT)
+            Toast.makeText(this, getString(R.string.tienes_que_añadir_imagen), Toast.LENGTH_SHORT)
                     .show();
     }
 
@@ -371,7 +389,7 @@ public class NotebookActivity extends AppCompatActivity
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
 
         startActivityForResult(Intent.createChooser(galleryOpen,
-                "Selecciona una imagen"), AppGlobals.REQUEST_CODE_STORAGE);
+                this.getString(R.string.sel_imagen)), AppGlobals.REQUEST_CODE_STORAGE);
     }
 
     public void animateFloatActionButtons(View v) {
@@ -397,7 +415,7 @@ public class NotebookActivity extends AppCompatActivity
                 isOpen = true;
             }
         else
-            Toast.makeText(this, "No puedes añadir más imágenes a esta Composición"
+            Toast.makeText(this, getString(R.string.no_añadir_mas)
                     , Toast.LENGTH_SHORT).show();
     }
 

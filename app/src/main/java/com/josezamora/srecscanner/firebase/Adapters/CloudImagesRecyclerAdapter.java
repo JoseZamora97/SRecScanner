@@ -27,13 +27,19 @@ import com.josezamora.srecscanner.viewholders.CloudImageViewHolder;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CloudNotebookRecyclerAdapter extends FirestoreRecyclerAdapter<CloudImage, CloudImageViewHolder> {
+public class CloudImagesRecyclerAdapter extends FirestoreRecyclerAdapter<CloudImage, CloudImageViewHolder> {
 
     private NotebookActivity activity;
     private List<CloudImage> listImages = new ArrayList<>();
 
-    public CloudNotebookRecyclerAdapter(@NonNull FirestoreRecyclerOptions<CloudImage> options,
-                                        NotebookActivity activity) {
+    /**
+     * Create a new RecyclerView adapter that listens to a Firestore Query.  See {@link
+     * FirestoreRecyclerOptions} for configuration options.
+     *
+     * @param options
+     */
+    public CloudImagesRecyclerAdapter(@NonNull FirestoreRecyclerOptions<CloudImage> options,
+                                      NotebookActivity activity) {
         super(options);
         this.activity = activity;
     }
@@ -123,5 +129,4 @@ public class CloudNotebookRecyclerAdapter extends FirestoreRecyclerAdapter<Cloud
                 throw new IllegalStateException("Incomplete case statement");
         }
     }
-
 }
