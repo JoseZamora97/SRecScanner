@@ -15,7 +15,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatEditText;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -83,15 +82,6 @@ public class CodeEditor extends AppCompatEditText {
     }
 
     /**
-     * Sets on text changed listener.
-     *
-     * @param onTextChangedListener the on text changed listener
-     */
-    public void setOnTextChangedListener(OnTextChangedListener onTextChangedListener) {
-        this.onTextChangedListener = onTextChangedListener;
-    }
-
-    /**
      * Sets language.
      *
      * @param selectedItem the selected item
@@ -125,22 +115,6 @@ public class CodeEditor extends AppCompatEditText {
      */
     public void setModified(boolean b) {
         dirty = b;
-    }
-
-    /**
-     * Insert tab.
-     */
-    public void insertTab() {
-
-        int start = getSelectionStart();
-        int end = getSelectionEnd();
-
-        Objects.requireNonNull(getText()).replace(
-                Math.min(start, end),
-                Math.max(start, end),
-                "\t",
-                0,
-                1);
     }
 
     private void convertTabs(Editable e, int start, int count) {

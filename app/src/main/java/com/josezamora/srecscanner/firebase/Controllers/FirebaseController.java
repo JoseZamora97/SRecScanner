@@ -88,7 +88,6 @@ public class FirebaseController {
         if (!definitive) databaseController.deleteNotebook(notebook);
         else
             databaseController.deleteNotebookDefinitive(notebook);
-        // TODO: clean storage too.
     }
 
     /**

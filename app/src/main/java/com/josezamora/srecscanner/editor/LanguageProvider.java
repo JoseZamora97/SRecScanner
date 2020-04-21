@@ -62,12 +62,14 @@ public class LanguageProvider {
      */
     public enum Languages {
         /**
-         * Java languages.
+         * Java language.
          */
         JAVA,
         /**
-         * Python languages.
+         * Python language.
          */
         PYTHON,
-    } // add more languages here!
+
+        // add more languages here!
+    }
 }

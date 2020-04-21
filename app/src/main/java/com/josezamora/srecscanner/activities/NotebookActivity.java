@@ -71,17 +71,9 @@ public class NotebookActivity extends AppCompatActivity
 
     FirebaseController firebaseController;
 
-    FloatingActionButton btnAdd,
-            btnCamera,
-            btnGallery;
+    FloatingActionButton btnAdd, btnCamera, btnGallery;
 
-    Animation fabOpen,
-
-    fabClose,
-
-    rotateForward,
-
-    rotateBackward;
+    Animation fabOpen, fabClose, rotateForward, rotateBackward;
 
     private boolean isOpen = false;
 
@@ -336,20 +328,29 @@ public class NotebookActivity extends AppCompatActivity
 
     private void toVisionActivity() {
         Intent toVisionActivity = new Intent(this, VisionActivity.class);
+
+        toVisionActivity.putExtra(AppGlobals.USER_KEY, user);
         toVisionActivity.putExtra(AppGlobals.IMAGES_KEY, (Serializable) cloudImagesAdapter.getCloudImages());
         toVisionActivity.putExtra(AppGlobals.NOTEBOOK_KEY, notebook);
 
         startActivity(toVisionActivity);
     }
 
-    public void scan(View v){
-        if(cloudImagesAdapter.getCloudImages().size()>0){
-            saveChanges();
-            toVisionActivity();
+    private void uploadImage(Uri data) {
+        InputStream stream;
+
+        try {
+
+            cardViewProgressShow.setVisibility(View.VISIBLE);
+            stream = getContentResolver().openInputStream(data);
+            firebaseController
+                    .uploadImage(user, notebook, stream)
+                    .addOnSuccessListener(taskSnapshot ->
+                            cardViewProgressShow.setVisibility(View.GONE));
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         }
-        else
-            Toast.makeText(this, getString(R.string.tienes_que_añadir_imagen), Toast.LENGTH_SHORT)
-                    .show();
     }
 
     public void saveChanges() {
@@ -363,6 +364,15 @@ public class NotebookActivity extends AppCompatActivity
         firebaseController.update(notebook, CloudNotebook.NUM_IMAGES_KEY);
 
         newChanges = false;
+    }
+
+    public void scan(View v) {
+        if (cloudImagesAdapter.getCloudImages().size() > 0) {
+            saveChanges();
+            toVisionActivity();
+        } else
+            Toast.makeText(this, getString(R.string.tienes_que_añadir_imagen), Toast.LENGTH_SHORT)
+                    .show();
     }
 
     public void addPhotoFromCamera(View v) {
@@ -419,21 +429,4 @@ public class NotebookActivity extends AppCompatActivity
                     , Toast.LENGTH_SHORT).show();
     }
 
-    private void uploadImage(Uri data) {
-        InputStream stream;
-
-        try {
-
-            cardViewProgressShow.setVisibility(View.VISIBLE);
-            stream = getContentResolver().openInputStream(data);
-            firebaseController
-                    .uploadImage(user, notebook, stream)
-                    .addOnSuccessListener(taskSnapshot ->
-                            cardViewProgressShow.setVisibility(View.GONE));
-
-        }
-        catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
 }

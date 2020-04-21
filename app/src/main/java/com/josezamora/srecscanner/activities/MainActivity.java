@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -266,10 +267,18 @@ public class MainActivity extends AppCompatActivity
     private void handleQRResult(String result) {
         String[] ip_port = result.split(":");
 
-        sRecController.startConnection(ip_port[1], ip_port[2]);
-        preferencesController.connectedToSRec(sRecController.getIp(), sRecController.getPort());
+        new Thread(() -> {
+            if (sRecController.serverInSameNetwork(result)) {
+                sRecController.startConnection(ip_port[1], ip_port[2]);
+                preferencesController.connectedToSRec(sRecController.getIp(), sRecController.getPort());
+                updateTextConnectionToggle();
+            } else {
+                Toast.makeText(getApplicationContext(), "No estás conectado a la misma red que SRecReceiver",
+                        Toast.LENGTH_SHORT).show();
+                preferencesController.clearSRecConnection();
+            }
 
-        updateTextConnectionToggle();
+        }).start();
     }
 
     private void updateTextConnectionToggle() {
@@ -384,11 +393,12 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void qrReaderOpen(View v) {
-        if (!sRecController.isConnected()) {
+        String[] ip_port = preferencesController.getConnectionDetailsSRec();
+        if (ip_port[0] == null || ip_port[0].equals(SRecController.NONE)) {
             Intent qrActivity = new Intent(this, QRActivity.class);
             startActivityForResult(qrActivity, AppGlobals.REQUEST_CODE_QR);
         } else {
-            sRecController.stopConnection();
+            sRecController.stopConnection(ip_port[0], ip_port[1]);
             preferencesController.clearSRecConnection();
             drawerLayout.closeDrawer(GravityCompat.START);
         }
@@ -431,5 +441,20 @@ public class MainActivity extends AppCompatActivity
         Button btn2 = alertDialog.findViewById(android.R.id.button2);
         assert btn2 != null;
         btn2.setTypeface(font);
+    }
+
+    public void openHelpInfo(View v) {
+        LayoutInflater li = LayoutInflater.from(MainActivity.this);
+        AlertDialog.Builder builderConfig = new AlertDialog.Builder(this);
+
+        @SuppressLint("InflateParams")
+        View view = li.inflate(R.layout.dialog_help, null);
+
+        builderConfig.setTitle("Información");
+        builderConfig.setView(view);
+        builderConfig.setCancelable(true);
+
+        AlertDialog alertDialog = builderConfig.create();
+        alertDialog.show();
     }
 }

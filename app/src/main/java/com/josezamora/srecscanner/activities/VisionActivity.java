@@ -21,6 +21,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -40,6 +41,7 @@ import com.josezamora.srecscanner.editor.CodeEditor;
 import com.josezamora.srecscanner.editor.LanguageProvider;
 import com.josezamora.srecscanner.firebase.Classes.CloudImage;
 import com.josezamora.srecscanner.firebase.Classes.CloudNotebook;
+import com.josezamora.srecscanner.firebase.Classes.CloudUser;
 import com.josezamora.srecscanner.firebase.Controllers.FirebaseController;
 import com.josezamora.srecscanner.firebase.GlideApp;
 import com.josezamora.srecscanner.firebase.Vision.VisualAnalyzer;
@@ -59,6 +61,8 @@ import java.util.concurrent.ExecutionException;
 
 @SuppressWarnings("unchecked")
 public class VisionActivity extends AppCompatActivity {
+
+    CloudUser user;
 
     Bitmap image;
     Toolbar toolbar;
@@ -83,13 +87,10 @@ public class VisionActivity extends AppCompatActivity {
     FirebaseController firebaseController;
 
     boolean isOpen = false;
-    Animation fabOpen,
-            fabClose,
-            rotateForward,
-            rotateBackward;
-    FloatingActionButton btnExport,
-            btnExportToSRec,
-            btnShare;
+
+    Animation fabOpen, fabClose, rotateForward, rotateBackward;
+
+    FloatingActionButton btnExport, btnExportToSRec, btnShare;
 
     File temp;
 
@@ -103,6 +104,7 @@ public class VisionActivity extends AppCompatActivity {
 
         images = (List<CloudImage>) getIntent().getSerializableExtra(AppGlobals.IMAGES_KEY);
         notebook = (CloudNotebook) getIntent().getSerializableExtra(AppGlobals.NOTEBOOK_KEY);
+        user = (CloudUser) getIntent().getSerializableExtra(AppGlobals.USER_KEY);
 
         assert images != null;
 
@@ -229,7 +231,7 @@ public class VisionActivity extends AppCompatActivity {
 
             builderConfig.setCancelable(false);
             builderConfig.setTitle("Oops!!");
-            builderConfig.setMessage(this.getString(R.string.salir_sin_guardar));
+            builderConfig.setMessage(this.getString(R.string.salir_sin_guardar_vision_activity));
 
             builderConfig.setPositiveButton(this.getString(R.string.guardar),
                     (dialogInterface, i) -> {
@@ -300,11 +302,6 @@ public class VisionActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
-
-    @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
@@ -314,11 +311,11 @@ public class VisionActivity extends AppCompatActivity {
 
     }
 
-    public void addTab(View v) {
-        codeEditor.insertTab();
+    public void export(View v){
+        updateFabs();
     }
 
-    public void export(View v){
+    private void updateFabs() {
         if(isOpen){
             btnExport.startAnimation(rotateBackward);
 
@@ -328,8 +325,7 @@ public class VisionActivity extends AppCompatActivity {
             btnExportToSRec.startAnimation(fabClose);
             btnExportToSRec.setClickable(false);
             isOpen = false;
-        }
-        else {
+        } else {
             btnExport.startAnimation(rotateForward);
 
             btnShare.startAnimation(fabOpen);
@@ -345,18 +341,19 @@ public class VisionActivity extends AppCompatActivity {
         temp = editTextToFile();
         String[] ip_port = preferencesController.getConnectionDetailsSRec();
 
-        if(ip_port[0] == null || ip_port[0].equals(SRecController.NONE)) {
-            Intent connectToSRec = new Intent(this, QRActivity.class);
-            startActivityForResult(connectToSRec, AppGlobals.REQUEST_CODE_QR);
-        }
+        if (ip_port[0] == null || ip_port[0].equals(SRecController.NONE))
+            startActivityForResult(new Intent(this, QRActivity.class), AppGlobals.REQUEST_CODE_QR);
         else
             sRecController.connectAndSendFile(ip_port[0], ip_port[1], temp);
+
+        updateFabs();
 
     }
 
     private File editTextToFile(){
         File file = new File(getExternalCacheDir(),
-                textName.getText().toString() + textViewExt.getText().toString());
+                user.getName() + textName.getText().toString() +
+                        textViewExt.getText().toString());
 
         String content = Objects.requireNonNull(codeEditor.getText()).toString();
 
@@ -374,10 +371,15 @@ public class VisionActivity extends AppCompatActivity {
 
     private void handleQRResult(String result) {
         String[] ip_port = result.split(":");
-        sRecController.startConnection(ip_port[1], ip_port[2]);
-        sRecController.sendFile(temp);
-
-        preferencesController.connectedToSRec(sRecController.getIp(), sRecController.getPort());
+        new Thread(() -> {
+            if (sRecController.serverInSameNetwork(result)) {
+                sRecController.startConnection(ip_port[1], ip_port[2]);
+                sRecController.sendFile(temp);
+                preferencesController.connectedToSRec(sRecController.getIp(), sRecController.getPort());
+            } else
+                Toast.makeText(getApplicationContext(), getResources().getString(R.string.not_same_network),
+                        Toast.LENGTH_SHORT).show();
+        }).run();
     }
 
     public void exportToShare(View v){
@@ -386,6 +388,8 @@ public class VisionActivity extends AppCompatActivity {
 
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.setType(URLConnection.guessContentTypeFromName(temp.getName()));
+
+        updateFabs();
 
         Uri uri = FileProvider.getUriForFile(this,
                 AppGlobals.APP_SIGNATURE + ".provider", temp);
@@ -463,8 +467,8 @@ public class VisionActivity extends AppCompatActivity {
 
     private class GlideImageDownload implements Runnable {
 
-        CloudImage image;
         Context context;
+        CloudImage image;
         Bitmap result = null;
         CountDownLatch countDownLatch;
 

@@ -6,6 +6,9 @@ import android.os.AsyncTask;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.util.concurrent.ExecutionException;
 
 import SRecProtocol.Client.Client;
 import SRecProtocol.Client.SRecClient;
@@ -57,15 +60,6 @@ public class SRecController {
     }
 
     /**
-     * Is connected boolean.
-     *
-     * @return the boolean
-     */
-    public boolean isConnected() {
-        return connected;
-    }
-
-    /**
      * Start connection.
      *
      * @param ip   the ip
@@ -80,10 +74,20 @@ public class SRecController {
         }
     }
 
+    public void setIp(String ip) {
+        this.ip = ip;
+    }
+
+    public void setPort(String port) {
+        this.port = port;
+    }
+
     /**
      * Stop connection.
      */
-    public void stopConnection() {
+    public void stopConnection(String ip, String port) {
+        this.setIp(ip);
+        this.setPort(port);
         new StopConnectionTask().execute();
         connected = false;
     }
@@ -158,17 +162,16 @@ public class SRecController {
         return fileContent;
     }
 
-    /**
-     * The type Stop connection task.
-     */
-    class StopConnectionTask extends AsyncTask<Void, Void, Void> {
-        @Override
-        protected Void doInBackground(Void... voids) {
-            client = new SRecClient(ip, port);
-            client.send(new SRecMessageRequest(Client.BYE, null, null));
-            ip = port = NONE;
-            return null;
+    public boolean serverInSameNetwork(String result) {
+
+        String[] ip_port = result.split(":");
+
+        try {
+            return new CheckConnection().execute(ip_port[1], ip_port[2]).get();
+        } catch (ExecutionException | InterruptedException e) {
+            e.printStackTrace();
         }
+        return false;
     }
 
     /**
@@ -188,4 +191,36 @@ public class SRecController {
         }
     }
 
+    /**
+     * The type Stop connection task.
+     */
+    class StopConnectionTask extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... voids) {
+            try {
+                client = new SRecClient(ip, port);
+                client.send(new SRecMessageRequest(Client.BYE, null, null));
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                ip = port = NONE;
+            }
+            return null;
+        }
+    }
+
+    class CheckConnection extends AsyncTask<String, Void, Boolean> {
+        @Override
+        protected Boolean doInBackground(String... hosts) {
+            try {
+                Socket s1 = new Socket();
+                s1.setSoTimeout(200);
+                s1.connect(new InetSocketAddress(hosts[0], Integer.parseInt(hosts[1])), 200);
+                return true;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+    }
 }

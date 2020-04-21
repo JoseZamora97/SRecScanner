@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">SRec Scanner</string>
+    <string name="app_name" translatable="false">SRec Scanner</string>
 
     <string name="fui_progress_dialog_signing_up">Creando tu nueva cuenta…</string>
     <string name="sign_in_cancelled">Cancelado por el usuario</string>
@@ -8,17 +8,17 @@
     <string name="num_total_images">/10 Imágenes</string>
     <string name="imagen_de_la_nube">Imagen de la nube</string>
     <string name="boton_configurar">boton configurar</string>
-    <string name="insert_tab">Insert Tab</string>
-    <string name="untitled_placeholder">untitled</string>
+    <string name="insert_tab" translatable="false">Insert Tab</string>
+    <string name="untitled_placeholder" translatable="false">untitled</string>
     <string name="start_scan">Empezar escaneo</string>
     <string name="uploading_photo">Subiendo foto …</string>
     <string name="imagenes">Imágenes:</string>
-    <string name="fullscreen_image">Fullscreen image</string>
+    <string name="fullscreen_image" translatable="false">Fullscreen image</string>
     <string name="imagen_de_inicio_de_sesi_n">Imagen de inicio de sesión</string>
     <string name="logo_de_inicio_de_sesi_n">Logo de inicio de sesión</string>
     <string name="scanner">Scanner</string>
     <string name="srec">SRec</string>
-    <string name="by_jose_zamora">by Jose Zamora</string>
+    <string name="by_jose_zamora" translatable="false">by Jose Zamora</string>
     <string name="boton_cambiar_de_estilo">Boton cambiar de estilo</string>
     <string name="cuadernos">Cuadernos</string>
     <string name="escanear">Escanear</string>
@@ -41,7 +41,8 @@
     <string name="tienes_que_añadir_imagen">Tienes que añadir una imagen</string>
     <string name="recortar">Recortar</string>
     <string name="arrastra_y_suelta">Arrastra y suelta la foto en la posición que desees</string>
-    <string name="salir_sin_guardar">Estás a punto de salir y hay cambios que no se han guardado.¿Desea guardar cambios y volver?</string>
+    <string name="salir_sin_guardar">Estás a punto de salir y hay cambios que no se han guardado.¿Desea guardar cambios?</string>
+    <string name="salir_sin_guardar_vision_activity">Has modificado el texto. ¿Desea guardar los cambios?</string>
     <string name="guardar">Guardar</string>
     <string name="descartar">Descartar</string>
     <string name="editor_de_cuaderno">Editor de cuaderno</string>
@@ -59,5 +60,7 @@
     <string name="rename">Renombrar fichero</string>
     <string name="aceptar">Aceptar</string>
     <string name="eliminado">ha sido eliminado</string>
+    <string name="iniciar_sesi_n_con_google">Iniciar Sesión con Google</string>
+    <string name="not_same_network">No estás conectado a la misma red que SRecReceiver</string>
 
 </resources>

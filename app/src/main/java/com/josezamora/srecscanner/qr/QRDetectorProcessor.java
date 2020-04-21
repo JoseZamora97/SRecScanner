@@ -44,8 +44,6 @@ public class QRDetectorProcessor implements Detector.Processor<Barcode> {
         SparseArray<Barcode> qrCodes = detections.getDetectedItems();
         Matcher matcher;
 
-        System.out.println("xXx" + qrCodes.toString());
-
         if (qrCodes.size() > 0) {
             matcher = ipPortPattern.matcher(qrCodes.valueAt(0).displayValue);
             if(matcher.matches())

@@ -68,25 +68,29 @@
 
     </LinearLayout>
 
-    <com.google.android.gms.common.SignInButton
+    <Button
         android:id="@+id/sign_in_button"
         android:layout_width="250dp"
         android:layout_height="60dp"
-        android:textAlignment="center"
         android:layout_gravity="bottom|center"
         android:layout_marginBottom="70dp"
-        />
+        android:backgroundTint="@color/colorAccent"
+        android:fontFamily="@font/nunito"
+        android:text="@string/iniciar_sesi_n_con_google"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:textColor="@color/colorPrimary"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/textView"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="@font/nunito"
         android:text="@string/by_jose_zamora"
         android:padding="10dp"
-        android:textAlignment="center"
         android:textColor="@color/colorPrimary"
-        android:layout_gravity="bottom"
+        android:layout_gravity="center|bottom"
         />
 
 </FrameLayout>

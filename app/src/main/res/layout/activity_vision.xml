@@ -99,18 +99,6 @@
                 android:layout_marginEnd="15dp"
                 />
 
-            <!--            <ImageView-->
-            <!--                android:layout_width="wrap_content"-->
-            <!--                android:layout_height="wrap_content"-->
-            <!--                android:src="@drawable/ic_keyboard_tab_24dp"-->
-            <!--                android:background="?selectableItemBackgroundBorderless"-->
-            <!--                android:layout_toStartOf="@+id/spinnerLenguaje"-->
-            <!--                android:layout_centerVertical="true"-->
-            <!--                android:layout_marginEnd="15dp"-->
-            <!--                android:contentDescription="@string/insert_tab"-->
-            <!--                android:onClick="addTab"/>-->
-
-
         </RelativeLayout>
 
         <RelativeLayout
