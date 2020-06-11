@@ -7,7 +7,7 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.josezamora.srecscanner.R;
-import com.josezamora.srecscanner.activities.RecyclerViewOnClickInterface;
+import com.josezamora.srecscanner.RecyclerViewOnClickListener;
 
 /**
  * The type Cloud notebook view holder.
@@ -24,7 +24,7 @@ public class CloudNotebookViewHolder extends RecyclerView.ViewHolder {
      * @param itemView         the item view
      * @param onClickInterface the on click interface
      */
-    public CloudNotebookViewHolder(View itemView, final RecyclerViewOnClickInterface onClickInterface) {
+    public CloudNotebookViewHolder(View itemView, final RecyclerViewOnClickListener onClickInterface) {
         super(itemView);
 
         imageLanguage = itemView.findViewById(R.id.imageLanguage);
@@ -52,4 +52,7 @@ public class CloudNotebookViewHolder extends RecyclerView.ViewHolder {
         return txtNumImages;
     }
 
+    public ImageView getImageLanguage() {
+        return imageLanguage;
+    }
 }

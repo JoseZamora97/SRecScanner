@@ -12,7 +12,14 @@ import java.io.IOException;
  */
 public class QRSurfaceHolderCallback implements SurfaceHolder.Callback {
 
+    /**
+     * The Surface view.
+     */
     private SurfaceView surfaceView;
+
+    /**
+     * The Camera source.
+     */
     private CameraSource cameraSource;
 
     /**

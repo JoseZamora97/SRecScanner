@@ -15,19 +15,33 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.josezamora.srecscanner.AppGlobals;
 import com.josezamora.srecscanner.R;
+import com.josezamora.srecscanner.firebase.Classes.CloudReport;
 import com.josezamora.srecscanner.firebase.Classes.CloudUser;
-import com.josezamora.srecscanner.firebase.Classes.Report;
 import com.josezamora.srecscanner.firebase.Controllers.FirebaseController;
 
 import java.util.Objects;
 
+/**
+ * The type Report activity.
+ */
 public class ReportActivity extends AppCompatActivity {
 
-    Toolbar toolbar;
-    EditText editTextDetails;
-    FirebaseController firebaseController;
-    CloudUser user;
-    InputMethodManager imm;
+    /**
+     * The Edit text details.
+     */
+    private EditText editTextDetails;
+    /**
+     * The Firebase controller.
+     */
+    private FirebaseController firebaseController;
+    /**
+     * The User.
+     */
+    private CloudUser user;
+    /**
+     * The Imm.
+     */
+    private InputMethodManager imm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,8 +52,9 @@ public class ReportActivity extends AppCompatActivity {
 
         user = (CloudUser) getIntent().getSerializableExtra(AppGlobals.USER_KEY);
 
-        toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitle("Informe de Error");
+        // Set-up toolbar.
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle(R.string.report);
         setSupportActionBar(toolbar);
 
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
@@ -47,12 +62,16 @@ public class ReportActivity extends AppCompatActivity {
         editTextDetails = findViewById(R.id.editText_details);
         editTextDetails.requestFocus();
 
-        imm = (InputMethodManager)   getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         assert imm != null;
         imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-
     }
 
+    /**
+     * Send report.
+     *
+     * @param v the v
+     */
     public void send_report(View v){
 
         String text = editTextDetails.getText().toString();
@@ -65,7 +84,7 @@ public class ReportActivity extends AppCompatActivity {
 
         int densityDpi = (int) (dm.density * 160f);
 
-        Report report = new Report(
+        CloudReport cloudReport = new CloudReport(
                 user.getuId() + "@" + System.currentTimeMillis(),
                 text,
                 Build.MANUFACTURER,
@@ -84,7 +103,7 @@ public class ReportActivity extends AppCompatActivity {
                 Build.FINGERPRINT
         );
 
-        firebaseController.sendReport(report);
+        firebaseController.sendReport(cloudReport);
         editTextDetails.setText("");
 
         Toast.makeText(this, this.getString(R.string.informe_enviado)

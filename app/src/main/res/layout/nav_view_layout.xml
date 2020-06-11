@@ -14,7 +14,7 @@
             android:id="@+id/toprl"
             android:layout_width="match_parent"
             android:layout_height="150dp"
-            android:background="@drawable/ic_launcher_background"
+            android:background="@color/colorAccent"
             >
 
         </RelativeLayout>
@@ -121,7 +121,7 @@
                 android:layout_marginRight="15dp"
                 android:contentDescription="@string/informar_un_error"
                 android:rotation="180"
-                android:src="@drawable/ic_info_outline_black_24dp"></ImageView>
+                android:src="@drawable/ic_info_outline_black_24dp" />
 
             <TextView
                 android:layout_weight="1"

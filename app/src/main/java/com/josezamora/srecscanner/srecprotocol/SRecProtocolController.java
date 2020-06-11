@@ -19,7 +19,7 @@ import SRecProtocol.Messages.SRecMessageRequest;
  * The type SRec controller.
  */
 @SuppressLint("StaticFieldLeak")
-public class SRecController {
+public class SRecProtocolController {
 
     /**
      * The constant NONE.
@@ -35,7 +35,7 @@ public class SRecController {
     /**
      * Instantiates a new SRec Controller.
      */
-    public SRecController() {
+    public SRecProtocolController() {
         this.connected = false;
         this.client = null;
         this.ip = this.port = NONE;
@@ -74,11 +74,11 @@ public class SRecController {
         }
     }
 
-    public void setIp(String ip) {
+    private void setIp(String ip) {
         this.ip = ip;
     }
 
-    public void setPort(String port) {
+    private void setPort(String port) {
         this.port = port;
     }
 
@@ -109,48 +109,24 @@ public class SRecController {
      * @param file the file
      */
     public void connectAndSendFile(String ip, String port, File file) {
-        if(!connected) {
-            this.ip = ip;
-            this.port = port;
+        this.ip = ip;
+        this.port = port;
 
-            new SendFileTask(file).execute();
-        }
+        new SendFileTask(file).execute();
     }
 
-    /**
-     * The type Send file task.
-     */
-    class SendFileTask extends AsyncTask<Void, Void, Void> {
-
-        /**
-         * The File to be sent.
-         */
-        File file;
-
-        /**
-         * Instantiates a new Send file task.
-         *
-         * @param file the file to be sent.
-         */
-        SendFileTask(File file) {
-            this.file = file;
-        }
-
+    static class CheckConnection extends AsyncTask<String, Void, Boolean> {
         @Override
-        protected Void doInBackground(Void... voids) {
-            client = new SRecClient(ip, port);
-            SRecMessageRequest request = null;
-
+        protected Boolean doInBackground(String... hosts) {
             try {
-                request = new SRecMessageRequest(Client.PUT,
-                        file.getName(), fileToByteArray(file));
+                Socket s1 = new Socket();
+                s1.setSoTimeout(200);
+                s1.connect(new InetSocketAddress(hosts[0], Integer.parseInt(hosts[1])), 200);
+                return true;
             } catch (IOException e) {
                 e.printStackTrace();
+                return false;
             }
-
-            if (request != null) client.send(request);
-
-            return null;
         }
     }
 
@@ -209,18 +185,48 @@ public class SRecController {
         }
     }
 
-    class CheckConnection extends AsyncTask<String, Void, Boolean> {
+    /**
+     * The type Send file task.
+     */
+    class SendFileTask extends AsyncTask<Void, Void, Void> {
+
+        /**
+         * The File to be sent.
+         */
+        File file;
+
+        /**
+         * Instantiates a new Send file task.
+         *
+         * @param file the file to be sent.
+         */
+        SendFileTask(File file) {
+            this.file = file;
+        }
+
         @Override
-        protected Boolean doInBackground(String... hosts) {
+        protected Void doInBackground(Void... voids) {
+            client = new SRecClient(ip, port);
+            SRecMessageRequest request = null;
+
+            if (!connected) {
+                request = new SRecMessageRequest(Client.HII,
+                        null, null);
+
+                client.send(request);
+                connected = true;
+            }
+
             try {
-                Socket s1 = new Socket();
-                s1.setSoTimeout(200);
-                s1.connect(new InetSocketAddress(hosts[0], Integer.parseInt(hosts[1])), 200);
-                return true;
+                request = new SRecMessageRequest(Client.PUT,
+                        file.getName(), fileToByteArray(file));
             } catch (IOException e) {
                 e.printStackTrace();
-                return false;
             }
+
+            if (request != null) client.send(request);
+
+            return null;
         }
     }
 }

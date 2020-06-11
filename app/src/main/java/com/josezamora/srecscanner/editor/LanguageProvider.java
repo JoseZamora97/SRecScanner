@@ -1,9 +1,10 @@
 package com.josezamora.srecscanner.editor;
 
 
-import com.josezamora.srecscanner.editor.Languajes.JavaLang;
-import com.josezamora.srecscanner.editor.Languajes.Lang;
-import com.josezamora.srecscanner.editor.Languajes.PythonLang;
+import com.josezamora.srecscanner.editor.Languages.JavaLang;
+import com.josezamora.srecscanner.editor.Languages.Lang;
+import com.josezamora.srecscanner.editor.Languages.PythonLang;
+import com.josezamora.srecscanner.editor.Languages.TextLang;
 
 /**
  * The type Language provider.
@@ -25,6 +26,10 @@ public class LanguageProvider {
                 language = new PythonLang();
                 break;
 
+            case TEXT:
+                language = new TextLang();
+                break;
+
             /* add new cases for new languages adding */
         }
     }
@@ -43,6 +48,8 @@ public class LanguageProvider {
                 return ".java";
             case PYTHON:
                 return ".py";
+            case TEXT:
+                return ".txt";
             default:
                 throw new RuntimeException("Unsupported lang");
         }
@@ -69,7 +76,10 @@ public class LanguageProvider {
          * Python language.
          */
         PYTHON,
-
+        /**
+         * Text language
+         */
+        TEXT
         // add more languages here!
     }
 }

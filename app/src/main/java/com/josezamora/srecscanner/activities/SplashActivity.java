@@ -6,6 +6,9 @@ import android.os.Handler;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+/**
+ * The type Splash activity.
+ */
 public class SplashActivity extends AppCompatActivity {
 
     @Override
@@ -15,6 +18,6 @@ public class SplashActivity extends AppCompatActivity {
         new Handler().postDelayed(()->{
             startActivity(new Intent(this, LoginActivity.class));
             finish();
-        }, 1500);
+        }, 1000);
     }
 }

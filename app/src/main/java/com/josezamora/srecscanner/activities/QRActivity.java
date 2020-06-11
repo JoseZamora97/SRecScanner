@@ -16,30 +16,32 @@ import com.josezamora.srecscanner.qr.QRSurfaceHolderCallback;
 
 import java.util.Objects;
 
+/**
+ * The type Qr activity.
+ */
 public class QRActivity extends AppCompatActivity {
-
-    Toolbar toolbar;
-    SurfaceView cameraView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_qr);
 
-        toolbar = findViewById(R.id.toolbar);
+        // Set-up toolbar
+        Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle(this.getString(R.string.con_srec));
         setSupportActionBar(toolbar);
 
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
-        cameraView = findViewById(R.id.camera_view);
+        // Set-up camera view
+        SurfaceView cameraView = findViewById(R.id.camera_view);
 
+        // Set-up barcode detector
         BarcodeDetector barcodeDetector = new BarcodeDetector.Builder(this)
                 .setBarcodeFormats(Barcode.QR_CODE)
                 .build();
 
-        SurfaceView cameraView = findViewById(R.id.camera_view);
-
+        // Set-up camera source
         CameraSource cameraSource = new CameraSource
                 .Builder(this, barcodeDetector)
                 .setRequestedPreviewSize(1024, 1024)

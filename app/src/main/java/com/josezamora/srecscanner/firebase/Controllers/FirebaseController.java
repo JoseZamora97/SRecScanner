@@ -5,8 +5,8 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.josezamora.srecscanner.firebase.Classes.CloudImage;
 import com.josezamora.srecscanner.firebase.Classes.CloudNotebook;
+import com.josezamora.srecscanner.firebase.Classes.CloudReport;
 import com.josezamora.srecscanner.firebase.Classes.CloudUser;
-import com.josezamora.srecscanner.firebase.Classes.Report;
 
 import java.io.InputStream;
 import java.util.Objects;
@@ -166,9 +166,9 @@ public class FirebaseController {
     /**
      * Send report.
      *
-     * @param report the report
+     * @param cloudReport the report
      */
-    public void sendReport(Report report) {
-        databaseController.sendReport(report);
+    public void sendReport(CloudReport cloudReport) {
+        databaseController.sendReport(cloudReport);
     }
 }

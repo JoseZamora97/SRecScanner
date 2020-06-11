@@ -1,4 +1,4 @@
-package com.josezamora.srecscanner.firebase.Vision;
+package com.josezamora.srecscanner.firebase;
 
 import android.graphics.Bitmap;
 
@@ -13,10 +13,20 @@ import java.util.List;
 /**
  * The type Visual analyzer.
  */
-public class VisualAnalyzer implements Runnable {
+public class VisionAnalyzer implements Runnable {
 
+
+    /**
+     * The Scan result.
+     */
     private StringBuilder scanResult;
+    /**
+     * The Bitmap.
+     */
     private Bitmap bitmap;
+    /**
+     * The Code view.
+     */
     private CodeEditor codeView;
 
     /**
@@ -25,10 +35,10 @@ public class VisualAnalyzer implements Runnable {
      * @param bitmap   the bitmap
      * @param codeView the code view
      */
-    public VisualAnalyzer(Bitmap bitmap, CodeEditor codeView) {
+    public VisionAnalyzer(Bitmap bitmap, CodeEditor codeView) {
         this.bitmap = bitmap;
         this.codeView = codeView;
-        scanResult = new StringBuilder();
+        this.scanResult = new StringBuilder();
     }
 
     @Override
@@ -47,13 +57,12 @@ public class VisualAnalyzer implements Runnable {
                         for (int i = 0; i < blocks.size(); i++) {
                             List<FirebaseVisionText.Line> lines = blocks.get(i).getLines();
                             for (int j = 0; j < lines.size(); j++)
-                                scanResult.append(lines.get(j).getText()).append("\n");
-                            scanResult.append("\n");
+                                this.scanResult.append(lines.get(j).getText()).append("\n");
+                            this.scanResult.append("\n");
                         }
 
-                    codeView.setText(scanResult.substring(0));
+                    this.codeView.setText(scanResult.substring(0));
                 })
                 .addOnFailureListener(Throwable::printStackTrace);
-
     }
 }

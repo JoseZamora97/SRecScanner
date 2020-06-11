@@ -42,7 +42,7 @@
     <string name="recortar">Recortar</string>
     <string name="arrastra_y_suelta">Arrastra y suelta la foto en la posición que desees</string>
     <string name="salir_sin_guardar">Estás a punto de salir y hay cambios que no se han guardado.¿Desea guardar cambios?</string>
-    <string name="salir_sin_guardar_vision_activity">Has modificado el texto. ¿Desea guardar los cambios?</string>
+    <string name="salir_sin_guardar_vision_activity">¿Desea guardar el resultado?</string>
     <string name="guardar">Guardar</string>
     <string name="descartar">Descartar</string>
     <string name="editor_de_cuaderno">Editor de cuaderno</string>
@@ -62,5 +62,10 @@
     <string name="eliminado">ha sido eliminado</string>
     <string name="iniciar_sesi_n_con_google">Iniciar Sesión con Google</string>
     <string name="not_same_network">No estás conectado a la misma red que SRecReceiver</string>
+    <string name="undo">Deshacer</string>
+    <string name="delete">Eliminar</string>
+    <string name="new_notebook">Nuevo cuaderno</string>
+    <string name="info">Información</string>
+    <string name="report">Informe de Error</string>
 
 </resources>

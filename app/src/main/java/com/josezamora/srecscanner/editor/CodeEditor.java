@@ -28,6 +28,12 @@ public class CodeEditor extends AppCompatEditText {
      */
     LanguageProvider provider;
 
+    private final Runnable updateRunnable = () -> highlight(getText());
+
+    private final Handler updateHandler = new Handler();
+    // Update time to run the updateRunnable
+    private int updateDelay = 1000;
+
     /**
      * Instantiates a new Code editor.
      *
@@ -35,30 +41,8 @@ public class CodeEditor extends AppCompatEditText {
      */
     public CodeEditor(Context context) {
         super(context);
-        init(LanguageProvider.Languages.JAVA);
+        init(LanguageProvider.Languages.TEXT);
     }
-
-    private final Handler updateHandler = new Handler();
-
-    private final Runnable updateRunnable = new Runnable() {
-        @Override
-        public void run() {
-            Editable e = getText();
-
-            if (onTextChangedListener != null) {
-                assert e != null;
-                onTextChangedListener.onTextChanged(
-                        removeNonAscii(e.toString()));
-            }
-
-            highlightWithoutChange(e);
-        }
-    };
-
-    private OnTextChangedListener onTextChangedListener;
-    private int updateDelay = 500;
-    private boolean dirty = false;
-    private boolean modified = true;
 
     /**
      * Instantiates a new Code editor.
@@ -68,17 +52,7 @@ public class CodeEditor extends AppCompatEditText {
      */
     public CodeEditor(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init(LanguageProvider.Languages.JAVA);
-    }
-
-    /**
-     * Remove non ascii string.
-     *
-     * @param text the text
-     * @return the string
-     */
-    public static String removeNonAscii(String text) {
-        return text.replaceAll("[^\\x0A\\x09\\x20-\\x7E]", "");
+        init(LanguageProvider.Languages.TEXT);
     }
 
     /**
@@ -87,7 +61,6 @@ public class CodeEditor extends AppCompatEditText {
      * @param selectedItem the selected item
      */
     public void setLanguage(LanguageProvider.Languages selectedItem) {
-        provider = new LanguageProvider(selectedItem);
         init(selectedItem);
         updateHighlighting();
     }
@@ -96,25 +69,7 @@ public class CodeEditor extends AppCompatEditText {
      * Update highlighting.
      */
     public void updateHighlighting() {
-        highlightWithoutChange(getText());
-    }
-
-    /**
-     * Is modified boolean.
-     *
-     * @return the boolean
-     */
-    public boolean isModified() {
-        return dirty;
-    }
-
-    /**
-     * Sets modified.
-     *
-     * @param b the b
-     */
-    public void setModified(boolean b) {
-        dirty = b;
+        highlight(getText());
     }
 
     private void convertTabs(Editable e, int start, int count) {
@@ -132,8 +87,8 @@ public class CodeEditor extends AppCompatEditText {
         }
     }
 
-    private void init(LanguageProvider.Languages lenguage) {
-        provider = new LanguageProvider(lenguage);
+    private void init(LanguageProvider.Languages language) {
+        provider = new LanguageProvider(language);
 
         setHorizontallyScrolling(false);
 
@@ -164,10 +119,6 @@ public class CodeEditor extends AppCompatEditText {
                 cancelUpdate();
                 convertTabs(e, start, count);
 
-                if (!modified)
-                    return;
-
-                dirty = true;
                 updateHandler.postDelayed(updateRunnable, updateDelay);
             }
         });
@@ -177,13 +128,6 @@ public class CodeEditor extends AppCompatEditText {
         updateHandler.removeCallbacks(updateRunnable);
     }
 
-    private void highlightWithoutChange(Editable e) {
-        modified = false;
-        highlight(e);
-        modified = true;
-    }
-
-    @SuppressWarnings("ConstantConditions")
     private void highlight(Editable e) {
 
         int length = e.length();
@@ -196,21 +140,14 @@ public class CodeEditor extends AppCompatEditText {
 
         for(Map.Entry<String, Pattern> entry : patternMap.entrySet())
             for(Matcher m = entry.getValue().matcher(e); m.find();)
-                e.setSpan(new ForegroundColorSpan(colorMap.get(entry.getKey())), m.start(), m.end(),
-                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                e.setSpan(
+                        new ForegroundColorSpan(colorMap.get(entry.getKey())),
+                        m.start(),
+                        m.end(),
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                );
     }
 
-    /**
-     * The interface On text changed listener.
-     */
-    public interface OnTextChangedListener {
-        /**
-         * On text changed.
-         *
-         * @param text the text
-         */
-        void onTextChanged(String text);
-    }
 
     private static class TabWidthSpan extends ReplacementSpan {
         private int width;

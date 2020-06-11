@@ -32,10 +32,11 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.josezamora.srecscanner.AppGlobals;
 import com.josezamora.srecscanner.R;
-import com.josezamora.srecscanner.firebase.Adapters.CloudImagesRecyclerAdapter;
+import com.josezamora.srecscanner.RecyclerViewOnClickListener;
 import com.josezamora.srecscanner.firebase.Classes.CloudImage;
 import com.josezamora.srecscanner.firebase.Classes.CloudNotebook;
 import com.josezamora.srecscanner.firebase.Classes.CloudUser;
+import com.josezamora.srecscanner.firebase.CloudImagesRecyclerAdapter;
 import com.josezamora.srecscanner.firebase.Controllers.FirebaseController;
 import com.josezamora.srecscanner.viewholders.CloudImageViewHolder;
 import com.theartofdev.edmodo.cropper.CropImage;
@@ -55,25 +56,65 @@ import static com.google.android.material.snackbar.Snackbar.LENGTH_INDEFINITE;
 import static com.google.android.material.snackbar.Snackbar.make;
 
 
+/**
+ * The type Notebook activity.
+ */
 public class NotebookActivity extends AppCompatActivity
-        implements RecyclerViewOnClickInterface {
+        implements RecyclerViewOnClickListener {
 
-    Toolbar toolbar;
+    /**
+     * The Notebook.
+     */
+    private CloudNotebook notebook;
+    /**
+     * The User.
+     */
+    private CloudUser user;
 
-    CloudNotebook notebook;
-    CloudUser user;
+    /**
+     * The Card view progress show.
+     */
+    private CardView cardViewProgressShow;
 
-    CardView cardViewProgressShow;
+    /**
+     * The Recycler view.
+     */
+    private RecyclerView recyclerView;
 
-    RecyclerView recyclerView;
+    /**
+     * The Firebase controller.
+     */
+    private FirebaseController firebaseController;
 
-    ItemTouchHelper itemTouchHelper;
+    /**
+     * The Btn add.
+     */
+    private FloatingActionButton btnAdd,
+    /**
+     * The Btn camera.
+     */
+    btnCamera,
+    /**
+     * The Btn gallery.
+     */
+    btnGallery;
 
-    FirebaseController firebaseController;
-
-    FloatingActionButton btnAdd, btnCamera, btnGallery;
-
-    Animation fabOpen, fabClose, rotateForward, rotateBackward;
+    /**
+     * The Fab open.
+     */
+    private Animation fabOpen,
+    /**
+     * The Fab close.
+     */
+    fabClose,
+    /**
+     * The Rotate forward.
+     */
+    rotateForward,
+    /**
+     * The Rotate backward.
+     */
+    rotateBackward;
 
     private boolean isOpen = false;
 
@@ -81,8 +122,14 @@ public class NotebookActivity extends AppCompatActivity
 
     private Uri photoUri;
 
+    /**
+     * The Cloud images adapter.
+     */
     private CloudImagesRecyclerAdapter cloudImagesAdapter;
 
+    /**
+     * The Simple callback.
+     */
     ItemTouchHelper.SimpleCallback simpleCallback =
             new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP
                     | ItemTouchHelper.DOWN
@@ -178,17 +225,20 @@ public class NotebookActivity extends AppCompatActivity
 
         cardViewProgressShow = findViewById(R.id.card_progress);
 
+        // Set-up animations
         fabOpen = AnimationUtils.loadAnimation(this, R.anim.fab_open);
         fabClose = AnimationUtils.loadAnimation(this, R.anim.fab_close);
         rotateForward =  AnimationUtils.loadAnimation(this, R.anim.rotation_forward);
         rotateBackward =  AnimationUtils.loadAnimation(this, R.anim.rotation_backward);
 
-        toolbar = findViewById(R.id.toolbar);
+        // Set-up toolbar
+        Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle(this.getString(R.string.editor_de_cuaderno));
         setSupportActionBar(toolbar);
 
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
+        // Set-up visual elements.
         ((TextView) findViewById(R.id.notebook)).setText(notebook.getName());
         recyclerView = findViewById(R.id.rv_photos);
 
@@ -198,20 +248,8 @@ public class NotebookActivity extends AppCompatActivity
                 ContextCompat.getDrawable(this, R.drawable.recycler_divider_horizontal)));
         recyclerView.addItemDecoration(itemDecor);
 
-        itemTouchHelper = new ItemTouchHelper(simpleCallback);
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
         itemTouchHelper.attachToRecyclerView(recyclerView);
-    }
-
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-        cloudImagesAdapter.startListening();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        cloudImagesAdapter.stopListening();
     }
 
     @Override
@@ -260,8 +298,7 @@ public class NotebookActivity extends AppCompatActivity
 
             AlertDialog alertDialog = builderConfig.create();
             alertDialog.show();
-        }
-        else
+        } else
             super.onBackPressed();
     }
 
@@ -312,6 +349,10 @@ public class NotebookActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
+    /*
+     * Auxiliary Methods.
+     */
+
     private void cropImage(Uri uri) {
         CropImage.activity(uri)
                 .setActivityMenuIconColor(getResources().getColor(R.color.colorBodies))
@@ -319,10 +360,18 @@ public class NotebookActivity extends AppCompatActivity
                 .start(this);
     }
 
+    /**
+     * To image fullscreen.
+     * Open the Image Activity with the picture in the position.
+     *
+     * @param position the position of the image selected.
+     */
     public void toImageFullscreen(int position) {
         CloudImage image = cloudImagesAdapter.getItem(position);
+
         Intent toFullscreen = new Intent(this, ImageActivity.class);
         toFullscreen.putExtra(AppGlobals.IMAGES_KEY, image);
+
         startActivity(toFullscreen);
     }
 
@@ -353,7 +402,7 @@ public class NotebookActivity extends AppCompatActivity
         }
     }
 
-    public void saveChanges() {
+    private void saveChanges() {
         for (int i = 0; i < cloudImagesAdapter.getCloudImages().size(); i++) {
             CloudImage image = cloudImagesAdapter.getCloudImages().get(i);
             image.setOrder(i);
@@ -366,6 +415,16 @@ public class NotebookActivity extends AppCompatActivity
         newChanges = false;
     }
 
+    /*
+     *  OnClick Methods of buttons.
+     */
+
+    /**
+     * Scan.
+     * Method that takes the user to vision activity
+     *
+     * @param v the button that has the onClick set up.
+     */
     public void scan(View v) {
         if (cloudImagesAdapter.getCloudImages().size() > 0) {
             saveChanges();
@@ -375,6 +434,12 @@ public class NotebookActivity extends AppCompatActivity
                     .show();
     }
 
+    /**
+     * Add photo from camera.
+     * Open the camera to take a picture
+     *
+     * @param v the button that has the onClick set up.
+     */
     public void addPhotoFromCamera(View v) {
         animateFloatActionButtons(v);
 
@@ -392,6 +457,12 @@ public class NotebookActivity extends AppCompatActivity
         startActivityForResult(cameraOpenIntent, AppGlobals.REQUEST_CODE_CAMERA);
     }
 
+    /**
+     * Add photo from gallery.
+     * Open the gallery to take a picture
+     *
+     * @param v the button that has the onClick set up.
+     */
     public void addPhotoFromGallery(View v) {
         animateFloatActionButtons(v);
 
@@ -402,6 +473,12 @@ public class NotebookActivity extends AppCompatActivity
                 this.getString(R.string.sel_imagen)), AppGlobals.REQUEST_CODE_STORAGE);
     }
 
+    /**
+     * Animate float action buttons.
+     * Animates the apparition of from-gallery-button and from-camera-button
+     *
+     * @param v the button that has the onClick set up.
+     */
     public void animateFloatActionButtons(View v) {
         if (cloudImagesAdapter.getCloudImages().size() < AppGlobals.MAX_PHOTOS_PER_NOTEBOOK)
             if(isOpen){
@@ -413,8 +490,7 @@ public class NotebookActivity extends AppCompatActivity
                 btnCamera.startAnimation(fabClose);
                 btnCamera.setClickable(false);
                 isOpen = false;
-            }
-            else {
+            } else {
                 btnAdd.startAnimation(rotateForward);
 
                 btnGallery.startAnimation(fabOpen);

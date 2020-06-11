@@ -8,8 +8,8 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.josezamora.srecscanner.firebase.Classes.CloudImage;
 import com.josezamora.srecscanner.firebase.Classes.CloudNotebook;
+import com.josezamora.srecscanner.firebase.Classes.CloudReport;
 import com.josezamora.srecscanner.firebase.Classes.CloudUser;
-import com.josezamora.srecscanner.firebase.Classes.Report;
 
 import java.util.Objects;
 
@@ -214,9 +214,9 @@ class FirebaseDatabaseController {
     /**
      * Send report.
      *
-     * @param report the report
+     * @param cloudReport the report
      */
-    void sendReport(Report report) {
-        database.collection(REPORTS).document(report.getId()).set(report);
+    void sendReport(CloudReport cloudReport) {
+        database.collection(REPORTS).document(cloudReport.getId()).set(cloudReport);
     }
 }

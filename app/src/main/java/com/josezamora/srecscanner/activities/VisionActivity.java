@@ -9,6 +9,7 @@ import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.Editable;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -44,9 +45,9 @@ import com.josezamora.srecscanner.firebase.Classes.CloudNotebook;
 import com.josezamora.srecscanner.firebase.Classes.CloudUser;
 import com.josezamora.srecscanner.firebase.Controllers.FirebaseController;
 import com.josezamora.srecscanner.firebase.GlideApp;
-import com.josezamora.srecscanner.firebase.Vision.VisualAnalyzer;
+import com.josezamora.srecscanner.firebase.VisionAnalyzer;
 import com.josezamora.srecscanner.preferences.PreferencesController;
-import com.josezamora.srecscanner.srecprotocol.SRecController;
+import com.josezamora.srecscanner.srecprotocol.SRecProtocolController;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -59,40 +60,102 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 
 
+/**
+ * The type Vision activity.
+ */
 @SuppressWarnings("unchecked")
 public class VisionActivity extends AppCompatActivity {
 
-    CloudUser user;
+    /**
+     * The User.
+     */
+    private CloudUser user;
 
-    Bitmap image;
-    Toolbar toolbar;
+    /**
+     * The Text view ext.
+     */
+    private TextView textViewExt;
+    /**
+     * The Text name.
+     */
+    private TextView textName;
 
-    TextView textViewExt;
-    TextView textName;
+    /**
+     * The Progress card.
+     */
+    private CardView progressCard;
 
-    SpinnerAdapter spinnerAdapter;
+    /**
+     * The Glide downloader.
+     */
+    private GlideTaskMaker glideDownloader;
 
-    CardView progressCard;
+    /**
+     * The Notebook.
+     */
+    private CloudNotebook notebook;
 
-    GlideTaskMaker glideDownloader;
-    List<CloudImage> images;
-    CloudNotebook notebook;
+    /**
+     * The Code editor.
+     */
+    private CodeEditor codeEditor;
 
-    CodeEditor codeEditor;
+    /**
+     * The Spinner.
+     */
+    private Spinner spinner;
 
-    Spinner spinner;
+    /**
+     * The Preferences controller.
+     */
+    private PreferencesController preferencesController;
+    /**
+     * The S rec protocol controller.
+     */
+    private SRecProtocolController sRecProtocolController;
+    /**
+     * The Firebase controller.
+     */
+    private FirebaseController firebaseController;
 
-    PreferencesController preferencesController;
-    SRecController sRecController;
-    FirebaseController firebaseController;
+    /**
+     * The Is open.
+     */
+    private boolean isOpen = false;
 
-    boolean isOpen = false;
+    /**
+     * The Fab Animations, open.
+     */
+    private Animation fabOpen, /**
+     * The Fab close.
+     */
+    fabClose, /**
+     * The Rotate forward.
+     */
+    rotateForward, /**
+     * The Rotate backward.
+     */
+    rotateBackward;
 
-    Animation fabOpen, fabClose, rotateForward, rotateBackward;
+    /**
+     * The Btn export.
+     */
+    private FloatingActionButton btnExport, /**
+     * The Btn export to s rec.
+     */
+    btnExportToSRec, /**
+     * The Btn share.
+     */
+    btnShare;
 
-    FloatingActionButton btnExport, btnExportToSRec, btnShare;
+    /**
+     * The Temp.
+     */
+    private File temp;
 
-    File temp;
+    /*
+     * Override methods.
+     */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,26 +165,31 @@ public class VisionActivity extends AppCompatActivity {
         progressCard = findViewById(R.id.card_progress);
         progressCard.setVisibility(View.VISIBLE);
 
-        images = (List<CloudImage>) getIntent().getSerializableExtra(AppGlobals.IMAGES_KEY);
+        // Load the images, notebook and user.
+        List<CloudImage> images = (List<CloudImage>) getIntent().getSerializableExtra(AppGlobals.IMAGES_KEY);
         notebook = (CloudNotebook) getIntent().getSerializableExtra(AppGlobals.NOTEBOOK_KEY);
         user = (CloudUser) getIntent().getSerializableExtra(AppGlobals.USER_KEY);
 
         assert images != null;
 
-        glideDownloader = new GlideTaskMaker(new CountDownLatch(images.size()), this);
+        // If notebook is dirty create the download tasks.
+        if (notebook.isDirty()) {
+            glideDownloader = new GlideTaskMaker(new CountDownLatch(images.size()), this);
+            glideDownloader.download(images);
+        }
 
-        if (notebook.isDirty()) glideDownloader.download(images);
-
-        toolbar = findViewById(R.id.toolbar);
+        // Set-up the toolbar
+        Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle(this.getString(R.string.previsualización));
         setSupportActionBar(toolbar);
 
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
+        // Set-up visual elements.
         codeEditor = findViewById(R.id.code_editor);
         spinner = findViewById(R.id.spinnerLenguaje);
 
-        spinnerAdapter = new SpinnerAdapter(this,
+        SpinnerAdapter spinnerAdapter = new SpinnerAdapter(this,
                 android.R.layout.simple_spinner_dropdown_item,
                 LanguageProvider.Languages.values());
 
@@ -131,12 +199,21 @@ public class VisionActivity extends AppCompatActivity {
         textViewExt = findViewById(R.id.text_ext);
         textName = findViewById(R.id.name_file);
 
-        spinner.setSelection(0, true);
+        // Set-up spinner
+        String lan = notebook.getLanguage();
+        if (lan.equals(LanguageProvider.getExtension(LanguageProvider.Languages.JAVA)))
+            spinner.setSelection(0, true);
+        else if (lan.equals(LanguageProvider.getExtension(LanguageProvider.Languages.PYTHON)))
+            spinner.setSelection(1, true);
+        else
+            spinner.setSelection(2, true);
 
+        // Set-up controllers
         firebaseController = new FirebaseController();
         preferencesController = new PreferencesController(this);
-        sRecController = new SRecController();
+        sRecProtocolController = new SRecProtocolController();
 
+        // Set-up buttons.
         btnExport = findViewById(R.id.fabExport);
         btnExportToSRec = findViewById(R.id.fabExportSrec);
         btnShare = findViewById(R.id.fabExportToShare);
@@ -144,123 +221,28 @@ public class VisionActivity extends AppCompatActivity {
         initAnimations();
     }
 
-    public void initAnimations() {
-        fabOpen = AnimationUtils.loadAnimation(this, R.anim.fab_open);
-        fabClose = AnimationUtils.loadAnimation(this, R.anim.fab_close);
-
-        rotateForward =  AnimationUtils.loadAnimation(this, R.anim.rotation_forward);
-        rotateForward.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-                /* Nothing */
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                btnExport.setImageResource(R.drawable.ic_add_white_24dp);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-                /* Nothing */
-            }
-        });
-
-        rotateBackward =  AnimationUtils.loadAnimation(this, R.anim.rotation_backward);
-        rotateBackward.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-                /* Nothing */
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                btnExport.setImageResource(R.drawable.ic_export_24dp);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-                /* Nothing */
-            }
-        });
-    }
-
-    public class SpinnerAdapter extends ArrayAdapter<LanguageProvider.Languages>
-            implements AdapterView.OnItemSelectedListener{
-
-        Typeface font;
-
-        SpinnerAdapter(@NonNull Context context, int resource,
-                       LanguageProvider.Languages[] items) {
-            super(context, resource, items);
-            font = ResourcesCompat.getFont(context, R.font.nunito);
-        }
-
-        @NonNull
-        @Override
-        public View getView(int position, View convertView, @NonNull ViewGroup parent) {
-            TextView view = (TextView) super.getView(position, convertView, parent);
-            view.setTypeface(font);
-            return view;
-        }
-
-        @Override
-        public View getDropDownView(int position, View convertView, @NonNull ViewGroup parent) {
-            TextView view = (TextView) super.getDropDownView(position, convertView, parent);
-            view.setTypeface(font);
-            return view;
-        }
-
-        @Override
-        public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-            codeEditor.setLanguage((LanguageProvider.Languages) spinner.getSelectedItem());
-            textViewExt.setText(LanguageProvider.getExtension(
-                    (LanguageProvider.Languages)spinner.getSelectedItem()));
-        }
-
-        @Override
-        public void onNothingSelected(AdapterView<?> adapterView) {
-            /* Nothing */
-        }
-    }
-
     @Override
     public void onBackPressed() {
-        if (codeEditor.isModified()) {
-            AlertDialog.Builder builderConfig = new AlertDialog.Builder(this);
+        AlertDialog.Builder builderConfig = new AlertDialog.Builder(this);
 
-            builderConfig.setCancelable(false);
-            builderConfig.setTitle("Oops!!");
-            builderConfig.setMessage(this.getString(R.string.salir_sin_guardar_vision_activity));
+        builderConfig.setTitle(R.string.guardar);
+        builderConfig.setMessage(this.getString(R.string.salir_sin_guardar_vision_activity));
 
-            builderConfig.setPositiveButton(this.getString(R.string.guardar),
-                    (dialogInterface, i) -> {
-                        saveChanges();
-                        onBackPressed();
-                    });
+        builderConfig.setPositiveButton(this.getString(R.string.guardar),
+                (dialogInterface, i) -> {
+                    saveChanges();
+                    dialogInterface.dismiss();
+                    super.onBackPressed();
+                });
 
-            builderConfig.setNegativeButton(this.getString(R.string.descartar),
-                    (dialogInterface, i) -> {
-                        dialogInterface.dismiss();
-                        finish();
-                    });
+        builderConfig.setNegativeButton(this.getString(R.string.descartar),
+                (dialogInterface, i) -> {
+                    dialogInterface.dismiss();
+                    finish();
+                });
 
-            AlertDialog alertDialog = builderConfig.create();
-            alertDialog.show();
-        } else
-            super.onBackPressed();
-    }
-
-    private void saveChanges() {
-        notebook.setContent(Objects.requireNonNull(codeEditor.getText()).toString());
-        notebook.setLanguage(textViewExt.getText().toString());
-        notebook.setDirty(false);
-
-        firebaseController.update(notebook, CloudNotebook.DIRTY_KEY);
-        firebaseController.update(notebook, CloudNotebook.LANGUAGE_KEY);
-        firebaseController.update(notebook, CloudNotebook.CONTENT_KEY);
-
-        codeEditor.setModified(false);
+        AlertDialog alertDialog = builderConfig.create();
+        alertDialog.show();
     }
 
     @Override
@@ -281,13 +263,14 @@ public class VisionActivity extends AppCompatActivity {
             progressCard.setVisibility(View.GONE);
 
             List<Bitmap> bitmaps = new ArrayList<>();
+
             for (GlideImageDownload download : glideDownloader.tasksResults)
                 bitmaps.add(download.result);
 
-            image = combineBitmaps(bitmaps);
+            Bitmap image = combineBitmaps(bitmaps);
 
-            VisualAnalyzer visualAnalyzer = new VisualAnalyzer(image, codeEditor);
-            Thread analyzerTask = new Thread(visualAnalyzer);
+            VisionAnalyzer visionAnalyzer = new VisionAnalyzer(image, codeEditor);
+            Thread analyzerTask = new Thread(visionAnalyzer);
             analyzerTask.start();
 
             try {
@@ -311,77 +294,41 @@ public class VisionActivity extends AppCompatActivity {
 
     }
 
+    /*
+     *  OnClick Methods of buttons.
+     */
+
+    /**
+     * Export.
+     * Update floating action buttons caller.
+     *
+     * @param v the button that has the onClick set up.
+     */
     public void export(View v){
         updateFabs();
     }
 
-    private void updateFabs() {
-        if(isOpen){
-            btnExport.startAnimation(rotateBackward);
-
-            btnShare.startAnimation(fabClose);
-            btnShare.setClickable(false);
-
-            btnExportToSRec.startAnimation(fabClose);
-            btnExportToSRec.setClickable(false);
-            isOpen = false;
-        } else {
-            btnExport.startAnimation(rotateForward);
-
-            btnShare.startAnimation(fabOpen);
-            btnShare.setClickable(true);
-
-            btnExportToSRec.startAnimation(fabOpen);
-            btnExportToSRec.setClickable(true);
-            isOpen = true;
-        }
-    }
-
+    /**
+     * Export to SRec
+     *
+     * @param v the button that has the onClick set up.
+     */
     public void exportToSRec(View v) {
         temp = editTextToFile();
         String[] ip_port = preferencesController.getConnectionDetailsSRec();
 
-        if (ip_port[0] == null || ip_port[0].equals(SRecController.NONE))
+        if (ip_port[0] == null || ip_port[0].equals(SRecProtocolController.NONE))
             startActivityForResult(new Intent(this, QRActivity.class), AppGlobals.REQUEST_CODE_QR);
         else
-            sRecController.connectAndSendFile(ip_port[0], ip_port[1], temp);
+            sRecProtocolController.connectAndSendFile(ip_port[0], ip_port[1], temp);
 
         updateFabs();
-
     }
 
-    private File editTextToFile(){
-        File file = new File(getExternalCacheDir(),
-                user.getName() + textName.getText().toString() +
-                        textViewExt.getText().toString());
-
-        String content = Objects.requireNonNull(codeEditor.getText()).toString();
-
-        try {
-            FileOutputStream stream = new FileOutputStream(file);
-            stream.write(content.getBytes());
-            stream.close();
-        }
-        catch (IOException ioe) {
-            ioe.printStackTrace();
-        }
-
-        return file;
-    }
-
-    private void handleQRResult(String result) {
-        String[] ip_port = result.split(":");
-        new Thread(() -> {
-            if (sRecController.serverInSameNetwork(result)) {
-                sRecController.startConnection(ip_port[1], ip_port[2]);
-                sRecController.sendFile(temp);
-                preferencesController.connectedToSRec(sRecController.getIp(), sRecController.getPort());
-            } else
-                Toast.makeText(getApplicationContext(), getResources().getString(R.string.not_same_network),
-                        Toast.LENGTH_SHORT).show();
-        }).run();
-    }
-
+    /**
+     * Export to share in social networks.
+     * @param v  the button that has the onClick set up.
+     */
     public void exportToShare(View v){
 
         temp = editTextToFile();
@@ -402,6 +349,11 @@ public class VisionActivity extends AppCompatActivity {
         startActivity(Intent.createChooser(shareIntent, "Compartir"));
     }
 
+    /**
+     * Rename.
+     * Open a dialog where the user cans change the name.
+     * @param v  the button that has the onClick set up.
+     */
     public void rename(View v) {
 
         LayoutInflater li = LayoutInflater.from(VisionActivity.this);
@@ -436,17 +388,173 @@ public class VisionActivity extends AppCompatActivity {
         btn2.setTypeface(font);
     }
 
-    private class GlideTaskMaker{
-        List<GlideImageDownload> tasksResults;
-        CountDownLatch latch;
-        Context context;
+    /*
+     * Auxiliary Classes
+     */
 
+    private void initAnimations() {
+        fabOpen = AnimationUtils.loadAnimation(this, R.anim.fab_open);
+        fabClose = AnimationUtils.loadAnimation(this, R.anim.fab_close);
+
+        rotateForward = AnimationUtils.loadAnimation(this, R.anim.rotation_forward);
+        rotateForward.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                /* Nothing */
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                btnExport.setImageResource(R.drawable.ic_add_white_24dp);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+                /* Nothing */
+            }
+        });
+
+        rotateBackward = AnimationUtils.loadAnimation(this, R.anim.rotation_backward);
+        rotateBackward.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                /* Nothing */
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                btnExport.setImageResource(R.drawable.ic_export_24dp);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+                /* Nothing */
+            }
+        });
+    }
+
+    private void saveChanges() {
+        notebook.setContent(Objects.requireNonNull(codeEditor.getText()).toString());
+        notebook.setLanguage(textViewExt.getText().toString());
+        notebook.setDirty(false);
+
+        firebaseController.update(notebook, CloudNotebook.DIRTY_KEY);
+        firebaseController.update(notebook, CloudNotebook.LANGUAGE_KEY);
+        firebaseController.update(notebook, CloudNotebook.CONTENT_KEY);
+    }
+
+    private File editTextToFile() {
+        File file = new File(getExternalCacheDir(),
+                user.getName() + "_" + user.getuId() + "_" + textName.getText().toString() +
+                        textViewExt.getText().toString());
+
+        String content = Objects.requireNonNull(codeEditor.getText()).toString();
+
+        try {
+            FileOutputStream stream = new FileOutputStream(file);
+            stream.write(content.getBytes());
+            stream.close();
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+
+        return file;
+    }
+
+    /*
+     * Auxiliary methods.
+     */
+
+    private void handleQRResult(String result) {
+        String[] ip_port = result.split(":");
+        new Thread(() -> {
+            if (sRecProtocolController.serverInSameNetwork(result)) {
+                sRecProtocolController.startConnection(ip_port[1], ip_port[2]);
+                sRecProtocolController.sendFile(temp);
+                preferencesController.connectedToSRec(sRecProtocolController.getIp(), sRecProtocolController.getPort());
+            } else
+                Toast.makeText(getApplicationContext(), getResources().getString(R.string.not_same_network),
+                        Toast.LENGTH_SHORT).show();
+        }).start();
+    }
+
+    private Bitmap combineBitmaps(List<Bitmap> bitmaps) {
+
+        int height, width;
+        height = width = 0;
+
+        for (Bitmap bitmap : bitmaps) {
+            height += bitmap.getHeight();
+            width = Math.max(bitmap.getWidth(), width);
+        }
+
+        Bitmap bitmapResult = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmapResult);
+        int index = 0;
+
+        Paint paint = new Paint();
+
+        for (Bitmap bitmap : bitmaps) {
+            canvas.drawBitmap(bitmap, 0, index, paint);
+            index += bitmap.getHeight();
+        }
+
+        return bitmapResult;
+    }
+
+    private void updateFabs() {
+        if (isOpen) {
+            btnExport.startAnimation(rotateBackward);
+
+            btnShare.startAnimation(fabClose);
+            btnShare.setClickable(false);
+
+            btnExportToSRec.startAnimation(fabClose);
+            btnExportToSRec.setClickable(false);
+            isOpen = false;
+        } else {
+            btnExport.startAnimation(rotateForward);
+
+            btnShare.startAnimation(fabOpen);
+            btnShare.setClickable(true);
+
+            btnExportToSRec.startAnimation(fabOpen);
+            btnExportToSRec.setClickable(true);
+            isOpen = true;
+        }
+    }
+
+    private static class GlideTaskMaker {
+        /**
+         * The Tasks results.
+         */
+        private List<GlideImageDownload> tasksResults;
+        /**
+         * The Latch.
+         */
+        private CountDownLatch latch;
+        /**
+         * The Context.
+         */
+        private Context context;
+
+        /**
+         * Instantiates a new Glide task maker.
+         *
+         * @param latch   the latch
+         * @param context the context
+         */
         GlideTaskMaker(CountDownLatch latch, Context context) {
             this.latch = latch;
             this.context = context;
             tasksResults = new ArrayList<>();
         }
 
+        /**
+         * Download.
+         *
+         * @param images the images
+         */
         void download(List<CloudImage> images){
             for(CloudImage image : images){
                 GlideImageDownload download = new GlideImageDownload(image, latch, context);
@@ -456,6 +564,9 @@ public class VisionActivity extends AppCompatActivity {
             }
         }
 
+        /**
+         * Await.
+         */
         void await() {
             try {
                 latch.await();
@@ -465,13 +576,32 @@ public class VisionActivity extends AppCompatActivity {
         }
     }
 
-    private class GlideImageDownload implements Runnable {
+    private static class GlideImageDownload implements Runnable {
 
+        /**
+         * The Context.
+         */
         Context context;
+        /**
+         * The Image.
+         */
         CloudImage image;
+        /**
+         * The Result.
+         */
         Bitmap result = null;
+        /**
+         * The Count down latch.
+         */
         CountDownLatch countDownLatch;
 
+        /**
+         * Instantiates a new Glide image download.
+         *
+         * @param image          the image
+         * @param countDownLatch the count down latch
+         * @param context        the context
+         */
         GlideImageDownload(CloudImage image, CountDownLatch countDownLatch, Context context) {
             this.image = image;
             this.context = context;
@@ -494,27 +624,57 @@ public class VisionActivity extends AppCompatActivity {
         }
     }
 
-    private Bitmap combineBitmaps(List<Bitmap> bitmaps) {
+    private class SpinnerAdapter extends ArrayAdapter<LanguageProvider.Languages>
+            implements AdapterView.OnItemSelectedListener {
 
-        int height, width;
-        height = width = 0;
+        /**
+         * The Font.
+         */
+        Typeface font;
 
-        for(Bitmap bitmap : bitmaps) {
-            height += bitmap.getHeight();
-            width = bitmap.getWidth() > width ? bitmap.getWidth() : width;
+        /**
+         * Instantiates a new Spinner adapter.
+         *
+         * @param context  the context
+         * @param resource the resource
+         * @param items    the items
+         */
+        SpinnerAdapter(@NonNull Context context, int resource,
+                       LanguageProvider.Languages[] items) {
+            super(context, resource, items);
+            font = ResourcesCompat.getFont(context, R.font.nunito);
         }
 
-        Bitmap bitmapResult = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmapResult);
-        int index = 0;
-
-        Paint paint = new Paint();
-
-        for(Bitmap bitmap : bitmaps) {
-            canvas.drawBitmap(bitmap, 0, index, paint);
-            index += bitmap.getHeight();
+        @NonNull
+        @Override
+        public View getView(int position, View convertView, @NonNull ViewGroup parent) {
+            TextView view = (TextView) super.getView(position, convertView, parent);
+            view.setTypeface(font);
+            return view;
         }
 
-        return bitmapResult;
+        @Override
+        public View getDropDownView(int position, View convertView, @NonNull ViewGroup parent) {
+            TextView view = (TextView) super.getDropDownView(position, convertView, parent);
+            view.setTypeface(font);
+            return view;
+        }
+
+        @Override
+        public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+            codeEditor.setLanguage((LanguageProvider.Languages) spinner.getSelectedItem());
+            textViewExt.setText(
+                    LanguageProvider.getExtension(
+                            (LanguageProvider.Languages) spinner.getSelectedItem()));
+
+            Editable text = codeEditor.getText();
+            codeEditor.setText("");
+            codeEditor.setText(text.toString());
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> adapterView) {
+            /* Nothing */
+        }
     }
 }

@@ -1,4 +1,4 @@
-package com.josezamora.srecscanner.editor.Languajes;
+package com.josezamora.srecscanner.editor.Languages;
 
 import java.util.regex.Pattern;
 
@@ -13,6 +13,7 @@ public class JavaLang extends Lang {
                     + "abstract|assert|boolean|byte|extends|final|finally|implements|import|"
                     + "instanceof|interface|null|native|package|strictfp|super|synchronized|"
                     + "throws|transient|static|private|public|protected)\\b";
+
     private static final String SYMBOLS = "[-!%&*()+|=<>{}\\[\\]:]";
 
     /**

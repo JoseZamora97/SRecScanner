@@ -1,4 +1,4 @@
-package com.josezamora.srecscanner.editor.Languajes;
+package com.josezamora.srecscanner.editor.Languages;
 
 import android.graphics.Color;
 

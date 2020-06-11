@@ -6,7 +6,7 @@ import java.io.Serializable;
  * The type Report.
  */
 @SuppressWarnings("unused")
-public class Report implements Serializable {
+public class CloudReport implements Serializable {
 
     private String id;
     private String comment;
@@ -30,7 +30,8 @@ public class Report implements Serializable {
     /**
      * Instantiates a new Report.
      */
-    public Report() {}
+    public CloudReport() {
+    }
 
     /**
      * Instantiates a new Report.
@@ -52,22 +53,22 @@ public class Report implements Serializable {
      * @param build_time   the build time
      * @param fingerprint  the fingerprint
      */
-    public Report(String id,
-                  String comment,
-                  String manufacturer,
-                  String brand,
-                  String model,
-                  String board,
-                  String hardware,
-                  String density,
-                  String bootloader,
-                  String user,
-                  String host,
-                  String version,
-                  String apiLevel,
-                  String buildId,
-                  String build_time,
-                  String fingerprint) {
+    public CloudReport(String id,
+                       String comment,
+                       String manufacturer,
+                       String brand,
+                       String model,
+                       String board,
+                       String hardware,
+                       String density,
+                       String bootloader,
+                       String user,
+                       String host,
+                       String version,
+                       String apiLevel,
+                       String buildId,
+                       String build_time,
+                       String fingerprint) {
 
         this.id = id;
         this.comment = comment;

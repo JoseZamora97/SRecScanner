@@ -1,4 +1,4 @@
-package com.josezamora.srecscanner.editor.Languajes;
+package com.josezamora.srecscanner.editor.Languages;
 
 import android.graphics.Color;
 
@@ -12,19 +12,18 @@ import java.util.regex.Pattern;
 public abstract class Lang {
 
     /** COLORS FOR PATTERNS **/
-    private static final String COLOR_NUM = "#8BE2E8";
+    private static String COLOR_NUM = "#8BE2E8";
     private static final String NUMBERS = "\\b(\\d*[.]?\\d+)\\b";
-    private static final String COLOR_SYM = "#44B38B";
+    private static String COLOR_SYM = "#44B38B";
     /**
      * KEYS
      */
-    @SuppressWarnings("WeakerAccess")
     final String NUM_KEY = "num";
     /**
      * The Keywords key.
      */
     final String KEYWORDS_KEY = "key";
-    private static final String COLOR_KEYS = "#CE00FF";
+    private static String COLOR_KEYS = "#CE00FF";
     /**
      * The Symbols key.
      */

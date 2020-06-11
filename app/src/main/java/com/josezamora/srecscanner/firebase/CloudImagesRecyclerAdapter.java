@@ -1,4 +1,4 @@
-package com.josezamora.srecscanner.firebase.Adapters;
+package com.josezamora.srecscanner.firebase;
 
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
@@ -21,7 +21,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.josezamora.srecscanner.R;
 import com.josezamora.srecscanner.activities.NotebookActivity;
 import com.josezamora.srecscanner.firebase.Classes.CloudImage;
-import com.josezamora.srecscanner.firebase.GlideApp;
 import com.josezamora.srecscanner.viewholders.CloudImageViewHolder;
 
 import java.util.ArrayList;
@@ -36,7 +35,7 @@ public class CloudImagesRecyclerAdapter extends FirestoreRecyclerAdapter<CloudIm
      * Create a new RecyclerView adapter that listens to a Firestore Query.  See {@link
      * FirestoreRecyclerOptions} for configuration options.
      *
-     * @param options
+     * @param options options to build the adapter.
      */
     public CloudImagesRecyclerAdapter(@NonNull FirestoreRecyclerOptions<CloudImage> options,
                                       NotebookActivity activity) {

@@ -38,7 +38,7 @@ public class PreferencesController {
     }
 
     /**
-     * Clear s rec connection.
+     * Clear SRec connection details.
      */
     public void clearSRecConnection() {
         this.preferences.edit()
@@ -48,9 +48,9 @@ public class PreferencesController {
     }
 
     /**
-     * Get connection details s rec string [ ].
+     * Get connection details SRec string[].
      *
-     * @return the string [ ]
+     * @return the string[] with the details.
      */
     public String[] getConnectionDetailsSRec() {
         String[] ip_port = new String[2];

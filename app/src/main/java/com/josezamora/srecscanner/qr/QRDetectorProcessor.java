@@ -16,13 +16,21 @@ import java.util.regex.Pattern;
  */
 public class QRDetectorProcessor implements Detector.Processor<Barcode> {
 
-    private Pattern ipPortPattern;
-    private Activity context;
-
+    /**
+     * The Qr pattern format ip and port.
+     */
     private static final String QR_PATTERN_FORMAT_IP_AND_PORT =
             "^(SRecReceiver:)" +
                     "(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])" +
                     ":[0-9]+$";
+    /**
+     * The Ip port pattern.
+     */
+    private Pattern ipPortPattern;
+    /**
+     * The Context.
+     */
+    private Activity context;
 
     /**
      * Instantiates a new Qr detector processor.
