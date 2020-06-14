@@ -2,6 +2,7 @@ package com.josezamora.srecscanner.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.MenuItem;
 import android.view.SurfaceView;
 import android.view.View;
@@ -113,8 +114,8 @@ public class QRActivity extends AppCompatActivity {
     private void showSnakeBarNoConnection() {
         Snackbar.make(findViewById(R.id.rl_no_connection), "Desconectado de internet"
                 , Snackbar.LENGTH_SHORT)
-                .setAction("Ajustes", v -> {
-                    Intent dialogIntent = new Intent(android.provider.Settings.ACTION_SETTINGS);
+                .setAction(R.string.ajustes, v -> {
+                    Intent dialogIntent = new Intent(Settings.ACTION_SETTINGS);
                     dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(dialogIntent);
                 })

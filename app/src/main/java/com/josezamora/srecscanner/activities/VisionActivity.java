@@ -18,7 +18,6 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
@@ -404,8 +403,6 @@ public class VisionActivity extends AppCompatActivity {
         @SuppressLint("InflateParams")
         View view = li.inflate(R.layout.dialog_name, null);
 
-        Typeface font = ResourcesCompat.getFont(this, R.font.nunito_bold);
-
         builderConfig.setTitle(this.getString(R.string.rename));
         builderConfig.setView(view);
         builderConfig.setCancelable(false);
@@ -420,14 +417,6 @@ public class VisionActivity extends AppCompatActivity {
 
         AlertDialog alertDialog = builderConfig.create();
         alertDialog.show();
-
-        Button btn1 = alertDialog.findViewById(android.R.id.button1);
-        assert btn1 != null;
-        btn1.setTypeface(font);
-
-        Button btn2 = alertDialog.findViewById(android.R.id.button2);
-        assert btn2 != null;
-        btn2.setTypeface(font);
     }
 
     /*

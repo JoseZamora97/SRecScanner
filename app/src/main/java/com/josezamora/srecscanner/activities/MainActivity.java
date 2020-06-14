@@ -3,14 +3,12 @@ package com.josezamora.srecscanner.activities;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Canvas;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -472,8 +470,6 @@ public class MainActivity extends AppCompatActivity
             @SuppressLint("InflateParams")
             View view = li.inflate(R.layout.dialog_name, null);
 
-            Typeface font = ResourcesCompat.getFont(this, R.font.nunito_bold);
-
             builderConfig.setTitle(R.string.new_notebook);
             builderConfig.setView(view);
             builderConfig.setCancelable(false);
@@ -494,14 +490,6 @@ public class MainActivity extends AppCompatActivity
 
             AlertDialog alertDialog = builderConfig.create();
             alertDialog.show();
-
-            Button btn1 = alertDialog.findViewById(android.R.id.button1);
-            assert btn1 != null;
-            btn1.setTypeface(font);
-
-            Button btn2 = alertDialog.findViewById(android.R.id.button2);
-            assert btn2 != null;
-            btn2.setTypeface(font);
         } else
             showSnakeBarNoConnection();
     }

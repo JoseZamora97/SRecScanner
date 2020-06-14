@@ -37,6 +37,8 @@
         android:layout_alignParentBottom="true"
         android:alpha="0.2"
         android:scaleType="centerCrop"
+
+        android:contentDescription="@string/imagen_logo_fondo"
         android:src="@drawable/ic_login_logo_dark" />
 
     <TextView
@@ -78,7 +80,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-black"
-                android:text="Crea"
+                android:text="@string/crea_"
                 android:textColor="@color/colorPrimary"
                 android:textSize="30sp" />
 
@@ -86,7 +88,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-black"
-                android:text="Escanea"
+                android:text="@string/escanea_"
                 android:textColor="@color/colorPrimary"
                 android:textSize="35sp" />
 
@@ -94,7 +96,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-black"
-                android:text="Comparte"
+                android:text="@string/comparte_"
                 android:textColor="@color/colorPrimary"
                 android:textSize="40sp" />
 
@@ -102,7 +104,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-black"
-                android:text="SRecScanner"
+                android:text="@string/srecscanner_"
                 android:textColor="@color/colorPrimary"
                 android:textSize="48sp" />
 

@@ -321,8 +321,8 @@ public class NotebookActivity extends AppCompatActivity
             AlertDialog.Builder builderConfig = new AlertDialog.Builder(this);
 
             builderConfig.setCancelable(false);
-            builderConfig.setTitle("Oops!!");
-            builderConfig.setMessage(this.getString(R.string.salir_sin_guardar));
+            builderConfig.setTitle(R.string.guardar);
+            builderConfig.setMessage(this.getString(R.string.salir_sin_guardar_vision_activity));
 
             builderConfig.setPositiveButton(this.getString(R.string.guardar),
                     (dialogInterface, i) -> {

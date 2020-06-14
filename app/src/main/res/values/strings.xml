@@ -69,5 +69,11 @@
     <string name="report">Informe de Error</string>
     <string name="no_se_detecta_n_conexi_n_con_internet">No se detecta\n conexión con Internet</string>
     <string name="sin_conexi_n">Sin conexión</string>
+    <string name="ajustes">Ajustes</string>
+    <string name="crea_">Crea</string>
+    <string name="escanea_">Escanea</string>
+    <string name="comparte_">Comparte</string>
+    <string name="srecscanner_" translatable="false">SRecScanner</string>
+    <string name="imagen_logo_fondo">Imagen logo fondo</string>
 
 </resources>
