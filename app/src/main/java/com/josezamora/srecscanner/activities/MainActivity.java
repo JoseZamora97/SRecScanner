@@ -385,7 +385,6 @@ public class MainActivity extends AppCompatActivity
         return super.onCreateOptionsMenu(menu);
     }
 
-
     /*
      *  OnClick Methods of buttons.
      */

@@ -309,8 +309,6 @@ public class NotebookActivity extends AppCompatActivity
             rlContentHolder.setVisibility(View.GONE);
             rlNotConnection.setVisibility(View.VISIBLE);
         }
-
-
     }
 
     @Override
@@ -335,7 +333,7 @@ public class NotebookActivity extends AppCompatActivity
             builderConfig.setNegativeButton(this.getString(R.string.descartar),
                     (dialogInterface, i) -> {
                         dialogInterface.dismiss();
-                        onBackPressed();
+                        super.onBackPressed();
                     });
 
             AlertDialog alertDialog = builderConfig.create();
