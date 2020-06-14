@@ -22,74 +22,113 @@
         app:titleTextColor="@color/colorAccent" />
 
     <RelativeLayout
-        android:id="@+id/relativeLayout2"
+        android:id="@+id/rl_no_connection"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:background="@color/colorPrimary"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar">
 
+        <ImageView
+            android:id="@+id/imgNoConnection"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_above="@+id/textNotConnection"
+            android:layout_centerInParent="true"
+            android:contentDescription="@string/sin_conexi_n"
+            android:src="@drawable/ic_cloud_off_24dp" />
+
         <TextView
+            android:id="@+id/textNotConnection"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_marginStart="15dp"
+            android:layout_centerInParent="true"
             android:fontFamily="@font/nunito"
-            android:text="@string/conecta_con_srec"
+            android:text="@string/no_se_detecta_n_conexi_n_con_internet"
+            android:textAlignment="center"
             android:textColor="@color/colorTitles"
             android:textSize="18sp" />
 
     </RelativeLayout>
 
     <RelativeLayout
-        android:id="@+id/ll_camera_view"
+        android:id="@+id/rl_content_holder"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-
-        android:orientation="vertical"
+        android:background="@color/fui_transparent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/relativeLayout2">
+        app:layout_constraintTop_toBottomOf="@+id/toolbar">
 
-        <LinearLayout
-            android:layout_width="300dp"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:layout_centerInParent="true"
-            tools:ignore="UselessParent">
-
-            <androidx.cardview.widget.CardView
-                android:layout_width="300dp"
-                android:layout_height="300dp"
-                android:layout_gravity="center"
-                android:layout_marginBottom="50dp"
-                app:cardCornerRadius="10dp"
-                android:elevation="2dp"
-                >
-
-                <SurfaceView
-                    android:id="@+id/camera_view"
-                    android:layout_height="match_parent"
-                    android:layout_width="match_parent" />
-
-            </androidx.cardview.widget.CardView>
+        <RelativeLayout
+            android:id="@+id/relativeLayout2"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@color/colorPrimary"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="15dp"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="15dp"
                 android:fontFamily="@font/nunito"
-                android:text="@string/escanea_el_c_digo_qr_de_la_aplicaci_n_srecreceiver_para_conectarte"
-                android:textAlignment="center"
+                android:text="@string/conecta_con_srec"
                 android:textColor="@color/colorTitles"
-                android:textSize="16sp" />
+                android:textSize="18sp" />
 
-        </LinearLayout>
+        </RelativeLayout>
 
+        <RelativeLayout
+            android:id="@+id/ll_camera_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+
+            android:layout_below="@id/relativeLayout2"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:gravity="center"
+                android:orientation="vertical"
+                tools:ignore="UselessParent">
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="300dp"
+                    android:layout_height="300dp"
+                    android:layout_gravity="center"
+                    android:layout_marginBottom="50dp"
+                    android:elevation="2dp"
+                    app:cardCornerRadius="10dp">
+
+                    <SurfaceView
+                        android:id="@+id/camera_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+
+                </androidx.cardview.widget.CardView>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="15dp"
+                    android:fontFamily="@font/nunito"
+                    android:text="@string/escanea_el_c_digo_qr_de_la_aplicaci_n_srecreceiver_para_conectarte"
+                    android:textAlignment="center"
+                    android:textColor="@color/colorTitles"
+                    android:textSize="16sp" />
+
+            </LinearLayout>
+
+
+        </RelativeLayout>
 
     </RelativeLayout>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

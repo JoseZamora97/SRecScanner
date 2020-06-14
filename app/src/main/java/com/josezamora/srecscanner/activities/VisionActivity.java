@@ -20,6 +20,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,6 +37,7 @@ import androidx.core.content.res.ResourcesCompat;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.FutureTarget;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.josezamora.srecscanner.AppGlobals;
 import com.josezamora.srecscanner.R;
 import com.josezamora.srecscanner.editor.CodeEditor;
@@ -59,6 +61,9 @@ import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 
+import ir.drax.netwatch.NetWatch;
+import ir.drax.netwatch.cb.NetworkChangeReceiver_navigator;
+
 
 /**
  * The type Vision activity.
@@ -66,6 +71,7 @@ import java.util.concurrent.ExecutionException;
 @SuppressWarnings("unchecked")
 public class VisionActivity extends AppCompatActivity {
 
+    private static boolean internet = true;
     /**
      * The User.
      */
@@ -161,6 +167,29 @@ public class VisionActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_vision);
+
+        NetWatch.builder(this)
+                .setCallBack(new NetworkChangeReceiver_navigator() {
+                    @Override
+                    public void onConnected(int source) {
+                        internet = true;
+                        Snackbar.make(codeEditor, "SRecScanner está conectado a internet"
+                                , Snackbar.LENGTH_SHORT)
+                                .setAction(R.string.aceptar, v -> {
+                                })
+                                .show();
+                        onStart();
+                    }
+
+                    @Override
+                    public void onDisconnected() {
+                        internet = false;
+                        showSnakeBarNoConnection();
+                        onStart();
+                    }
+                })
+                .setNotificationEnabled(false)
+                .build();
 
         progressCard = findViewById(R.id.card_progress);
         progressCard.setVisibility(View.VISIBLE);
@@ -258,29 +287,42 @@ public class VisionActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        if (notebook.isDirty()) {
-            glideDownloader.await();
-            progressCard.setVisibility(View.GONE);
+        RelativeLayout rlContentHolder = findViewById(R.id.rl_content_holder);
+        RelativeLayout rlNotConnection = findViewById(R.id.rl_no_connection);
 
-            List<Bitmap> bitmaps = new ArrayList<>();
+        if (internet) {
+            rlNotConnection.setVisibility(View.GONE);
 
-            for (GlideImageDownload download : glideDownloader.tasksResults)
-                bitmaps.add(download.result);
+            if (notebook.isDirty()) {
+                glideDownloader.await();
+                progressCard.setVisibility(View.GONE);
 
-            Bitmap image = combineBitmaps(bitmaps);
+                List<Bitmap> bitmaps = new ArrayList<>();
 
-            VisionAnalyzer visionAnalyzer = new VisionAnalyzer(image, codeEditor);
-            Thread analyzerTask = new Thread(visionAnalyzer);
-            analyzerTask.start();
+                for (GlideImageDownload download : glideDownloader.tasksResults)
+                    bitmaps.add(download.result);
 
-            try {
-                analyzerTask.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                Bitmap image = combineBitmaps(bitmaps);
+
+                VisionAnalyzer visionAnalyzer = new VisionAnalyzer(image, codeEditor);
+                Thread analyzerTask = new Thread(visionAnalyzer);
+                analyzerTask.start();
+
+                try {
+                    analyzerTask.join();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                codeEditor.setText(notebook.getContent());
+                progressCard.setVisibility(View.GONE);
             }
+
+            rlContentHolder.animate().alpha(1.0f);
+            rlContentHolder.setVisibility(View.VISIBLE);
         } else {
-            codeEditor.setText(notebook.getContent());
-            progressCard.setVisibility(View.GONE);
+            rlContentHolder.setVisibility(View.GONE);
+            rlNotConnection.setVisibility(View.VISIBLE);
         }
     }
 
@@ -431,6 +473,17 @@ public class VisionActivity extends AppCompatActivity {
                 /* Nothing */
             }
         });
+    }
+
+    private void showSnakeBarNoConnection() {
+        Snackbar.make(codeEditor, "Desconectado de internet"
+                , Snackbar.LENGTH_SHORT)
+                .setAction("Ajustes", v -> {
+                    Intent dialogIntent = new Intent(android.provider.Settings.ACTION_SETTINGS);
+                    dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(dialogIntent);
+                })
+                .show();
     }
 
     private void saveChanges() {

@@ -9,6 +9,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,6 +49,8 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.Objects;
 
+import ir.drax.netwatch.NetWatch;
+import ir.drax.netwatch.cb.NetworkChangeReceiver_navigator;
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 
 import static android.util.TypedValue.COMPLEX_UNIT_SP;
@@ -62,6 +65,7 @@ import static com.google.android.material.snackbar.Snackbar.make;
 public class NotebookActivity extends AppCompatActivity
         implements RecyclerViewOnClickListener {
 
+    private static boolean internet = true;
     /**
      * The Notebook.
      */
@@ -212,6 +216,29 @@ public class NotebookActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_notebook);
 
+        NetWatch.builder(this)
+                .setCallBack(new NetworkChangeReceiver_navigator() {
+                    @Override
+                    public void onConnected(int source) {
+                        internet = true;
+                        Snackbar.make(recyclerView, "SRecScanner está conectado a internet"
+                                , Snackbar.LENGTH_SHORT)
+                                .setAction(R.string.aceptar, v -> {
+                                })
+                                .show();
+                        onStart();
+                    }
+
+                    @Override
+                    public void onDisconnected() {
+                        internet = false;
+                        showSnakeBarNoConnection();
+                        onStart();
+                    }
+                })
+                .setNotificationEnabled(false)
+                .build();
+
         firebaseController = new FirebaseController();
 
         user = CloudUser.userFromFirebase(
@@ -262,13 +289,28 @@ public class NotebookActivity extends AppCompatActivity
     protected void onStart() {
         super.onStart();
 
-        cloudImagesAdapter = new CloudImagesRecyclerAdapter(
-                firebaseController.getRecyclerOptions(user, notebook), this);
+        RelativeLayout rlContentHolder = findViewById(R.id.rl_content_holder);
+        RelativeLayout rlNotConnection = findViewById(R.id.rl_no_connection);
 
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(cloudImagesAdapter);
+        if (internet) {
+            rlNotConnection.setVisibility(View.GONE);
 
-        cloudImagesAdapter.startListening();
+            cloudImagesAdapter = new CloudImagesRecyclerAdapter(
+                    firebaseController.getRecyclerOptions(user, notebook), this);
+
+            recyclerView.setLayoutManager(new LinearLayoutManager(this));
+            recyclerView.setAdapter(cloudImagesAdapter);
+
+            cloudImagesAdapter.startListening();
+
+            rlContentHolder.animate().alpha(1.0f);
+            rlContentHolder.setVisibility(View.VISIBLE);
+        } else {
+            rlContentHolder.setVisibility(View.GONE);
+            rlNotConnection.setVisibility(View.VISIBLE);
+        }
+
+
     }
 
     @Override
@@ -415,6 +457,17 @@ public class NotebookActivity extends AppCompatActivity
         newChanges = false;
     }
 
+    private void showSnakeBarNoConnection() {
+        Snackbar.make(recyclerView, "Desconectado de internet"
+                , Snackbar.LENGTH_SHORT)
+                .setAction("Ajustes", v -> {
+                    Intent dialogIntent = new Intent(android.provider.Settings.ACTION_SETTINGS);
+                    dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(dialogIntent);
+                })
+                .show();
+    }
+
     /*
      *  OnClick Methods of buttons.
      */
@@ -480,29 +533,33 @@ public class NotebookActivity extends AppCompatActivity
      * @param v the button that has the onClick set up.
      */
     public void animateFloatActionButtons(View v) {
-        if (cloudImagesAdapter.getCloudImages().size() < AppGlobals.MAX_PHOTOS_PER_NOTEBOOK)
-            if(isOpen){
-                btnAdd.startAnimation(rotateBackward);
+        if (internet) {
+            if (cloudImagesAdapter.getCloudImages().size() < AppGlobals.MAX_PHOTOS_PER_NOTEBOOK)
+                if (isOpen) {
+                    btnAdd.startAnimation(rotateBackward);
 
-                btnGallery.startAnimation(fabClose);
-                btnGallery.setClickable(false);
+                    btnGallery.startAnimation(fabClose);
+                    btnGallery.setClickable(false);
 
-                btnCamera.startAnimation(fabClose);
-                btnCamera.setClickable(false);
-                isOpen = false;
-            } else {
-                btnAdd.startAnimation(rotateForward);
+                    btnCamera.startAnimation(fabClose);
+                    btnCamera.setClickable(false);
+                    isOpen = false;
+                } else {
+                    btnAdd.startAnimation(rotateForward);
 
-                btnGallery.startAnimation(fabOpen);
-                btnGallery.setClickable(true);
+                    btnGallery.startAnimation(fabOpen);
+                    btnGallery.setClickable(true);
 
-                btnCamera.startAnimation(fabOpen);
-                btnCamera.setClickable(true);
-                isOpen = true;
-            }
-        else
-            Toast.makeText(this, getString(R.string.no_añadir_mas)
-                    , Toast.LENGTH_SHORT).show();
+                    btnCamera.startAnimation(fabOpen);
+                    btnCamera.setClickable(true);
+                    isOpen = true;
+                }
+            else
+                Toast.makeText(this, getString(R.string.no_añadir_mas)
+                        , Toast.LENGTH_SHORT).show();
+        } else
+            showSnakeBarNoConnection();
+
     }
 
 }

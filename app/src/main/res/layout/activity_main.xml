@@ -34,59 +34,97 @@
                 app:titleTextColor="@color/colorAccent" />
 
             <RelativeLayout
-                android:id="@+id/relativeLayout2"
+                android:id="@+id/rl_no_connection"
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:background="@color/colorPrimary"
+                android:layout_height="0dp"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/toolbar">
 
                 <ImageView
-                    android:padding="5dp"
-                    android:id="@+id/imageViewMode"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:layout_marginEnd="10dp"
-                    android:contentDescription="@string/boton_cambiar_de_estilo"
-                    android:onClick="swapViewMode" />
+                    android:id="@+id/imgNoConnection"
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
+                    android:layout_above="@+id/textNotConnection"
+                    android:layout_centerInParent="true"
+                    android:contentDescription="@string/sin_conexi_n"
+                    android:src="@drawable/ic_cloud_off_24dp" />
 
                 <TextView
+                    android:id="@+id/textNotConnection"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_marginStart="15dp"
+                    android:layout_centerInParent="true"
                     android:fontFamily="@font/nunito"
-                    android:text="@string/cuadernos"
+                    android:text="@string/no_se_detecta_n_conexi_n_con_internet"
+                    android:textAlignment="center"
                     android:textColor="@color/colorTitles"
-                    android:textSize="18sp"
-                    tools:ignore="RelativeOverlap" />
+                    android:textSize="18sp" />
 
             </RelativeLayout>
 
-            <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-                android:id="@+id/swipeRefreshLayout"
+            <RelativeLayout
+                android:id="@+id/rl_content_holder"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:background="@color/fui_transparent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/relativeLayout2">
+                app:layout_constraintTop_toBottomOf="@+id/toolbar">
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rv_notebooks"
+                <RelativeLayout
+                    android:id="@+id/relativeLayout2"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:background="@color/colorPrimary"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent">
+
+                    <ImageView
+                        android:id="@+id/imageViewMode"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:layout_marginEnd="10dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/boton_cambiar_de_estilo"
+                        android:onClick="swapViewMode"
+                        android:padding="5dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="15dp"
+                        android:fontFamily="@font/nunito"
+                        android:text="@string/cuadernos"
+                        android:textColor="@color/colorTitles"
+                        android:textSize="18sp"
+                        tools:ignore="RelativeOverlap" />
+
+                </RelativeLayout>
+
+                <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+                    android:id="@+id/swipeRefreshLayout"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:clipToPadding="false"
-                    android:padding="8dp"
-                    android:background="@color/fui_transparent"
-                    />
+                    android:layout_below="@+id/relativeLayout2"
+                    android:background="@color/fui_transparent">
 
-            </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rv_notebooks"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@color/fui_transparent"
+                        android:clipToPadding="false"
+                        android:padding="8dp" />
+
+                </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+            </RelativeLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

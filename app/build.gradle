@@ -1,6 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        release {
+            storeFile file('C:\\Users\\europ\\Desktop\\srecscanner.jks')
+            storePassword 'srecscannerjks'
+            keyAlias = 'srecscannerkey'
+            keyPassword 'srecscannerjks'
+        }
+    }
     compileSdkVersion 29
     defaultConfig {
         applicationId "com.josezamora.srecscanner"
@@ -14,6 +22,7 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
     compileOptions {
@@ -52,6 +61,9 @@ dependencies {
     implementation 'it.xabaras.android:recyclerview-swipedecorator:1.2.2'
 
     implementation 'com.theartofdev.edmodo:android-image-cropper:2.8.0'
+
+    implementation 'com.github.draxdave:netWatch:0.d.6'
+
     implementation fileTree(dir: 'lib', include: ['*.aar', '*.jar'], exclude: [])
 
 }

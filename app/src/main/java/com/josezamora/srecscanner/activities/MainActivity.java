@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -51,6 +52,8 @@ import com.josezamora.srecscanner.viewholders.CloudNotebookViewHolder;
 
 import java.util.Objects;
 
+import ir.drax.netwatch.NetWatch;
+import ir.drax.netwatch.cb.NetworkChangeReceiver_navigator;
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 
 import static android.util.TypedValue.COMPLEX_UNIT_SP;
@@ -62,6 +65,7 @@ import static android.util.TypedValue.COMPLEX_UNIT_SP;
 public class MainActivity extends AppCompatActivity
         implements RecyclerViewOnClickListener, SwipeRefreshLayout.OnRefreshListener {
 
+    private static boolean internet = true;
     /**
      * The constant LIST_ITEM.
      */
@@ -115,7 +119,7 @@ public class MainActivity extends AppCompatActivity
      */
     private SRecProtocolController sRecProtocolController;
     /**
-     * The Text view s rec.
+     * The Text view SRec.
      */
     private TextView textViewSRec;
 
@@ -194,10 +198,32 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         // Ask for permissions.
         ActivityCompat.requestPermissions(MainActivity.this,
                 AppGlobals.REQUIRED_PERMISSIONS, AppGlobals.REQUEST_CODE_PERMISSIONS);
+
+        NetWatch.builder(this)
+                .setCallBack(new NetworkChangeReceiver_navigator() {
+                    @Override
+                    public void onConnected(int source) {
+                        internet = true;
+                        Snackbar.make(recyclerView, "SRecScanner está conectado a internet"
+                                , Snackbar.LENGTH_SHORT)
+                                .setAction(R.string.aceptar, v -> {
+                                })
+                                .show();
+                        onStart();
+                    }
+
+                    @Override
+                    public void onDisconnected() {
+                        internet = false;
+                        showSnakeBarNoConnection();
+                        onStart();
+                    }
+                })
+                .setNotificationEnabled(false)
+                .build();
 
         // Set-up toolbar.
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -267,10 +293,24 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
-        drawerLayout.closeDrawer(GravityCompat.START, false);
-        updateTextConnectionToggle();
-        // Starts the cloud adapter listener
-        cloudNotebookAdapter.startListening();
+
+        RelativeLayout rlContentHolder = findViewById(R.id.rl_content_holder);
+        RelativeLayout rlNotConnection = findViewById(R.id.rl_no_connection);
+
+        if (internet) {
+            rlNotConnection.setVisibility(View.GONE);
+
+            drawerLayout.closeDrawer(GravityCompat.START, false);
+            updateTextConnectionToggle();
+            // Starts the cloud adapter listener
+            cloudNotebookAdapter.startListening();
+
+            rlContentHolder.animate().alpha(1.0f);
+            rlContentHolder.setVisibility(View.VISIBLE);
+        } else {
+            rlContentHolder.setVisibility(View.GONE);
+            rlNotConnection.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
@@ -345,6 +385,7 @@ public class MainActivity extends AppCompatActivity
         return super.onCreateOptionsMenu(menu);
     }
 
+
     /*
      *  OnClick Methods of buttons.
      */
@@ -414,42 +455,46 @@ public class MainActivity extends AppCompatActivity
      * @param v the button that has the onClick set up.
      */
     public void addNewNotebook(View v) {
-        LayoutInflater li = LayoutInflater.from(MainActivity.this);
-        AlertDialog.Builder builderConfig = new AlertDialog.Builder(this);
 
-        @SuppressLint("InflateParams")
-        View view = li.inflate(R.layout.dialog_name, null);
+        if (internet) {
+            LayoutInflater li = LayoutInflater.from(MainActivity.this);
+            AlertDialog.Builder builderConfig = new AlertDialog.Builder(this);
 
-        Typeface font = ResourcesCompat.getFont(this, R.font.nunito_bold);
+            @SuppressLint("InflateParams")
+            View view = li.inflate(R.layout.dialog_name, null);
 
-        builderConfig.setTitle(R.string.new_notebook);
-        builderConfig.setView(view);
-        builderConfig.setCancelable(false);
+            Typeface font = ResourcesCompat.getFont(this, R.font.nunito_bold);
 
-        final EditText editTextName = view.findViewById(R.id.editTextName);
+            builderConfig.setTitle(R.string.new_notebook);
+            builderConfig.setView(view);
+            builderConfig.setCancelable(false);
 
-        builderConfig.setPositiveButton(R.string.aceptar, (dialogInterface, i) -> {
-            if(!editTextName.getText().toString().equals("")) {
-                String notebookId = String.valueOf(System.currentTimeMillis());
-                CloudNotebook cloudNotebook = new CloudNotebook(
-                        notebookId, editTextName.getText().toString(), user.getuId());
-                firebaseController.addNotebook(cloudNotebook);
-            }
-        });
+            final EditText editTextName = view.findViewById(R.id.editTextName);
 
-        builderConfig.setNegativeButton(R.string.cancelar,
-                (dialogInterface, i) -> dialogInterface.dismiss());
+            builderConfig.setPositiveButton(R.string.aceptar, (dialogInterface, i) -> {
+                if (!editTextName.getText().toString().equals("")) {
+                    String notebookId = String.valueOf(System.currentTimeMillis());
+                    CloudNotebook cloudNotebook = new CloudNotebook(
+                            notebookId, editTextName.getText().toString(), user.getuId());
+                    firebaseController.addNotebook(cloudNotebook);
+                }
+            });
 
-        AlertDialog alertDialog = builderConfig.create();
-        alertDialog.show();
+            builderConfig.setNegativeButton(R.string.cancelar,
+                    (dialogInterface, i) -> dialogInterface.dismiss());
 
-        Button btn1 = alertDialog.findViewById(android.R.id.button1);
-        assert btn1 != null;
-        btn1.setTypeface(font);
+            AlertDialog alertDialog = builderConfig.create();
+            alertDialog.show();
 
-        Button btn2 = alertDialog.findViewById(android.R.id.button2);
-        assert btn2 != null;
-        btn2.setTypeface(font);
+            Button btn1 = alertDialog.findViewById(android.R.id.button1);
+            assert btn1 != null;
+            btn1.setTypeface(font);
+
+            Button btn2 = alertDialog.findViewById(android.R.id.button2);
+            assert btn2 != null;
+            btn2.setTypeface(font);
+        } else
+            showSnakeBarNoConnection();
     }
 
     /**
@@ -564,4 +609,14 @@ public class MainActivity extends AppCompatActivity
             textViewSRec.setText(getResources().getString(R.string.desconectar_de_srec));
     }
 
+    private void showSnakeBarNoConnection() {
+        Snackbar.make(recyclerView, "Desconectado de internet"
+                , Snackbar.LENGTH_SHORT)
+                .setAction("Ajustes", v -> {
+                    Intent dialogIntent = new Intent(android.provider.Settings.ACTION_SETTINGS);
+                    dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(dialogIntent);
+                })
+                .show();
+    }
 }

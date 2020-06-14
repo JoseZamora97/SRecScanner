@@ -62,4 +62,6 @@
     <string name="new_notebook">New notebook</string>
     <string name="info">Information</string>
     <string name="report">Error report</string>
+    <string name="no_se_detecta_n_conexi_n_con_internet">Internet connection not detected!</string>
+    <string name="sin_conexi_n">Not connected to internet</string>
 </resources>

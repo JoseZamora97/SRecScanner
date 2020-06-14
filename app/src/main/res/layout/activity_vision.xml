@@ -60,64 +60,98 @@
             app:titleTextColor="@color/colorAccent" />
 
         <RelativeLayout
-            android:id="@+id/relativeLayout2"
+            android:id="@+id/rl_no_connection"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:background="@color/colorPrimary"
+            android:layout_height="match_parent"
             android:layout_below="@+id/toolbar">
 
+            <ImageView
+                android:id="@+id/imgNoConnection"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:layout_above="@+id/textNotConnection"
+                android:layout_centerInParent="true"
+                android:contentDescription="@string/sin_conexi_n"
+                android:src="@drawable/ic_cloud_off_24dp" />
+
             <TextView
-                android:id="@+id/name_file"
-                android:background="?selectableItemBackgroundBorderless"
+                android:id="@+id/textNotConnection"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_marginStart="15dp"
+                android:layout_centerInParent="true"
                 android:fontFamily="@font/nunito"
-                android:text="@string/untitled_placeholder"
-                android:onClick="rename"
+                android:text="@string/no_se_detecta_n_conexi_n_con_internet"
+                android:textAlignment="center"
                 android:textColor="@color/colorTitles"
                 android:textSize="18sp" />
-
-            <TextView
-                android:id="@+id/text_ext"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:fontFamily="@font/nunito"
-                android:layout_toEndOf="@+id/name_file"
-                android:textColor="@color/colorTitles"
-                android:textSize="18sp"
-                tools:ignore="RelativeOverlap" />
-
-            <Spinner
-                android:id="@+id/spinnerLenguaje"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:layout_marginEnd="15dp"
-                />
 
         </RelativeLayout>
 
         <RelativeLayout
+            android:id="@+id/rl_content_holder"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/relativeLayout2"
-            >
+            android:layout_height="match_parent"
+            android:layout_below="@+id/toolbar"
+            android:background="@color/fui_transparent">
 
-            <com.josezamora.srecscanner.editor.CodeEditor
-                android:id="@+id/code_editor"
+            <RelativeLayout
+                android:id="@+id/relativeLayout2"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@color/colorPrimary">
+
+                <TextView
+                    android:id="@+id/name_file"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="15dp"
+                    android:background="?selectableItemBackgroundBorderless"
+                    android:fontFamily="@font/nunito"
+                    android:onClick="rename"
+                    android:text="@string/untitled_placeholder"
+                    android:textColor="@color/colorTitles"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/text_ext"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_toEndOf="@+id/name_file"
+                    android:fontFamily="@font/nunito"
+                    android:textColor="@color/colorTitles"
+                    android:textSize="18sp"
+                    tools:ignore="RelativeOverlap" />
+
+                <Spinner
+                    android:id="@+id/spinnerLenguaje"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="15dp" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:textSize="14sp"
-                android:fontFamily="@font/nunito"
-                android:textColor="@color/colorPrimary"
-                android:padding="8dp"
-                android:gravity="start|top"
-                android:inputType="textMultiLine|textNoSuggestions"
-                android:background="#3B4A5C"/>
+                android:layout_below="@+id/relativeLayout2">
+
+                <com.josezamora.srecscanner.editor.CodeEditor
+                    android:id="@+id/code_editor"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="#3B4A5C"
+                    android:fontFamily="@font/nunito"
+                    android:gravity="start|top"
+                    android:inputType="textMultiLine|textNoSuggestions"
+                    android:padding="8dp"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="14sp" />
+
+            </RelativeLayout>
 
         </RelativeLayout>
 

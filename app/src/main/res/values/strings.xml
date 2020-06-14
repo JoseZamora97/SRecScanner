@@ -67,5 +67,7 @@
     <string name="new_notebook">Nuevo cuaderno</string>
     <string name="info">Información</string>
     <string name="report">Informe de Error</string>
+    <string name="no_se_detecta_n_conexi_n_con_internet">No se detecta\n conexión con Internet</string>
+    <string name="sin_conexi_n">Sin conexión</string>
 
 </resources>
