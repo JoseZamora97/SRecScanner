@@ -1,86 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".activities.LoginActivity"
     android:id="@+id/login_layout"
     android:layout_weight="1"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorAccent">
+    android:background="@color/colorTitles">
 
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:src="@drawable/login_pic"
-        android:scaleType="centerCrop"
-        android:contentDescription="@string/imagen_de_inicio_de_sesi_n" />
 
     <View
+        android:id="@+id/centerView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/colorItemContrast"/>
-
-    <LinearLayout
-        android:layout_marginTop="40dp"
-        android:padding="20dp"
-        android:id="@+id/linearLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="horizontal">
-
-        <ImageView
-            android:layout_width="100dp"
-            android:layout_height="250dp"
-            android:contentDescription="@string/logo_de_inicio_de_sesi_n"
-            android:scaleType="centerInside"
-            android:src="@drawable/ic_login_logo" />
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginStart="15dp"
-            android:gravity="center"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:fontFamily="@font/nunito"
-                android:includeFontPadding="false"
-                android:lineSpacingExtra="0dp"
-                android:text="@string/srec"
-                android:textColor="@color/colorPrimary"
-                android:textSize="50sp" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="59dp"
-                android:fontFamily="@font/nunito"
-                android:includeFontPadding="false"
-                android:lineSpacingExtra="0dp"
-                android:text="@string/scanner"
-                android:textColor="@color/colorPrimary"
-                android:textSize="50sp" />
-
-        </LinearLayout>
-
-    </LinearLayout>
+        android:layout_height="0dp"
+        android:layout_centerInParent="true" />
 
     <Button
         android:id="@+id/sign_in_button"
         android:layout_width="250dp"
-        android:layout_height="60dp"
-        android:layout_gravity="bottom|center"
-        android:layout_marginBottom="70dp"
+        android:layout_height="65dp"
+        android:layout_above="@+id/textView"
         android:backgroundTint="@color/colorAccent"
-        android:fontFamily="@font/nunito"
+        android:layout_centerInParent="true"
+        android:layout_margin="25dp"
         android:text="@string/iniciar_sesi_n_con_google"
         android:textAlignment="center"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:textColor="@color/colorPrimary"
+        android:fontFamily="sans-serif-medium"
         android:textStyle="bold" />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignTop="@id/ll_"
+        android:layout_alignParentBottom="true"
+        android:alpha="0.2"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_login_logo_dark" />
 
     <TextView
         android:id="@+id/textView"
@@ -89,8 +46,68 @@
         android:fontFamily="@font/nunito"
         android:text="@string/by_jose_zamora"
         android:padding="10dp"
+        android:layout_alignParentBottom="true"
         android:textColor="@color/colorPrimary"
-        android:layout_gravity="center|bottom"
+        android:layout_centerInParent="true"
+        android:layout_margin="10dp"
         />
 
-</FrameLayout>
+    <LinearLayout
+        android:id="@+id/ll_"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/centerView"
+        android:layout_gravity="center"
+        android:layout_margin="20dp"
+        android:orientation="horizontal">
+
+        <View
+            android:layout_width="20dp"
+            android:layout_height="match_parent"
+            android:background="@color/colorAccent"
+            android:padding="10dp" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-black"
+                android:text="Crea"
+                android:textColor="@color/colorPrimary"
+                android:textSize="30sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-black"
+                android:text="Escanea"
+                android:textColor="@color/colorPrimary"
+                android:textSize="35sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-black"
+                android:text="Comparte"
+                android:textColor="@color/colorPrimary"
+                android:textSize="40sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-black"
+                android:text="SRecScanner"
+                android:textColor="@color/colorPrimary"
+                android:textSize="48sp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>

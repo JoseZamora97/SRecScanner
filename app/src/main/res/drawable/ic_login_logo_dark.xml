@@ -4,42 +4,42 @@
     android:viewportWidth="566.929"
     android:viewportHeight="566.93">
     <path
-        android:fillColor="@color/colorPrimary"
+        android:fillColor="#3D3E43"
         android:pathData="M192.375,381.029l70.139,40.503l2.808,1.608h0l56.042,32.354L192.375,455.494L192.375,381.029M180.375,360.242v107.252L366.149,467.494l-97.612,-56.354h-0.022L180.375,360.242L180.375,360.242z" />
     <path
-        android:fillColor="@color/colorPrimary"
+        android:fillColor="#3D3E43"
         android:pathData="M192.375,381.029l70.138,40.503l2.807,1.608h0l56.041,32.354L192.375,455.494L192.375,381.029M180.375,360.242v107.252h185.772l-97.612,-56.354h-0.021L180.375,360.242L180.375,360.242z" />
     <path
-        android:fillColor="@color/colorPrimary"
+        android:fillColor="#3D3E43"
         android:pathData="M153.428,253.373v148.926l-64.502,-111.7L153.428,253.373M165.428,232.592l-92.889,53.607v0.019l92.889,160.857L165.428,232.592L165.428,232.592z" />
     <path
-        android:fillColor="@color/colorPrimary"
+        android:fillColor="#3D3E43"
         android:pathData="M153.432,253.376v148.924l-64.499,-111.689L153.432,253.376M165.432,232.592l-92.893,53.626l92.893,160.857L165.432,232.592L165.432,232.592z" />
     <path
-        android:fillColor="@color/colorPrimary"
+        android:fillColor="#3D3E43"
         android:pathData="M180.021,118.556L244.519,155.806l-70.144,40.507l-58.841,33.97L180.021,118.556M175.629,102.161l-92.868,160.898l97.614,-56.354l88.139,-50.899L175.629,102.161L175.629,102.161z" />
     <path
-        android:fillColor="@color/colorPrimary"
+        android:fillColor="#3D3E43"
         android:pathData="M180.021,118.556L244.519,155.806l-70.144,40.507l-58.841,33.97L180.021,118.556M175.629,102.161l-92.868,160.898l97.614,-56.354l88.139,-50.899L175.629,102.161L175.629,102.161z" />
     <path
-        android:fillColor="@color/colorPrimary"
+        android:fillColor="#3D3E43"
         android:pathData="M413.503,164.635l64.492,111.702l-64.492,37.234L413.503,164.635M401.503,119.851L401.503,334.355l92.885,-53.626L401.503,119.851L401.503,119.851z" />
     <path
-        android:fillColor="@color/colorPrimary"
+        android:fillColor="#3D3E43"
         android:pathData="M413.503,164.634l64.494,111.702l-64.494,37.234L413.503,164.634M401.503,119.851L401.503,334.355l92.887,-53.626L401.503,119.851L401.503,119.851z" />
     <path
-        android:fillColor="@color/colorPrimary"
+        android:fillColor="#3D3E43"
         android:pathData="M451.396,336.668l-64.484,111.705l-64.494,-37.233l70.143,-40.505L451.396,336.668M484.175,303.888l-97.614,56.354L298.419,411.14l92.886,53.625L484.175,303.888L484.175,303.888z" />
     <path
-        android:fillColor="@color/colorPrimary"
+        android:fillColor="#3D3E43"
         android:pathData="M451.394,336.668L386.912,448.375l-64.495,-37.235l70.144,-40.505L451.394,336.668M484.173,303.888l-97.612,56.354L298.419,411.14l92.886,53.627L484.173,303.888L484.173,303.888z" />
     <path
-        android:fillColor="@color/colorPrimary"
+        android:fillColor="#3D3E43"
         android:pathData="M374.56,111.435v74.486l-70.159,-40.506l-58.839,-33.98L374.56,111.435M386.56,99.435L200.788,99.435l97.612,56.372l88.16,50.899L386.56,99.435L386.56,99.435z" />
     <path
-        android:fillColor="@color/colorPrimary"
+        android:fillColor="#3D3E43"
         android:pathData="M374.56,111.435v74.487L304.399,145.415l-58.839,-33.98L374.56,111.435M386.56,99.435L200.786,99.435l97.612,56.372l88.162,50.899L386.56,99.435L386.56,99.435z" />
     <path
-        android:fillColor="@color/colorPrimary"
+        android:fillColor="#3D3E43"
         android:pathData="M283.455,219.509c13.016,0 25.438,3.859 35.956,11.035l-44.44,44.424l-20.494,20.486h28.978h62.836c-5.633,29.554 -31.667,51.965 -62.836,51.965c-35.259,0 -63.944,-28.694 -63.944,-63.964C219.51,248.195 248.196,219.509 283.455,219.509M283.455,207.509c-41.951,0 -75.944,33.995 -75.944,75.946c0,41.951 33.993,75.964 75.944,75.964c41.952,0 75.965,-34.014 75.965,-75.964h-75.965l53.719,-53.7C323.427,216.009 304.432,207.509 283.455,207.509L283.455,207.509z" />
 </vector>

@@ -202,28 +202,7 @@ public class MainActivity extends AppCompatActivity
         ActivityCompat.requestPermissions(MainActivity.this,
                 AppGlobals.REQUIRED_PERMISSIONS, AppGlobals.REQUEST_CODE_PERMISSIONS);
 
-        NetWatch.builder(this)
-                .setCallBack(new NetworkChangeReceiver_navigator() {
-                    @Override
-                    public void onConnected(int source) {
-                        internet = true;
-                        Snackbar.make(recyclerView, "SRecScanner está conectado a internet"
-                                , Snackbar.LENGTH_SHORT)
-                                .setAction(R.string.aceptar, v -> {
-                                })
-                                .show();
-                        onStart();
-                    }
-
-                    @Override
-                    public void onDisconnected() {
-                        internet = false;
-                        showSnakeBarNoConnection();
-                        onStart();
-                    }
-                })
-                .setNotificationEnabled(false)
-                .build();
+        watchNetConnection();
 
         // Set-up toolbar.
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -311,6 +290,37 @@ public class MainActivity extends AppCompatActivity
             rlContentHolder.setVisibility(View.GONE);
             rlNotConnection.setVisibility(View.VISIBLE);
         }
+    }
+
+    private void watchNetConnection() {
+        NetWatch.builder(this)
+                .setCallBack(new NetworkChangeReceiver_navigator() {
+                    @Override
+                    public void onConnected(int source) {
+                        internet = true;
+                        Snackbar.make(recyclerView, "SRecScanner está conectado a internet"
+                                , Snackbar.LENGTH_SHORT)
+                                .setAction(R.string.aceptar, v -> {
+                                })
+                                .show();
+                        onStart();
+                    }
+
+                    @Override
+                    public void onDisconnected() {
+                        internet = false;
+                        showSnakeBarNoConnection();
+                        onStart();
+                    }
+                })
+                .setNotificationEnabled(false)
+                .build();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        watchNetConnection();
     }
 
     @Override

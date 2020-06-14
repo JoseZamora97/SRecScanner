@@ -37,6 +37,9 @@
         <item name="windowNoTitle">true</item>
         <item name="android:windowDisablePreview">true</item>
         <item name="android:windowBackground">@drawable/splash_background</item>
+        <item name="colorPrimary">@color/colorTitles</item>
+        <item name="colorPrimaryDark">@color/colorTitles</item>
+        <item name="colorAccent">@color/colorTitles</item>
     </style>
 
     <style name="LoginTheme" parent="AppTheme">
