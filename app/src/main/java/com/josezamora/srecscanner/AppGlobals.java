@@ -66,7 +66,7 @@ public interface AppGlobals {
     /**
      * VERSION
      */
-    String VERSION = "v0.9.8";
+    String VERSION = "v1.0.0";
 
     /**
      * ID TOKEN FOR OAUTH Protocol.
