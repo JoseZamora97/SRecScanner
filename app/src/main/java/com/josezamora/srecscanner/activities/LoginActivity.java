@@ -121,8 +121,6 @@ public class LoginActivity extends AppCompatActivity {
     private void showSnackBar(Exception exception) {
         String messaje = this.getString(R.string.fallo_auth);
 
-        System.out.println("12501:===" + exception.getMessage());
-
         if (exception.getMessage().contains("12501"))
             messaje += " " + "Cancelado por el usuario.";
         else
