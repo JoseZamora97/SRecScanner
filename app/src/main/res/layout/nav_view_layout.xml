@@ -106,13 +106,12 @@
 
         <LinearLayout
             android:id="@+id/report_failure"
-            android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="70dp"
             android:background="?selectableItemBackground"
             android:gravity="center"
             android:onClick="sendInform"
-            >
+            android:orientation="horizontal">
 
             <ImageView
                 android:layout_width="30dp"
@@ -124,13 +123,41 @@
                 android:src="@drawable/ic_info_outline_black_24dp" />
 
             <TextView
-                android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="@string/informar_un_error"
-                android:textSize="16sp"
+                android:layout_weight="1"
                 android:fontFamily="@font/nunito"
-                android:textColor="@color/colorBodies"/>
+                android:text="@string/informar_un_error"
+                android:textColor="@color/colorBodies"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/visit_website"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:background="?selectableItemBackground"
+            android:gravity="center"
+            android:onClick="openWebsite"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:contentDescription="@string/visitar_sitio_web"
+                android:rotation="180"
+                android:src="@drawable/ic_web_black_24dp" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:fontFamily="@font/nunito"
+                android:text="@string/visitar_sitio_web"
+                android:textColor="@color/colorBodies"
+                android:textSize="16sp" />
         </LinearLayout>
 
     </LinearLayout>

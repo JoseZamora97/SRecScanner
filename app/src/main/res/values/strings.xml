@@ -75,5 +75,6 @@
     <string name="comparte_">Comparte</string>
     <string name="srecscanner_" translatable="false">SRecScanner</string>
     <string name="imagen_logo_fondo">Imagen logo fondo</string>
+    <string name="visitar_sitio_web">Visitar sitio web</string>
 
 </resources>

@@ -59,9 +59,15 @@ public interface AppGlobals {
      */
     String USER_KEY = "USER_KEY";
 
-
+    /**
+     * The constant PREFERENCES_NAME
+     */
     String PREFERENCES_NAME = "SREC_SCANNER_PREFERENCES";
 
+    /**
+     * The constant WEBSITE
+     */
+    String WEBSITE = "https://josezamora-tfg.web.app/";
 
     /**
      * VERSION

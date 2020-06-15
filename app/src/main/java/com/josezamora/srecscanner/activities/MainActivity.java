@@ -3,6 +3,7 @@ package com.josezamora.srecscanner.activities;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Canvas;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -407,6 +408,17 @@ public class MainActivity extends AppCompatActivity
         Intent toReportActivity = new Intent(this, ReportActivity.class);
         toReportActivity.putExtra(AppGlobals.USER_KEY, user);
         startActivity(toReportActivity);
+    }
+
+    /**
+     * Send inform.
+     * Open the project website.
+     *
+     * @param v the button that has the onClick set up.
+     */
+    public void openWebsite(View v) {
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(AppGlobals.WEBSITE));
+        startActivity(browserIntent);
     }
 
     /**
