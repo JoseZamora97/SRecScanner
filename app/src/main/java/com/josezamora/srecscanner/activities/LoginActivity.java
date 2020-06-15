@@ -3,7 +3,6 @@ package com.josezamora.srecscanner.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -84,8 +83,7 @@ public class LoginActivity extends AppCompatActivity {
                 handleSignInResult(GoogleSignIn.getSignedInAccountFromIntent(data));
             } catch (ApiException e) {
                 // Inform the error.
-                Toast.makeText(this, "Code error: "
-                        + e.getStatusCode(), Toast.LENGTH_SHORT).show();
+                showSnackBar(e);
             }
         }
     }
@@ -122,10 +120,16 @@ public class LoginActivity extends AppCompatActivity {
      */
     private void showSnackBar(Exception exception) {
         String messaje = this.getString(R.string.fallo_auth);
-        if(exception != null)
+
+        System.out.println("12501:===" + exception.getMessage());
+
+        if (exception.getMessage().contains("12501"))
+            messaje += " " + "Cancelado por el usuario.";
+        else
             messaje += exception.getMessage();
+
         Snackbar.make(findViewById(R.id.login_layout),
-                messaje  , Snackbar.LENGTH_SHORT).show();
+                messaje, Snackbar.LENGTH_SHORT).show();
     }
 
     /**
