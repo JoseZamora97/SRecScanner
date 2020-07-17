@@ -360,8 +360,9 @@ public class VisionActivity extends AppCompatActivity {
 
         if (ip_port[0] == null || ip_port[0].equals(SRecProtocolController.NONE))
             startActivityForResult(new Intent(this, QRActivity.class), AppGlobals.REQUEST_CODE_QR);
-        else
+        else {
             sRecProtocolController.connectAndSendFile(ip_port[0], ip_port[1], temp);
+        }
 
         updateFabs();
     }
